@@ -1,0 +1,623 @@
+<%-include("../../views/partials/user/header")%>
+
+    <style>
+        /* Account Page Styles */
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .account-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-left: 15px;
+        }
+
+        .account-layout {
+            display: flex;
+            gap: 30px;
+        }
+
+        .account-menu-container {
+            flex: 0 0 450px;
+        }
+
+        .account-menu {
+            width: 100%;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #666;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .menu-arrow {
+            color: #aaa;
+            font-weight: lighter;
+        }
+
+        .menu-item.active {
+            background-color: #f0f0f0;
+        }
+
+        /* My Details Section */
+        .account-details-container {
+            flex: 1;
+        }
+
+        .account-details {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .details-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .edit-button {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .change-btn {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+
+        .change-btn:hover {
+            background-color: white;
+            color: black;
+        }
+
+
+        .order-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .order-card-header {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .order-card-body {
+            padding: 15px;
+        }
+
+        /* Add these styles to your existing CSS */
+
+        .orders-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .order-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #eaeaea;
+        }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .order-card-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .order-card-body {
+            padding: 20px;
+        }
+
+        /* Product image styles */
+        .order-product-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .product-image-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #eaeaea;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .more-products {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            color: #666;
+            font-weight: 600;
+            flex-shrink: 0;
+            border: 1px solid #eaeaea;
+        }
+
+        .no-product-image {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            color: #ccc;
+        }
+
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .order-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            width: fit-content;
+        }
+
+        .status-badge.pending {
+            background-color: #FFF8E6;
+            color: #FFB100;
+        }
+
+        .status-badge.delivered {
+            background-color: #E6F9ED;
+            color: #10B981;
+        }
+
+        .status-badge.shipped {
+            background-color: #EEF3FF;
+            color: #3B82F6;
+        }
+
+        .status-badge.cancelled {
+            background-color: #FFEFEF;
+            color: #EF4444;
+        }
+
+        .view-order-btn {
+            background-color: #ffa602;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .view-order-btn:hover {
+            background-color: #e59400;
+        }
+
+        .order-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .no-orders {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            color: #666;
+            text-align: center;
+        }
+
+        .no-orders-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .no-orders-text {
+            font-size: 16px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .order-details-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .order-actions {
+                justify-content: flex-start;
+                margin-top: 10px;
+            }
+
+            .product-image-container,
+            .more-products,
+            .no-product-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .account-layout {
+                flex-direction: column;
+            }
+
+            .account-menu-container {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .account-details-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .account-container {
+                padding: 15px 10px;
+            }
+
+            .account-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .account-menu {
+                max-width: 100%;
+            }
+
+            .details-header {
+                margin-bottom: 15px;
+            }
+
+            .details-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+
+    <div class="account-container">
+        <h1 class="account-title">My Account</h1>
+
+        <div class="account-layout">
+            <div class="account-menu-container">
+                <div class="account-menu">
+                    <div class="menu-item" data-route="/orders">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                </path>
+                                <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                                <line x1="12" y1="22" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Orders</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/userProfile" id="account-settings">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Account settings</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/wallet">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Wallet</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+
+                    <div class="menu-item" data-route="/feedback">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Wallet History</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/address">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Address</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/contact">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Contact us</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" id="sign-out" data-route="/logout">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Sign out</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/account/invite">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Invite a friend</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Details Section - Always visible -->
+            <div class="account-details-container" id="order-content-container">
+                <div id="order-management" class="account-details">
+                    <div class="details-header">
+                        <h2 class="details-title">Your Orders</h2>
+                    </div>
+
+                    <div class="orders-container">
+                        <% orders.forEach(order=> { %>
+                            <div class="order-card">
+                                <div class="order-card-header">
+                                    <div class="order-id">Order id: <%= order.orderId %>
+                                    </div>
+                                    <div class="order-date">
+                                        <%= new Date(order.createdOn).toLocaleDateString() %>
+                                    </div>
+                                </div>
+                                <div class="order-card-body">
+                                    <div class="order-product-images">
+                                        <% if (order.orderedItem && order.orderedItem.length > 0) { %>
+                                          <div class="product-image-container">
+                                            <img src="/uploads/re-image/<%= order.orderedItem[0].product.productImage[0] %>" 
+                                                 alt="<%= order.orderedItem[0].product.productName %>" 
+                                                 class="product-image">
+                                          </div>
+                                        <% }%>
+                                      </div>
+
+                                    <div class="order-details-grid">
+                                        <div class="order-detail">
+                                            <div class="detail-label">Status</div>
+                                            <div class="detail-value status-badge <%= order.status.toLowerCase() %>">
+                                                <%= order.status %>
+                                            </div>
+                                        </div>
+                                        <div class="order-detail">
+                                            <div class="detail-label">Payment Method</div>
+                                            <div class="detail-value">
+                                                <%= order.paymentMethod %>
+                                            </div>
+                                        </div>
+                                        <div class="order-detail order-actions">
+                                            <a href="/orderDetails/<%= order._id %>">
+                                                <button class="view-order-btn">View Details</button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+
+                                <% if (orders.length===0) { %>
+                                    <div class="no-orders">
+                                        <div class="no-orders-icon">📦</div>
+                                        <div class="no-orders-text">You don't have any orders yet</div>
+                                    </div>
+                                    <% } %>
+                    </div>
+                </div>
+
+                <div id="order-details" class="account-details" style="display: none;"></div>
+            </div>
+
+
+            <div id="order-details" class="account-details" style="display: none;">
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.menu-item[data-route]').forEach(item => {
+                item.addEventListener('click', function () {
+                    window.location.href = this.getAttribute('data-route');
+                });
+            });
+
+            document.getElementById('sign-out').addEventListener('click', function () {
+                fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                }).then(() => {
+                    window.location.href = '/';
+                });
+            });
+
+            function loadUserData() {
+
+            }
+
+            loadUserData();
+        });
+
+
+    </script>
+
+    <%-include("../../views/partials/user/footer")%>

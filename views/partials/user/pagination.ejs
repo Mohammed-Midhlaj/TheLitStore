@@ -1,0 +1,46 @@
+<div id="related-products-container">
+    <div class="products-grid">
+      <% relatedProducts.forEach(product => { %>
+        <div class="product-card">
+          <div class="wishlist-icon">♡</div>
+          <a href="/productDetails?id=<%= product._id %>">
+            <% if(product.productImage && product.productImage.length > 0) { %>
+              <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+            <% } else { %>
+              <img src="/path/to/default-image.jpg" alt="Default product image">
+            <% } %>
+          </a>
+          <div class="product-card-info">
+            <h3 class="product-card-title"><%= product.productName %></h3>
+            <p class="product-card-price">Rs.<%= product.salePrice %></p>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  
+    <div class="pagination">
+      <!-- Previous page link -->
+      <a href="#"
+         class="pagination-item <%= currentPage === 1 ? 'disabled' : '' %>"
+         data-page="<%= currentPage === 1 ? 1 : currentPage - 1 %>">
+         «
+      </a>
+  
+      <!-- Page numbers -->
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <a href="#"
+           class="pagination-item <%= currentPage === i ? 'active' : '' %>"
+           data-page="<%= i %>">
+           <%= i %>
+        </a>
+      <% } %>
+  
+      <!-- Next page link -->
+      <a href="#"
+         class="pagination-item <%= currentPage === totalPages ? 'disabled' : '' %>"
+         data-page="<%= currentPage === totalPages ? totalPages : currentPage + 1 %>">
+         »
+      </a>
+    </div>
+  </div>
+  

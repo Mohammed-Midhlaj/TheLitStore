@@ -1,0 +1,562 @@
+<%- include("../../views/partials/user/header") %>
+
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Account Page Styles */
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .account-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-left: 15px;
+        }
+
+        .account-layout {
+            display: flex;
+            gap: 30px;
+        }
+
+        .account-menu-container {
+            flex: 0 0 450px;
+        }
+
+        .account-menu {
+            width: 100%;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #666;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .menu-arrow {
+            color: #aaa;
+            font-weight: lighter;
+        }
+
+        .menu-item.active {
+            background-color: #f0f0f0;
+        }
+
+        /* Account Details Section */
+        .account-details-container {
+            flex: 1;
+        }
+
+        .account-details {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .details-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .edit-button {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Address Specific Styles */
+        .no-address-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .address-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .address-form input,
+        .address-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .address-list {
+            margin-top: 20px;
+        }
+
+        .address-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #333;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Error Message Styles */
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .account-layout {
+                flex-direction: column;
+            }
+
+            .account-menu-container {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .account-details-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .account-container {
+                padding: 15px 10px;
+            }
+
+            .account-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .account-menu {
+                max-width: 100%;
+            }
+
+            .details-header {
+                margin-bottom: 15px;
+            }
+
+            .details-title {
+                font-size: 18px;
+            }
+
+            .address-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .address-actions {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+        }
+    </style>
+
+    <div class="account-container">
+        <h1 class="account-title">My Account</h1>
+
+        <div class="account-layout">
+            <!-- Account Menu (Left Side) -->
+            <div class="account-menu-container">
+                <div class="account-menu">
+                    <div class="menu-item" data-route="/account/orders">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                                </path>
+                                <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                                <line x1="12" y1="22" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Orders</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/userProfile" id="account-settings">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Account settings</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/account/points">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="8" r="7"></circle>
+                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Wallet</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/feedback">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Wallet History</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/address">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Address</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/contact">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Contact us</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" id="sign-out" data-route="/logout">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Sign out</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+
+                    <div class="menu-item" data-route="/account/invite">
+                        <div class="menu-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M2321v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="menu-text">Invite a friend</div>
+                        <div class="menu-arrow">></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Details (Right Side) -->
+            <div class="account-details-container">
+                <div class="account-details">
+                    <form action="/editAddress?id=<%= address._id %>" method="post">
+                        <div id="address-form-container" class="address-form">
+                            <input type="text" id="full-name" name="name" placeholder="Full Name"
+                                value="<%= address.name %>" required>
+                            <input type="tel" id="phone" name="phone" placeholder="Phone Number"
+                                value="<%= address.phone %>" required>
+                            <input type="tel" id="altPhone" name="altPhone" placeholder="AltPhone Number"
+                                value="<%= address.altPhone %>" required>
+                            <input type="text" id="landMark" name="landMark" placeholder="landMark"
+                                value="<%= address.landMark %>" required>
+                            <input type="text" id="city" name="city" placeholder="City" value="<%= address.city %>"
+                                required>
+                            <input type="text" id="state" name="state" placeholder="State" value="<%= address.state %>"
+                                required>
+                            <input type="text" id="pincode" name="pincode" placeholder="pincode"
+                                value="<%= address.pincode %>" required>
+                            <input type="text" id="address-type" name="addressType" placeholder="addressType"
+                                value="<%= address.addressType %>" required>
+                            <div>
+                                <button id="save-address-btn" class="btn">Edit Address</button>
+                                <button id="cancel-address-btn" class="btn btn-secondary">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Menu item navigation
+            document.querySelectorAll('.menu-item[data-route]').forEach(item => {
+                item.addEventListener('click', function () {
+                    window.location.href = this.getAttribute('data-route');
+                });
+            });
+
+            // Logout functionality
+            document.getElementById('sign-out').addEventListener('click', function () {
+                fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                }).then(() => {
+                    window.location.href = '/';
+                });
+            });
+
+            // Address Form Elements
+            const addressFormContainer = document.getElementById('address-form-container');
+            const addressForm = {
+                fullName: document.getElementById('full-name'),
+                phone: document.getElementById('phone'),
+                altPhone: document.getElementById('altPhone'),
+                street: document.getElementById('landMark'),
+                city: document.getElementById('city'),
+                state: document.getElementById('state'),
+                zipCode: document.getElementById('pincode'),
+                addressType: document.getElementById('address-type')
+            };
+            const saveAddressBtn = document.getElementById('save-address-btn');
+            const cancelAddressBtn = document.getElementById('cancel-address-btn');
+
+            // Form Validation Function
+            function validateAddressForm() {
+                // Validation rules
+                const validations = {
+                    fullName: {
+                        test: value => value.trim().length >= 2,
+                        errorMessage: 'Full name must be at least 2 characters long'
+                    },
+                    phone: {
+                        test: value => /^[0-9]{10}$/.test(value),
+                        errorMessage: 'Phone number must be 10 digits'
+                    },
+                    street: {
+                        test: value => value.trim().length >= 3,
+                        errorMessage: 'Street address must be at least 3 characters long'
+                    },
+                    city: {
+                        test: value => value.trim().length >= 2,
+                        errorMessage: 'City must be at least 2 characters long'
+                    },
+                    state: {
+                        test: value => value.trim().length >= 2,
+                        errorMessage: 'State must be at least 2 characters long'
+                    },
+                    zipCode: {
+                        test: value => /^[0-9]{6}$/.test(value),
+                        errorMessage: 'Zip code must be 5 digits'
+                    }
+                };
+
+                // Perform validation
+                let isValid = true;
+                Object.keys(validations).forEach(key => {
+                    const input = addressForm[key];
+                    const validation = validations[key];
+
+                    // Remove any existing error styles
+                    input.style.borderColor = '';
+                    const existingError = input.nextElementSibling;
+                    if (existingError && existingError.classList.contains('error-message')) {
+                        existingError.remove();
+                    }
+
+                    // Check validation
+                    if (!validation.test(input.value)) {
+                        isValid = false;
+                        input.style.borderColor = 'red';
+
+                        // Create error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.textContent = validation.errorMessage;
+                        errorMessage.classList.add('error-message');
+                        errorMessage.style.color = 'red';
+                        errorMessage.style.fontSize = '0.8em';
+                        errorMessage.style.marginTop = '5px';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Save Address Button Handler
+            saveAddressBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (validateAddressForm()) {
+                    const addressData = {
+                        name: addressForm.fullName.value,
+                        phone: addressForm.phone.value,
+                        altPhone: addressForm.altPhone.value,
+                        landMark: addressForm.street.value,
+                        city: addressForm.city.value,
+                        state: addressForm.state.value,
+                        pincode: addressForm.zipCode.value,
+                        addressType: addressForm.addressType.value
+                    };
+
+                    fetch(`/editAddress?id=<%= address._id %>`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(addressData)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Address edited successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    window.location.href = data.redirect;
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message || 'There was an error editing the address.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error editing address:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'There was an error editing the address.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                }
+            });
+
+            // Cancel Button Handler
+            cancelAddressBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                // Reset form
+                Object.values(addressForm).forEach(input => {
+                    input.value = '';
+                    input.style.borderColor = '';
+                });
+
+                // Remove any error messages
+                const errorMessages = document.querySelectorAll('.error-message');
+                errorMessages.forEach(msg => msg.remove());
+            });
+        });
+    </script>
+
+    <%- include("../../views/partials/user/footer") %>

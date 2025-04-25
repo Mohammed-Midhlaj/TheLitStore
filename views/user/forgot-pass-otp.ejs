@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheLitStore - OTP Verification</title>
+    <link rel="stylesheet" href="verify-otp.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<body>
+    <div class="split-layout">
+        <div class="left-side">
+            <div class="logo">TheLitStore</div>
+            <div class="verification-content">
+                <h1 class="emailverification">OTP Verification</h1>
+                <form id="otpForm" action="/verify-passForgot-otp" method="post" onsubmit="return validateOTPForm()">
+                    <div class="form-group">
+                        <label>Enter OTP:</label>
+                        <input type="text" id="otp" name="otp" maxlength="6" required>
+                    </div>
+                    <div class="timer">59</div>
+                    <button type="submit" class="btn">Verify OTP</button>
+                    <button type="button" class="btn" style="margin-top: 1rem" onclick="resendOTP()">Resend OTP</button>
+                </form>
+            </div>
+        </div>
+        <div class="right-side"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Timer functionality
+        let timeLeft = 59;
+        const timerDisplay = document.querySelector('.timer');
+        const resendButton = document.querySelector('.btn[type="button"]');
+
+        const timer = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                resendButton.style.opacity = '1';
+                resendButton.disabled = false;
+            } else {
+                timerDisplay.textContent = timeLeft;
+                timeLeft--;
+            }
+        }, 1000);
+
+        resendButton.style.opacity = '0.5';
+        resendButton.disabled = true;
+
+        function validateOTPForm() {
+            const otpInput = document.getElementById("otp").value;
+
+            $.ajax({
+                type: "POST",
+                url: "/verify-passForgot-otp",
+                data: { otp: otpInput },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "OTP Verified Successfully",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid OTP",
+                            text: response.message,
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Failed to verify OTP. Please try again"
+                    });
+                }
+            });
+            return false;
+        }
+
+
+        function resendOTP() {
+            clearInterval(timer);
+            timeLeft = 59;
+            timerDisplay.textContent = timeLeft;
+            resendButton.style.opacity = '0.5';
+            resendButton.disabled = true;
+
+            const newTimer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(newTimer);
+                    resendButton.style.opacity = '1';
+                    resendButton.disabled = false;
+                } else {
+                    timerDisplay.textContent = timeLeft;
+                    timeLeft--;
+                }
+            }, 1000);
+            resendButton.addEventListener("click", resendOTP);
+
+            $.ajax({
+                type: "POST",
+                url: "/resend-forgot-otp",
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "Success",
+                            title: "OTP Resend Successfully",
+                            showConfirmButton: false,
+                            timer: 1500,
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "An error occured While resending OTP. Please try again",
+                        })
+                    }
+                }
+            })
+            return false;
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,133 @@
+<%-include("../../views/partials/user/header")%>
+
+  <!-- small section -->
+  <section class="small">
+    <div class="two-text">
+      <p>Join our book club & get welcome bonus points</p>
+      <p>Free shipping on orders above Rs. 999</p>
+    </div>
+    <div class="container-small">
+      <h1>Book Sale - Up to 50% off</h1>
+      <p>Valid on selected books while stock lasts. The assortment may differ between stores and at TheLitStore.com.</p>
+    </div>
+  </section>
+
+  <!-- big section  -->
+  <section class="big">
+    <div class="container-big">
+      <div class="inside-big">
+        <h1>New Arrivals</h1>
+        <button>SHOP NOW</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- small section -->
+  <section class="small">
+    <div class="container-small second-small-section">
+      <h1>Free & flexible returns</h1>
+      <p>Online returns made easier!</p>
+      <button>READ MORE</button>
+    </div>
+  </section>
+
+  <!-- second big section  -->
+  <section class="big">
+    <div class="container-big second-big-section">
+      <div class="inside-big">
+        <h1>Best Sellers</h1>
+        <button>SHOP NOW</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- new arrival section  -->
+  <section class="product-section">
+    <div class="section-header">
+      <h2>New Arrivals</h2>
+    </div>
+    <div class="product-container">
+      <%for(let i=0; i<products.length; i++){%>
+        <div class="product-card">
+          <div class="product-image">
+            <a href="/productDetails?id=<%=products[i]._id%>">
+              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
+            </a>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name" style="margin-bottom: 0%;">
+              <%=products[i].productName%>
+            </h3>
+            <p class="product-author" style="margin-bottom: 4px;">By <%=products[i].author%></p>
+            <p class="product-price" style="margin-bottom: 8px;">Rs. <%=products[i].salePrice%></p>
+            <button class="addCart-homeBtn" onclick="addToCart('<%=products[i]._id%>')">ADD TO CART</button>
+          </div>
+        </div>
+        <%}%>
+    </div>
+    <div class="view-all">
+      <a href="/shop" class="view-all-btn">VIEW ALL</a>
+    </div>
+  </section>
+
+  <!-- third big section -->
+  <section class="big">
+    <div class="container-big third-big-section">
+      <div class="inside-big">
+        <h1>Classic Collection</h1>
+        <button>SHOP NOW</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- fourth big section -->
+  <section class="big">
+    <div class="container-big fourth-big-section">
+      <div class="inside-big">
+        <h1>Featured Authors</h1>
+        <button>SHOP NOW</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <%-include("../../views/partials/user/footer")%>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function addToCart(productId) {
+      fetch("/addToCart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId })
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.status) {
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: result.message,
+              timer: 1500,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: "info",
+              title: "Notice",
+              text: result.message,
+              timer: 1500,
+              showConfirmButton: false
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Error adding to cart:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again later."
+          });
+        });
+    }
+  </script>

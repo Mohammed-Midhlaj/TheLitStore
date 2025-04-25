@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Your Order - TheLitStore</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        /* Header styles - just a placeholder as you mentioned you already have this */
+        .header {
+            text-align: center;
+        }
+
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        /* Thank you section styles */
+        .thank-you-container {
+            max-width: 800px;
+            margin: 20px auto 60px;
+            padding: 40px 20px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+
+        .thank-you-heading {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333333;
+            text-transform: uppercase;
+        }
+
+        .thank-you-message {
+            font-size: 16px;
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .membership-info {
+            font-size: 15px;
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hide-confirmation-btn {
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            text-transform: none;
+        }
+
+        .hide-confirmation-btn:hover {
+            background-color: #333333;
+        }
+
+        .return-policy-link {
+            font-size: 14px;
+            color: #333333;
+            text-decoration: none;
+        }
+
+        .return-policy-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Email highlight style */
+        .email-highlight {
+            font-weight: bold;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .thank-you-container {
+                padding: 30px 15px;
+                margin: 15px auto 40px;
+            }
+
+            .thank-you-heading {
+                font-size: 28px;
+            }
+
+            .thank-you-message,
+            .membership-info {
+                font-size: 14px;
+                padding: 0 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .thank-you-heading {
+                font-size: 24px;
+            }
+
+            .thank-you-message,
+            .membership-info {
+                font-size: 13px;
+            }
+
+            .hide-confirmation-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Thank You Section -->
+    <div class="thank-you-container">
+        <h1 class="thank-you-heading">Thank You!</h1>
+
+        <p class="thank-you-message">
+            We are getting started on your order right away, and you will receive an order
+            confirmation email shortly to <span class="email-highlight"><%=user.email%></span>. In the meantime,
+            explore the latest fashion and get inspired by new trends, just head over to
+            <a href="/" class="email-highlight">TheLitStore</a>
+        </p>
+
+        <p class="membership-info">
+            TheLitStore members earn points on every purchase and have access to fashionable
+            rewards and special perks. If you're a member, it may take up to 24 hours for
+            your new points to be updated.
+        </p>
+
+        <a href="/orders">
+            <button class="hide-confirmation-btn">TAP TO VIEW ORDER DETAILS</button>
+        </a>
+        <div>
+            <a href="/shop" class="return-policy-link">Continue shopping with TheLitStore</a>
+        </div>
+    </div>
+
+    <!-- Header (you mentioned you already have this) -->
+    <div class="header">
+        <img src="images/AestheLogo-red.png" alt="Aesthé Logo">
+    </div>
+    </div>
+
+</body>
+
+</html>

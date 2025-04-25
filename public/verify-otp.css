@@ -1,0 +1,126 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+}
+
+.split-layout {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.left-side {
+    width: 50%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-side {
+    width: 50%;
+    background: url('images/verifypage.jpg') center 10%/cover;
+}
+
+.logo {
+    font-family: "Bodoni MT", "Didot", "Times New Roman", serif;
+    font-size: 3rem;
+    font-weight: 400;
+    margin-bottom: 4rem;
+    text-transform: uppercase;
+    font-stretch: expanded;
+    letter-spacing: -4.5px;
+}
+
+
+.verification-content {
+    max-width: 400px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 1.2rem;
+    font-family: "Bodoni MT", "Didot", "Times New Roman", serif;
+    color: #595959;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #333;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.timer {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #333;
+    margin: 1.5rem 0;
+}
+
+.btn {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+}
+
+.btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .split-layout {
+        flex-direction: column;
+    }
+
+    .left-side {
+        width: 100%;
+        padding: 1rem;
+        order: 2;
+    }
+
+    .right-side {
+        width: 100%;
+        height: 50vh;
+        order: 1;
+        display: block;
+    }
+
+    .logo {
+        text-align: center;
+        margin: 2rem 0;
+        font-size: 2rem;
+    }
+
+    .verification-content {
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+}

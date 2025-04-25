@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheLitStore -RESET PASSWORD</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+    }
+
+    .split-layout {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    .left-side {
+        width: 50%;
+        padding: 2rem;
+        padding-top: 0%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .right-side {
+        width: 50%;
+        background: url('images/verifypage.jpg') 50% 10% / cover no-repeat;
+    }
+
+    .logo {
+        font-family: "Bodoni MT", "Didot", "Times New Roman", serif;
+        font-size: 3rem;
+        font-weight: 400;
+        margin-bottom: 3rem;
+        text-transform: uppercase;
+        font-stretch: expanded;
+        letter-spacing: -4.5px;
+    }
+
+    .menu-icon {
+        display: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .top-nav {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        display: flex;
+        gap: 2rem;
+    }
+
+    .top-nav a {
+        text-decoration: none;
+        color: #000;
+        font-size: 0.9rem;
+    }
+
+    .register-content {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .personaldetails {
+        font-family: "Bodoni MT", "Didot", "Times New Roman", serif;
+        font-size: 1.2rem;
+        color: #595959;
+        margin-bottom: 50px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.3rem 0;
+        border: none;
+        border-bottom: 1px solid #ddd;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+        border-bottom-color: #000;
+    }
+
+    .verify-text {
+        font-size: 0.8rem;
+        color: #666;
+        margin: 1rem 0;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .checkbox-group label {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .checkbox-group a {
+        color: #000;
+        text-decoration: none;
+    }
+
+
+    .error-message {
+        color: red;
+        font-size: 0.75rem;
+        display: none;
+    }
+
+
+    #btn {
+        width: 100%;
+        padding: 1rem;
+        margin-top: 2rem;
+        border: 1px solid #000;
+        background: #fff;
+        color: #000;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    #btn:hover {
+        background: #000;
+        color: #fff;
+    }
+
+
+    @media (max-width: 768px) {
+        .split-layout {
+            flex-direction: column;
+        }
+
+        .left-side {
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .right-side {
+            display: none;
+        }
+
+        .menu-icon {
+            display: block;
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .top-nav {
+            display: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin: 4rem 0 2rem;
+            font-size: 2rem;
+        }
+
+        .register-content {
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+    }
+</style>
+
+<body>
+    <div class="split-layout">
+        <div class="left-side">
+            <div class="menu-icon">☰</div>
+            <nav class="top-nav">
+                <a href="#">SEARCH</a>
+                <a href="#">LOG IN</a>
+                <a href="#">HELP</a>
+            </nav>
+            <div class="logo">TheLitStore</div>
+            <div class="register-content">
+                <h1 class="personaldetails">CHANGE EMAIL</h1>
+                <form id="registerform" method="post" action="/update-email" onsubmit="return validateForm()">
+                    <div class="form-group">
+                        <label for="EMAIL">ENTER NEW EMAIL</label>
+                        <input type="email" name="newEmail" id="newEmail" required>
+                        <div id="error1" class="error-message"></div>
+                    </div>
+                            <button type="submit" id="btn">UPDATE EMAIL</button>
+                </form>
+            </div>
+        </div>
+        <div class="right-side"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+        <script>
+            const newEmail = document.getElementById("newEmail");
+            const error1 = document.getElementById("error1");
+            const registerform = document.getElementById("registerform");
+    
+    
+            document.addEventListener("DOMContentLoaded", () => {
+                registerform.addEventListener("submit", (e) => {
+                    e.preventDefault();
+    
+                    Swal.fire({
+                        icon: "success",
+                        toast: true,
+                        position: "top-end",
+                        title: "Email changed successfully",
+                        showConfirmButton: false,
+                        timer: 2000,
+                        customClass: {
+                            popup: "custom-toast"
+                        }
+                    }).then(() => {
+                        registerform.submit();
+                    });
+                });
+            });
+        </script>
+
+</body>
+
+</html>

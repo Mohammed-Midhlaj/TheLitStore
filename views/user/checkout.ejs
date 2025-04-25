@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheLitStore - Checkout</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<style>
+    /* Base styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+        background-color: #f8f8f8;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Back link */
+    .back-link {
+        margin-bottom: 20px;
+    }
+
+    .back-link a {
+        color: #333;
+        text-decoration: none;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Logo */
+    .logo {
+        text-align: center;
+    }
+
+    .logo img {
+        max-width: 100px;
+        height: 100%;
+    }
+
+    /* Checkout title */
+    .checkout-title {
+        text-align: center;
+        margin-bottom: 40px;
+        font-weight: normal;
+        font-size: 24px;
+    }
+
+    /* Main checkout container */
+    .checkout-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+
+    .checkout-details {
+        flex: 1 1 60%;
+        min-width: 300px;
+    }
+
+    .order-summary {
+        flex: 1 1 30%;
+        min-width: 300px;
+    }
+
+    /* Info sections */
+    .info-section {
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .section-header h2 {
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .edit-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .section-content {
+        font-size: 14px;
+    }
+
+
+    /* Shipped by */
+    .shipped-by {
+        font-size: 12px;
+        color: #666;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .shipper {
+        font-weight: bold;
+    }
+
+    /* Delivery type */
+    .delivery-type {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    /* Order details */
+    .order-details-section .section-header {
+        margin-bottom: 20px;
+    }
+
+    .item-count {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .order-item {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .item-image img {
+        width: 100px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .item-details {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .item-name {
+        font-weight: bold;
+    }
+
+    .delivery-option {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+    .delivery-option-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    /* Payment section */
+    .payment-question {
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
+
+    .payment-options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .payment-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .payment-option.selected {
+        background-color: #f9f9f9;
+    }
+
+    .card-icons {
+        margin-left: auto;
+        display: flex;
+        gap: 5px;
+    }
+
+    .payment-icon {
+        height: 20px;
+        margin-left: auto;
+    }
+
+    .payment-note {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+
+    /* Data security */
+    .data-security {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin-top: 20px;
+    }
+
+    /* Order summary */
+    .summary-section {
+        background-color: #fff;
+        border-radius: 4px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .discount-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .discount-section h3 {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .apply-discount-btn {
+        background: none;
+        border: none;
+        color: #ff0000;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .price-breakdown {
+        margin-bottom: 20px;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .price-row.total {
+        font-weight: bold;
+        font-size: 16px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+    .complete-purchase-btn {
+        width: 100%;
+        padding: 15px;
+        background-color: #333;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    .payment-info {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .payment-method {
+        margin-bottom: 10px;
+    }
+
+    .delivery-policy {
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
+        margin-bottom: 20px;
+    }
+
+    .policy-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cancel-order-btn {
+        width: 100%;
+        padding: 15px;
+        background-color: #f1f1f1;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .checkout-container {
+            flex-direction: column;
+        }
+
+        .order-summary {
+            order: -1;
+        }
+
+        .logo img {
+            max-width: 80px;
+        }
+
+        .checkout-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            padding: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 16px;
+        }
+
+        .item-image img {
+            width: 80px;
+            height: 100px;
+        }
+
+        .complete-purchase-btn,
+        .cancel-order-btn {
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .back-link {
+            margin-bottom: 10px;
+        }
+    }
+
+    /* Mobile specific styles */
+    @media (max-width: 480px) {
+        .container {
+            padding: 10px;
+        }
+
+        .checkout-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .section-header {
+            margin-bottom: 10px;
+        }
+
+        .section-content {
+            font-size: 13px;
+        }
+
+        .payment-option {
+            padding: 8px;
+        }
+
+        .price-row {
+            font-size: 13px;
+        }
+
+        .price-row.total {
+            font-size: 15px;
+        }
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="back-link">
+            <a href="/cart"><i class="fas fa-arrow-left"></i> Back to shopping bag</a>
+        </div>
+
+        <!-- Logo -->
+        <div class="logo">
+            <a href="/">
+                <img src="images/AestheLogo-red.png" alt="Aesthé Logo">
+            </a>
+        </div>
+
+        <!-- Checkout Title -->
+        <h1 class="checkout-title">Checkout</h1>
+
+        <!-- Main content wrapped in one form -->
+        <form action="/placeOrder" method="POST" id="checkoutForm">
+            <div class="checkout-container">
+                <div class="checkout-details">
+                    <div class="info-section">
+                        <div class="section-header">
+                            <h2><strong>My information</strong></h2>
+                            <a href="/userProfile">
+                                <button type="button" class="edit-btn">EDIT</button>
+                            </a>
+                        </div>
+                        <div class="section-content">
+                            <p class="customer-name">
+                                <%= user.name %>
+                            </p>
+                            <p class="customer-email">
+                                <%= user.email %>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Billing Address Section -->
+                    <div class="info-section">
+                        <div class="section-header">
+                            <h2><strong>Billing Address</strong></h2>
+                            <a href="/address">
+                                <button type="button" class="edit-btn">EDIT</button>
+                            </a>
+                        </div>
+                        <div class="section-content">
+                            <% if (addresses && addresses.length> 0 && addresses[0].address &&
+                                addresses[0].address.length > 0) { %>
+                                <% addresses[0].address.forEach(function(userAddress, index) { %>
+                                    <label class="address-label"
+                                        style="display:block; margin-bottom:10px; border:1px solid #ccc; padding:10px; border-radius:4px;">
+                                        <input type="radio" name="billingAddress" value="<%= userAddress._id %>"
+                                            <%=index===0 ? "checked" : "" %>>
+                                        <div class="address-details">
+                                            <p><strong>
+                                                    <%= userAddress.label || "Address" %>
+                                                </strong></p>
+                                            <p>
+                                                <%= userAddress.name %>
+                                            </p>
+                                            <p>
+                                                <%= userAddress.phone %>
+                                            </p>
+                                            <p>
+                                                <%= userAddress.landMark %>
+                                            </p>
+                                            <p>
+                                                <%= userAddress.city %>
+                                                    <%= userAddress.pincode %>
+                                            </p>
+                                            <p>
+                                                <%= userAddress.state %>
+                                            </p>
+                                        </div>
+                                    </label>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <div>
+                                                <a href="/address">
+                                                    <h3>Add Address</h3>
+                                                </a>
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Order Details Section -->
+                    <div class="info-section order-details-section">
+                        <div class="section-header">
+                            <h2><strong>View Order Details</strong></h2>
+                            <span class="item-count">
+                                <%= cartItems.length %> item<%= cartItems.length> 1 ? 's' : '' %>
+                            </span>
+                        </div>
+                        <div class="section-content">
+                            <% cartItems.forEach(item=> { %>
+                                <div class="order-item">
+                                    <div class="item-image">
+                                        <a href="/productDetails?productId=<%= item.productId._id %>">
+                                            <img src="/uploads/re-image/<%= item.productId.productImage[0] %>"
+                                                alt="<%= item.productId.name %>" width="100" height="120">
+                                        </a>
+                                        <div class="delete-icon">
+                                            <button class="delete-button" data-product-id="<%= item.productId._id %>">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path
+                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                    </path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="item-details">
+                                        <p class="item-name">Parcel</p>
+                                        <p class="item-count">
+                                            <%= item.quantity %> item<%= item.quantity> 1 ? 's' : '' %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <% }) %>
+                                    <div class="delivery-option">
+                                        <div class="delivery-option-header">
+                                            <h3><strong>Standard Delivery</strong></h3>
+                                        </div>
+                                        <% if (addresses && addresses.length> 0 && addresses[0].address &&
+                                            addresses[0].address.length > 0) {
+                                            let defaultAddress = addresses[0].address[0];
+                                            %>
+                                            <div class="delivery-address" id="deliveryAddressPreview">
+                                                <p>
+                                                    <%= defaultAddress.name %>
+                                                </p>
+                                                <p>91+ <%= defaultAddress.phone %>
+                                                </p>
+                                                <p>
+                                                    <%= defaultAddress.landMark %>
+                                                </p>
+                                                <p>
+                                                    <%= defaultAddress.city %>
+                                                        <%= defaultAddress.pincode %>
+                                                </p>
+                                                <p>
+                                                    <%= defaultAddress.state %>
+                                                </p>
+                                                <p><strong>Rs.149.00 · 2-7 days</strong></p>
+                                            </div>
+                                            <% } else { %>
+                                                <div class="delivery-address">
+                                                    <a href="/address">
+                                                        <h3>Add Address</h3>
+                                                    </a>
+                                                </div>
+                                                <% } %>
+                                    </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="info-section payment-section">
+                        <div class="section-header">
+                            <h2>Payment</h2>
+                        </div>
+                        <div class="section-content">
+                            <p class="payment-question">How Would you like to pay?</p>
+                            <div class="payment-options">
+                                <div class="payment-option">
+                                    <input type="radio" id="netbanking" name="payment" value="razorpay">
+                                    <label for="netbanking">Razorpay</label>
+                                </div>
+                                <!-- <div class="payment-option">
+                                    <input type="radio" id="upi" name="payment" value="upi">
+                                    <label for="upi">UPI</label>
+                                    <img src="/placeholder.svg?height=20&width=40" alt="Google Pay"
+                                        class="payment-icon">
+                                </div> -->
+                                <div class="payment-option selected">
+                                    <input type="radio" id="cod" name="payment" value="cod" checked>
+                                    <label for="cod">Cash on delivery</label>
+                                </div>
+                                <p class="payment-note">You pay only cash at time of receiving the order</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-security">
+                        <p>All Data are encrypted</p>
+                    </div>
+
+                    <!-- Right column - Order summary -->
+                    <div class="order-summary">
+                        <div class="summary-section">
+                            <div class="discount-section">
+                                <h3>Discounts</h3>
+                                <button type="button" class="apply-discount-btn">Apply discount</button>
+                            </div>
+
+                            <div class="price-breakdown">
+                                <div class="price-row">
+                                    <span>Order Value</span>
+                                    <span>Rs.<%= totalPrice.toFixed(2) %></span>
+                                </div>
+                                <div class="price-row">
+                                    <span>Delivery</span>
+                                    <span>Rs.149.00</span>
+                                </div>
+                                <div class="price-row total">
+                                    <span>Total</span>
+                                    <span>Rs.<%= finalAmount.toFixed(2) %></span>
+                                </div>
+                            </div>
+
+                            <!-- Complete Purchase Button inside the form -->
+                            <button type="submit" class="complete-purchase-btn">Complete Purchase</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const addressList = <%- JSON.stringify(addresses && addresses.length > 0 ? addresses[0].address : []) %>;
+
+
+    const razorpayKey = "<%= process.env.RAZORPAY_KEY_ID %>";
+    const finalAmountPaise = Number(<%= finalAmount %>) * 100; // Convert rupees to paise
+
+    // Function to handle Razorpay payment flow
+    async function payWithRazorpay() {
+        try {
+            // Create order on the backend with the final amount
+            const response = await fetch('/createOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: finalAmountPaise })
+            });
+            const order = await response.json();
+
+            var options = {
+                key: razorpayKey,
+                amount: order.amount,
+                currency: order.currency,
+                name: "Your Company Name",
+                description: "Test Transaction",
+                order_id: order.id,
+                handler: function (paymentResponse) {
+                    verifyPayment(paymentResponse);
+                },
+                prefill: {
+                    name: "Test User",
+                    email: "test.user@example.com",
+                    contact: "9999999999"
+                },
+                theme: { color: "#3399cc" }
+            };
+
+            var rzp1 = new Razorpay(options);
+
+            // Payment failure listener using SweetAlert2
+            rzp1.on('payment.failed', function (response) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed!',
+                    text: 'Oops, something went wrong. Please try again.'
+                }).then(() => {
+                    window.location.href = '/checkout';
+                });
+            });
+
+            rzp1.open();
+        } catch (error) {
+            console.error("Error creating order:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Could not create order. Please try again.'
+            });
+        }
+    }
+
+    // Function to verify payment and store order with updated payment status
+    async function verifyPayment(paymentResponse) {
+        try {
+            // Verify payment on the backend
+            const response = await fetch('/verifyPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    razorpay_order_id: paymentResponse.razorpay_order_id,
+                    razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                    razorpay_signature: paymentResponse.razorpay_signature
+                })
+            });
+            const verification = await response.json();
+
+            if (verification.success) {
+                // Get the selected billing address from the form
+                const selectedAddressElem = document.querySelector('input[name="billingAddress"]:checked');
+                if (!selectedAddressElem) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Billing Address Missing',
+                        text: 'Please select a billing address before placing your order.'
+                    }).then(() => {
+                        window.location.href = '/checkout';
+                    });
+                    return;
+                }
+                const billingAddress = selectedAddressElem.value;
+
+                // Prepare order data including billing address and update paymentStatus to 'completed'
+                const orderData = {
+                    payment: 'razorpay',
+                    paymentStatus: 'completed',  // updated status for successful payment
+                    billingAddress: billingAddress,
+                    amount: finalAmountPaise,
+                    razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                    order_id: paymentResponse.razorpay_order_id
+                    // Include other order details if needed
+                };
+
+                // Store order details in your database
+                const storeResponse = await fetch('/placeOrder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                const storeResult = await storeResponse.json();
+
+                if (storeResult.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed Successfully!',
+                        text: 'Thank you for purchasing. Final amount: Rs.' + (finalAmountPaise / 100).toFixed(2)
+                    }).then(() => {
+                        window.location.href = '/thank';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Order Not Placed!',
+                        text: storeResult.message || 'Something went wrong, please try again.'
+                    }).then(() => {
+                        window.location.href = '/checkout';
+                    });
+                }
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Verification Failed!',
+                    text: 'Oops, something went wrong. Please try again.'
+                }).then(() => {
+                    window.location.href = '/checkout';
+                });
+            }
+        } catch (error) {
+            console.error("Error verifying payment:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Oops, something went wrong. Please try again.'
+            }).then(() => {
+                window.location.href = '/checkout';
+            });
+        }
+    }
+
+    // Listen for form submission on the checkout form
+    document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+        const selectedAddress = document.querySelector('input[name="billingAddress"]:checked');
+        if (!selectedAddress) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Address Not Selected',
+                text: 'Please select a billing address before completing your purchase.'
+            });
+            return;
+        }
+
+        if (selectedPayment === 'razorpay') {
+            // If Razorpay is selected, trigger the Razorpay payment flow
+            await payWithRazorpay();
+        } else {
+            // For COD (or UPI), proceed with the normal order placement
+            const formData = {
+                billingAddress: selectedAddress.value,
+                payment: selectedPayment, // using a unified field name
+                paymentStatus: selectedPayment === 'cod' ? 'pending' : 'upi'
+            };
+
+            try {
+                const response = await fetch('/placeOrder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: result.message
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Placed!',
+                    text: 'Your order is placed successfully, thank you for purchasing.',
+                    timer: 2500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/thank';
+                });
+            } catch (error) {
+                console.error("Error placing order:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again later.'
+                });
+            }
+        }
+    });
+</script>
+
+
+</html>

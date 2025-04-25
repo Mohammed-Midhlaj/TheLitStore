@@ -1,0 +1,436 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>TheLitStore | ADMIN</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <link rel="shortcut icon" type="image/x-icon" href="#">
+    <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+    <script src="https://kit.fontawesome.com/16d4885483.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* General Styles */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 20px;
+        }
+
+        .search-form {
+            max-width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        /* Table Styles */
+        .order-table {
+            width: 100%;
+            min-width: 700px;
+            /* Ensures table has a minimum width */
+        }
+
+        .order-table th {
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        /* Status Badges */
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .status-delivered {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .payment-status-paid {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .payment-status-unpaid {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .payment-status-refunded {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+        /* Button Styles */
+        .btn-view {
+            background-color: #6c757d;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .btn-view:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+
+        /* Text Styles */
+        .order-id {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .date-col {
+            color: #6c757d;
+        }
+
+        .customer-name {
+            font-weight: 500;
+        }
+
+        .order-amount {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Responsive Filter and Search */
+        .filter-search-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Card Content Padding */
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .adminheading {
+                margin-left: 0 !important;
+                font-size: 1.5rem;
+                text-align: center;
+            }
+
+            .content-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .filter-btn-container {
+                margin-top: 10px;
+                display: flex;
+                justify-content: flex-start;
+            }
+
+            .card-header .dropdown {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .card-header .dropdown button {
+                width: 100%;
+                text-align: left;
+            }
+
+            .pagination {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+
+        /* Medium screens */
+        @media (min-width: 769px) {
+            .filter-search-row {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .search-form {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="screen-overlay"></div>
+    <aside class="navbar-aside" id="offcanvas_aside" style="background-color: #b0d5de;">
+        <div class="aside-top">
+            <a href="#" class="brand-wrap" style="text-decoration: none;">
+                <h1 class="logo" style="color: rgb(76, 76, 76);"> TheLitStore</h1>
+            </a>
+            <div>
+                <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i>
+                </button>
+            </div>
+        </div>
+        <nav>
+            <ul class="menu-aside">
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin"> <i class="icon material-icons md-home"></i>
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/users"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Customers</span>
+                    </a>
+
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/category"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Category</span>
+                    </a>
+
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/brands"> <i class="icon material-icons md-stars"></i>
+                        <span class="text">Publishers</span> </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/addProducts"> <i class="icon material-icons md-add_box"></i>
+                        <span class="text">Add product</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/products"> <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Products</span>
+                    </a>
+                </li>
+
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/coupon"> <i class="icon material-icons md-class"></i>
+                        <span class="text">Coupon</span> </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" href="/admin/banner"> <i
+                            class="icon material-icons md-photo_size_select_actual"></i>
+                        <span class="text">Banner</span> </a>
+                </li>
+
+                <li class="menu-item active">
+                    <a class="menu-link" href="/admin/orderList"> <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="main-wrap">
+        <header class="main-header navbar" style="background-color: #8da7ab;">
+            <div class="col text-center">
+                <h1 class="adminheading">Admin Dashboard</h1>
+            </div>
+            <div class="col-nav">
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                        class="material-icons md-apps"></i> </button>
+                <ul class="nav">
+                    <li class="dropdown nav-item">
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                            aria-expanded="false"> <img class="img-xs rounded-circle"
+                                src="/admin-assets/imgs/people/avatar2.png" alt="User"></a>
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger" href="/admin/logout"><i
+                                    class="material-icons md-exit_to_app"></i>Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="page-title">Orders</h2>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="filter-search-row">
+                        <div class="search-form">
+                            <form action="/admin/orderList" method="GET">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Search order..."
+                                        value="<%= search %>">
+                                    <button class="btn btn-light" type="submit">
+                                        <i class="material-icons md-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="filter-btn-container">
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="material-icons md-filter_list"></i> Filter
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                    <li><a class="dropdown-item" href="/admin/orderList?orderFilter=All">All Orders</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="/admin/orderList?orderFilter=Pending">Pending</a>
+                                    </li>
+                                    <li><a class="dropdown-item"
+                                            href="/admin/orderList?orderFilter=Processing">Processing</a></li>
+                                    <li><a class="dropdown-item"
+                                            href="/admin/orderList?orderFilter=Delivered">Delivered</a></li>
+                                    <li><a class="dropdown-item"
+                                            href="/admin/orderList?orderFilter=Cancelled">Cancelled</a></li>
+                                    <li><a class="dropdown-item"
+                                         href="/admin/orderList?orderFilter=Refunded">Refunded</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table table-hover order-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Payment Method</th>
+                                    <th>Payment Status</th>
+                                    <th>Order Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order=> { %>
+                                    <tr>
+                                        <td><span class="order-id">
+                                                <%= order.orderId %>
+                                            </span></td>
+                                        <td class="date-col">
+                                            <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : "N/A"
+                                                %>
+                                        </td>
+                                        <td><span class="customer-name">
+                                                <%= order.user ? order.user.name : "Unknown" %>
+                                            </span></td>
+                                        <td>
+                                            <%= order.paymentMethod %>
+                                        </td>
+                                        <td><span class="order-status payment-status-paid">
+                                                <%= order.paymentStatus %>
+                                            </span></td>
+                                        <td><span class="order-status status-delivered">
+                                                <%= order.status %>
+                                            </span></td>
+                                        <td><span class="order-amount">$ <%=order.finalAmount%></span></td>
+                                        <td><a href="/admin/orderView/<%= order._id %>" class="btn-view">View</a></td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <% var orderFilterVal=(typeof orderFilter !=='undefined' && orderFilter) ? orderFilter : 'All' ; %>
+                        <div class="mt-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center justify-content-md-end">
+                                    <% if (currentPage> 1) { %>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="/admin/orderList?page=<%= currentPage - 1 %>&search=<%= encodeURIComponent(search) %>&orderFilter=<%= encodeURIComponent(orderFilterVal) %>">Previous</a>
+                                        </li>
+                                        <% } else { %>
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#">Previous</a>
+                                            </li>
+                                            <% } %>
+
+                                                <% for(let i=1; i <=totalPages; i++) { %>
+                                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                        <a class="page-link"
+                                                            href="/admin/orderList?page=<%= i %>&search=<%= encodeURIComponent(search) %>&orderFilter=<%= encodeURIComponent(orderFilterVal) %>">
+                                                            <%= i %>
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+
+                                                        <% if (currentPage < totalPages) { %>
+                                                            <li class="page-item">
+                                                                <a class="page-link"
+                                                                    href="/admin/orderList?page=<%= currentPage + 1 %>&search=<%= encodeURIComponent(search) %>&orderFilter=<%= encodeURIComponent(orderFilterVal) %>">Next</a>
+                                                            </li>
+                                                            <% } else { %>
+                                                                <li class="page-item disabled">
+                                                                    <a class="page-link" href="#">Next</a>
+                                                                </li>
+                                                                <% } %>
+                                </ul>
+                            </nav>
+                        </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/admin-assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/admin-assets/js/vendors/select2.min.js"></script>
+    <script src="/admin-assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/admin-assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/admin-assets/js/vendors/chart.js"></script>
+    <script src="/admin-assets/js/main.js" type="text/javascript"></script>
+    <script src="/admin-assets/js/custom-chart.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+
+</html>

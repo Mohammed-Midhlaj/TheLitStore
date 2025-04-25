@@ -1,0 +1,748 @@
+<%-include("../../views/partials/user/header")%>
+<style>
+        /* Account Page Styles (Keep your existing styles) */
+        .account-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .account-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding-left: 15px;
+        }
+
+        .account-layout {
+            display: flex;
+            gap: 30px;
+        }
+
+        .account-menu-container {
+            flex: 0 0 450px;
+        }
+
+        .account-menu {
+            width: 100%;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #666;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .menu-arrow {
+            color: #aaa;
+            font-weight: lighter;
+        }
+
+        .menu-item.active {
+            background-color: #f0f0f0;
+        }
+
+        /* My Details Section */
+        .account-details-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* Space between order cards */
+        }
+
+        .account-details {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .details-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .edit-button {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .detail-row {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .change-btn {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+
+        .change-btn:hover {
+            background-color: white;
+            color: black;
+        }
+
+        /* Order Details Styles */
+        .order-details-container {
+            width: 100%;
+            margin-bottom: 20px;
+            /* Additional spacing between orders */
+            border: 1px solid #c7c7c7;
+            margin-top: 20px;
+        }
+
+        .order-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .order-card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .order-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-card-body {
+            padding: 20px;
+        }
+
+        .order-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .order-info-item {
+            margin-bottom: 15px;
+        }
+
+        .order-info-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .order-info-value {
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .order-status,
+        .payment-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .order-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .delivery-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .ordered-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .ordered-items-table th {
+            text-align: left;
+            padding: 12px 15px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .ordered-items-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .product-name {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .product-name:hover {
+            text-decoration: underline;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .cancel-order-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .cancel-order-btn svg {
+            margin-right: 5px;
+        }
+
+        .go-to-profile-btn {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .go-to-profile-btn:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Responsive design */
+        @media (max-width: 992px) {
+            .account-layout {
+                flex-direction: column;
+            }
+
+            .account-menu-container {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+
+            .account-details-container {
+                width: 100%;
+            }
+
+            .order-info-grid,
+            .delivery-info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .account-container {
+                padding: 15px 10px;
+            }
+
+            .account-title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            .account-menu {
+                max-width: 100%;
+            }
+
+            .order-info-grid,
+            .delivery-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ordered-items-table thead {
+                display: none;
+            }
+
+            .ordered-items-table,
+            .ordered-items-table tbody,
+            .ordered-items-table tr,
+            .ordered-items-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .ordered-items-table tr {
+                margin-bottom: 15px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .ordered-items-table td {
+                text-align: right;
+                padding: 10px;
+                position: relative;
+                border-bottom: none;
+            }
+
+            .ordered-items-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 50%;
+                padding-right: 15px;
+                font-weight: 600;
+                text-align: left;
+            }
+
+            .table-footer {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .cancel-order-btn,
+            .go-to-profile-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .order-card-body {
+                padding: 15px 10px;
+            }
+        }
+    </style>
+
+    <div class="account-container">
+            <!-- Order Details Container (Right Side) -->
+            <div class="account-details-container">
+                <div class="order-details-container">
+                    <!-- Combined Order Details Card -->
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div class="order-card-title">Order Details</div>
+                        </div>
+                        <div class="order-card-body">
+                            <!-- Order Information Section -->
+                            <div class="order-section">
+                                <div class="section-title">Order Information</div>
+                                <div class="order-info-grid">
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Order ID</div>
+                                        <div class="order-info-value" id="order-id">
+                                            <%= order.orderId %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Order Date</div>
+                                        <div class="order-info-value" id="order-date">
+                                            <%= new Date(order.createdAt).toLocaleDateString() %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Order Status</div>
+                                        <div class="order-info-value">
+                                            <span class="order-status" id="order-status">
+                                                <%= order.status %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Payment Method</div>
+                                        <div class="order-info-value" id="payment-method">
+                                            <%= order.paymentMethod %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Payment Status</div>
+                                        <div class="order-info-value">
+                                            <span class="payment-status" id="payment-status">
+                                                <%= order.paymentStatus %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="order-total-row">
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Total Amount</div>
+                                        <div class="order-info-value" id="total-amount">₹<%= order.totalAmount %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Discount</div>
+                                        <div class="order-info-value" id="discount">₹<%= order.discount %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delivery Address Section -->
+                            <div class="order-section">
+                                <div class="section-title">Delivery Address</div>
+                                <div class="delivery-info-grid">
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Delivery place</div>
+                                        <div class="order-info-value" id="delivery-place">
+                                            <%= order.billingAddress.place %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Phone Number</div>
+                                        <div class="order-info-value" id="phone-number">
+                                            <%= order.billingAddress.phone %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Address Type</div>
+                                        <div class="order-info-value" id="address-type">
+                                            <%= order.billingAddress.type %>
+                                        </div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Address</div>
+                                        <div class="order-info-value" id="address">
+                                            <%= order.billingAddress.name %>, <%= order.billingAddress.landMark %>, <%=
+                                                        order.billingAddress.city %>, <%= order.billingAddress.state %>,
+                                                            <%= order.billingAddress.pincode %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ordered Items Section -->
+                            <div class="order-section">
+                                <div class="section-title">Ordered Items</div>
+                                <table class="ordered-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ordered-items">
+                                        <% order.orderedItem.forEach(item=>{%>
+                                            <tr>
+                                                <td data-label="Product">
+                                                    <img src="/uploads/re-image/<%= item.product.productImage[0]%>"
+                                                        alt="<%= item.product.productName %> " class="product-image">
+                                                </td>
+                                                <td data-label="Name">
+                                                    <a href="#" class="product-name">
+                                                        <%= item.product.productName %>
+                                                    </a>
+                                                </td>
+                                                <td data-label="Price">₹<%= item.price %>
+                                                </td>
+                                                <td data-label="Quantity">
+                                                    <%= item.quantity %>
+                                                </td>
+                                                <td data-label="Total">₹<%= item.price * item.quantity %>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right; font-weight: 600;">Total
+                                                Amount:</td>
+                                            <td style="font-weight: 600;">₹<%= order.totalAmount %>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <%if( order.status==="Cancelled" ){%>
+                                    <div class="table-footer">
+                                        <button class="cancel-order-btn" disabled>
+                                            Order cancelled
+                                        </button>
+                                        <%}else if (order.status==="Delivered" ) { %>
+                                            <div class="table-footer">
+                                                <!-- Return Button with a unique class -->
+                                                <button class="return-btn" data-order-id="<%= order._id %>">
+                                                    Return item
+                                                </button>
+                                                <!-- Return Reason Form -->
+                                                <form class="return-form">
+                                                    <div>
+                                                        <label class="form-label">Return reason:</label>
+                                                        <br>
+                                                        <textarea placeholder="Type here" name="return-reason"
+                                                            class="form-control" id="descriptionId" required></textarea>
+                                                    </div>
+                                                </form>
+
+                                                <%}else if(order.status==="Returned" ){%>
+                                                    <div class="table-footer">
+                                                        <button class="cancel-order-btn" disabled>
+                                                            Returned
+                                                        </button>
+                                                        <%}else{%>
+                                                            <div class="table-footer">
+                                                                <button class="cancel-order-btn"
+                                                                    data-order-id="<%= order._id %>">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                                        height="16" viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="2"
+                                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                                                    </svg>
+                                                                    Cancel Order
+                                                                </button>
+                                                                <%}%>
+                                                                    <a href="/orders">
+                                                                        <button class="go-to-profile-btn">Back to List</button>
+                                                                    </a>
+                                                            </div>
+                                                    </div>
+                                            </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.menu-item[data-route]').forEach(item => {
+                item.addEventListener('click', function () {
+                    window.location.href = this.getAttribute('data-route');
+                });
+            });
+
+            document.getElementById('sign-out').addEventListener('click', function () {
+                fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                }).then(() => {
+                    window.location.href = '/';
+                });
+            });
+
+            function loadUserData() {
+
+            }
+
+            loadUserData();
+        });
+
+        document.querySelectorAll('.cancel-order-btn').forEach(button => {
+            if (button.id === "return-btn") return;
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const orderId = this.getAttribute('data-order-id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you really want to cancel this order?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, cancel it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/cancelOrder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ orderId: orderId })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status) {
+                                    Swal.fire(
+                                        'Cancelled!',
+                                        'Your order has been cancelled.',
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire(
+                                        'Error!',
+                                        data.message,
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error cancelling order:', error);
+                                Swal.fire(
+                                    'Error!',
+                                    'There was an error cancelling your order.',
+                                    'error'
+                                );
+                            });
+                    }
+                });
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Select all elements with the class "return-btn"
+            const returnButtons = document.querySelectorAll('.return-btn');
+
+            returnButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Find the nearest container (table-footer) and get the corresponding textarea
+                    const container = button.closest('.table-footer');
+                    const textarea = container.querySelector('textarea[name="return-reason"]');
+                    const returnReason = textarea ? textarea.value.trim() : '';
+
+                    // If the return reason is empty, show an error alert and exit
+                    if (!returnReason) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Missing return reason',
+                            text: 'Please provide a return reason before submitting.'
+                        });
+                        return;
+                    }
+
+                    // Show a confirmation prompt using SweetAlert2
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you really want to return this item?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, return it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const orderId = button.getAttribute('data-order-id');
+                            // Send the return request using fetch
+                            fetch('/return', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    orderId: orderId,
+                                    returnReason: returnReason
+                                })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status) {
+                                        Swal.fire('Success', data.message, 'success').then(() => {
+                                            location.reload(); // Reload page to reflect changes
+                                        });
+                                    } else {
+                                        Swal.fire('Error', data.message, 'error');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error processing return:', err);
+                                    Swal.fire('Error', 'An error occurred while processing your return.', 'error');
+                                });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+<%-include("../../views/partials/user/footer")%>
