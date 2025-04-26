@@ -234,7 +234,7 @@
                 </li>
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/brands"> <i class="icon material-icons md-stars"></i>
-                        <span class="text">Publishers</span> </a>
+                        <span class="text">Brands</span> </a>
                 </li>
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/addProducts"> <i class="icon material-icons md-add_box"></i>
@@ -372,7 +372,7 @@
                                         <td><span class="order-status status-delivered">
                                                 <%= order.status %>
                                             </span></td>
-                                        <td><span class="order-amount">$ <%=order.finalAmount%></span></td>
+                                        <td><span class="order-amount">₹ <%=order.finalAmount%></span></td>
                                         <td><a href="/admin/orderView/<%= order._id %>" class="btn-view">View</a></td>
                                     </tr>
                                     <% }); %>

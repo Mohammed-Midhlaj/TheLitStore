@@ -48,10 +48,11 @@
             <div class="logo">TheLitStore</div>
             <div class="login-content">
                 <h1 class="login">LOG IN</h1>
-                <form action="/login" method="POST">
+                <form action="/login" method="POST" id="loginForm" onsubmit="return validateLoginForm()">
                     <div class="form-group">
                         <label for="email">EMAIL</label>
                         <input type="email" name="email" id="email" >
+                        <div id="emailError" class="error-message"></div>
                     </div>
                     <div class="form-group">
                         <label for="password">PASSWORD</label>
@@ -59,6 +60,7 @@
                             <input type="password" name="password" id="password" >
                             <i class="fas fa-eye-slash toggle-password" onclick="togglePassword('password')"></i>
                         </div>
+                        <div id="passwordError" class="error-message"></div>
                     </div>
                     <% if (locals.message && message.length>0) { %>
                         <div class="alert alert-danger text-center">
@@ -105,6 +107,43 @@
             toggleIcon.classList.remove('fa-eye');
             toggleIcon.classList.add('fa-eye-slash');
         }
+    }
+
+    function validateLoginForm() {
+        let isValid = true;
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        
+        // Email validation
+        if (email === '') {
+            emailError.textContent = 'Email is required';
+            emailError.style.display = 'block';
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailError.style.display = 'block';
+            isValid = false;
+        } else {
+            emailError.style.display = 'none';
+        }
+        
+        // Password validation
+        if (password === '') {
+            passwordError.textContent = 'Password is required';
+            passwordError.style.display = 'block';
+            isValid = false;
+        } else {
+            passwordError.style.display = 'none';
+        }
+        
+        return isValid;
+    }
+    
+    function isValidEmail(email) {
+        const emailPattern = /^([a-zA-Z0-9._-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})$/;
+        return emailPattern.test(email);
     }
 </script>
 </html>

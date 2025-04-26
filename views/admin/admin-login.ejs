@@ -169,17 +169,20 @@
         <div class="text">
             Admin Login
         </div>
-        <form action="/admin/admin-login" method="post">
+        <form action="/admin/admin-login" method="post" id="adminLoginForm" onsubmit="return validateAdminLoginForm()">
             <div class="field">
-                <input type="email" name="email" required>
+                <input type="email" name="email" id="email" required>
                 <span class="fas fa-user"></span>
+                <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this.previousElementSibling.previousElementSibling)"></i>
                 <label>Email</label>
+                <div id="emailError" class="error-message" style="color: red; font-size: 12px; margin-top: 5px;"></div>
             </div>
             <div class="field">
-                <input type="password" name="password" required>
+                <input type="password" name="password" id="password" required>
                 <span class="fas fa-lock"></span>
                 <i class="fas fa-eye-slash toggle-password" onclick="togglePassword(this.previousElementSibling.previousElementSibling)"></i>
                 <label>Password</label>
+                <div id="passwordError" class="error-message" style="color: red; font-size: 12px; margin-top: 5px;"></div>
             </div>
             <div style="margin-top: 20px;">
             <button>Sign in</button>
@@ -206,6 +209,43 @@
             toggleIcon.classList.remove('fa-eye');
             toggleIcon.classList.add('fa-eye-slash');
         }
+    }
+
+    function validateAdminLoginForm() {
+        let isValid = true;
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        
+        // Email validation
+        if (email === '') {
+            emailError.textContent = 'Email is required';
+            emailError.style.display = 'block';
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailError.style.display = 'block';
+            isValid = false;
+        } else {
+            emailError.style.display = 'none';
+        }
+        
+        // Password validation
+        if (password === '') {
+            passwordError.textContent = 'Password is required';
+            passwordError.style.display = 'block';
+            isValid = false;
+        } else {
+            passwordError.style.display = 'none';
+        }
+        
+        return isValid;
+    }
+    
+    function isValidEmail(email) {
+        const emailPattern = /^([a-zA-Z0-9._-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})$/;
+        return emailPattern.test(email);
     }
 </script>
 

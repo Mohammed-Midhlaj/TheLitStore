@@ -519,6 +519,7 @@
                                         <p class="item-count">
                                             <%= item.quantity %> item<%= item.quantity> 1 ? 's' : '' %>
                                         </p>
+                                        <p class="checkout-item-price">₹<%= item.price || item.salePrice %></p>
                                     </div>
                                 </div>
                                 <% }) %>
@@ -546,7 +547,7 @@
                                                 <p>
                                                     <%= defaultAddress.state %>
                                                 </p>
-                                                <p><strong>Rs.149.00 · 2-7 days</strong></p>
+                                                <p><strong>₹149.00 · 2-7 days</strong></p>
                                             </div>
                                             <% } else { %>
                                                 <div class="delivery-address">
@@ -601,15 +602,15 @@
                             <div class="price-breakdown">
                                 <div class="price-row">
                                     <span>Order Value</span>
-                                    <span>Rs.<%= totalPrice.toFixed(2) %></span>
+                                    <span>₹<%= totalPrice.toFixed(2) %></span>
                                 </div>
                                 <div class="price-row">
                                     <span>Delivery</span>
-                                    <span>Rs.149.00</span>
+                                    <span>₹149.00</span>
                                 </div>
                                 <div class="price-row total">
                                     <span>Total</span>
-                                    <span>Rs.<%= finalAmount.toFixed(2) %></span>
+                                    <span>₹<%= finalAmount.toFixed(2) %></span>
                                 </div>
                             </div>
 
@@ -737,7 +738,7 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Order Placed Successfully!',
-                        text: 'Thank you for purchasing. Final amount: Rs.' + (finalAmountPaise / 100).toFixed(2)
+                        text: 'Thank you for purchasing. Final amount: ₹' + (finalAmountPaise / 100).toFixed(2)
                     }).then(() => {
                         window.location.href = '/thank';
                     });

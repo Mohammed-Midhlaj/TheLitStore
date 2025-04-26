@@ -1,56 +1,236 @@
-<div class="footer">
-  <div class="footer-container">
-    <div class="row">
-      <div class="footer-col-3">
-        <h3>SHOP</h3>
-        <ul>
-          <li>Fiction</li>
-          <li>Non-Fiction</li>
-          <li>Children's Books</li>
-          <li>Academic</li>
-          <li>Biography</li>
-          <li>Poetry</li>
-        </ul>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3 class="footer-title">Shop</h3>
+          <ul class="footer-links">
+            <li><a href="/category/fiction">Fiction</a></li>
+            <li><a href="/category/non-fiction">Non-Fiction</a></li>
+            <li><a href="/category/children">Children's Books</a></li>
+            <li><a href="/category/academic">Academic</a></li>
+            <li><a href="/category/biography">Biography</a></li>
+            <li><a href="/category/poetry">Poetry</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Corporate Info</h3>
+          <ul class="footer-links">
+            <li><a href="/about">About TheLitStore</a></li>
+            <li><a href="/careers">Careers</a></li>
+            <li><a href="/press">Press</a></li>
+            <li><a href="/blog">Blog</a></li>
+            <li><a href="/contact">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Help</h3>
+          <ul class="footer-links">
+            <li><a href="/customer-service">Customer Service</a></li>
+            <li><a href="/account">My Account</a></li>
+            <li><a href="/stores">Find a Store</a></li>
+            <li><a href="/shipping">Shipping & Delivery</a></li>
+            <li><a href="/returns">Returns & Exchanges</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Book Club</h3>
+          <p class="footer-text">Subscribe to our newsletter for book recommendations, author interviews, and exclusive offers!</p>
+          <form class="footer-newsletter">
+            <input type="email" placeholder="Enter your email">
+            <button type="submit" class="btn-subscribe">Subscribe</button>
+          </form>
+          <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
       </div>
-      <div class="footer-col-3">
-        <h3>CORPORATE INFO</h3>
-        <ul>
-          <li>About TheLitStore</li>
-          <li>Careers</li>
-          <li>Press</li>
-          <li>Blog</li>
-          <li>Contact Us</li>
-        </ul>
+
+      <div class="footer-bottom">
+        <div class="footer-logo">
+          <img src="/images/AestheLogo-red.png" alt="TheLitStore Logo">
+        </div>
+        <div class="copyright">
+          <p>&copy; <%= new Date().getFullYear() %> TheLitStore. All rights reserved.</p>
+          <p>The content of this site is copyright-protected and is the property of TheLitStore. TheLitStore's business concept is to offer quality books at the best price in a sustainable way.</p>
+        </div>
+        <div class="footer-legal">
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/cookies">Cookie Policy</a>
+        </div>
       </div>
-      <div class="footer-col-3">
-        <h3>HELP</h3>
-        <ul>
-          <li>Customer Service</li>
-          <li>My Account</li>
-          <li>Find a Store</li>
-          <li>Shipping & Delivery</li>
-          <li>Returns & Exchanges</li>
-        </ul>
-      </div>
-      <div class="footer-col-3">
-        <h3>Join Our Book Club</h3>
-        <ul>
-          <p>Subscribe to our newsletter for book recommendations, author interviews, and exclusive offers!</p>
-          <a href="#">SUBSCRIBE &#8594;</a>
-        </ul>
-      </div>
-    </div>
-    <div class="copyright">
-      <p>The content of this site is copyright-protected and is the property of TheLitStore. TheLitStore's business concept is to offer quality books at the best price in a sustainable way.</p>
-      <a href="#">READ MORE</a>
-      <img src="images/AestheLogo-red.png" alt="">
     </div>
   </div>
-</div>
+</footer>
+
+<style>
+  .footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 60px 0 30px;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  .footer-section {
+    margin-bottom: 30px;
+  }
+
+  .footer-title {
+    font-family: 'Merriweather', serif;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-links li {
+    margin-bottom: 0.8rem;
+  }
+
+  .footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover {
+    color: white;
+  }
+
+  .footer-text {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .footer-newsletter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-newsletter input {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+
+  .btn-subscribe {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-subscribe:hover {
+    background-color: var(--accent-color);
+  }
+
+  .social-links {
+    display: flex;
+    gap: 15px;
+  }
+
+  .social-link {
+    color: white;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+  }
+
+  .social-link:hover {
+    color: var(--secondary-color);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .footer-logo img {
+    max-width: 150px;
+    height: auto;
+  }
+
+  .copyright {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .footer-legal {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+  }
+
+  .footer-legal a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+  }
+
+  .footer-legal a:hover {
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      padding: 40px 0 20px;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .footer-newsletter {
+      flex-direction: column;
+    }
+
+    .footer-legal {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
 <script src="/script.js"></script>
 </body>
-
 </html>

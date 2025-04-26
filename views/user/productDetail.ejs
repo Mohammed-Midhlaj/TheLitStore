@@ -1,0 +1,41 @@
+            .wishlist-button {
+                background: transparent;
+                border: none;
+                color: #666;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                padding: 0.5rem;
+            }
+
+            .wishlist-button svg {
+                stroke: #000;
+                fill: none;
+                transition: all 0.3s ease;
+                width: 24px;
+                height: 24px;
+            }
+
+            .wishlist-button.active svg {
+                fill: #ff0000;
+                stroke: #ff0000;
+                transform: scale(1.1);
+            }
+
+            .wishlist-button:hover svg {
+                transform: scale(1.1);
+            }
+
+                    <div class="d-flex align-items-center mb-4">
+                        <button class="wishlist-button <%= product.isInWishlist ? 'active' : '' %>" 
+                            data-product-id="<%= product._id %>"
+                            onclick="addToWishlist('<%= product._id %>')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
+                            <span class="ms-2"><%= product.isInWishlist ? 'Added to Wishlist' : 'Add to Wishlist' %></span>
+                        </button>
+                    </div> 

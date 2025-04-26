@@ -418,8 +418,7 @@
                                     <h3 class="cart-item-title">
                                         <%= item.productId.productName %>
                                     </h3>
-                                    <p class="cart-item-price">Rs. <%= item.price.toLocaleString('en-IN') %>
-                                    </p>
+                                    <p class="cart-item-price">₹<%= item.price || item.salePrice %></p>
 
                                     <div class="cart-item-info">
                                         <div class="info-row">
@@ -470,8 +469,7 @@
                                             <%= item.size %>
                                         </span>
                                         <span class="info-label">Total</span>
-                                        <span class="total-value">Rs. <%= item.totalPrice.toLocaleString('en-IN') %>
-                                        </span>
+                                        <span class="total-value">₹<%= item.totalPrice.toLocaleString('en-IN') %></span>
                                     </div>
                                 </div>
                             </div>
@@ -487,17 +485,17 @@
                         <div class="summary-row-orderValue"
                             style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                             <span>order value</span>
-                            <a href="#" class="apply-orderVal">Rs. <%= totalOrderValue.toLocaleString('en-IN') %></a>
+                            <a href="#" class="apply-orderVal">₹<%= totalOrderValue.toLocaleString('en-IN') %></a>
                         </div>
                         <div class="summary-row-deliveryCharge"
                             style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                             <span>delivery charge</span>
-                            <a href="#" class="apply-deliveryCharge">Rs. 150</a>
+                            <a href="#" class="apply-deliveryCharge">₹ 150</a>
                         </div>
                         <div class="summary-divider"></div>
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="totalAmount">Rs. <%= (totalOrderValue + 150).toLocaleString('en-IN') %></span>
+                            <span id="totalAmount">₹<%= (totalOrderValue + 150).toLocaleString('en-IN') %></span>
                         </div>
                         <a href="/checkout">
                             <button class="checkout-btn">Continue to checkout</button>
@@ -637,7 +635,7 @@
                     if (result.status) {
                         location.reload();
                         cartItem.querySelector('.qty').innerText = result.quantity;
-                        cartItem.querySelector('.total-value').innerText = "Rs. " + result.totalPrice.toLocaleString('en-IN');
+                        cartItem.querySelector('.total-value').innerText = "₹ " + result.totalPrice.toLocaleString('en-IN');
 
                     } else {
                         Swal.fire({
@@ -668,7 +666,7 @@
                     if (result.status) {
                         location.reload();
                         cartItem.querySelector('.qty').innerText = result.quantity;
-                        cartItem.querySelector('.total-value').innerText = "Rs. " + result.totalPrice.toLocaleString('en-IN');
+                        cartItem.querySelector('.total-value').innerText = "₹ " + result.totalPrice.toLocaleString('en-IN');
 
                     } else {
                         Swal.fire({

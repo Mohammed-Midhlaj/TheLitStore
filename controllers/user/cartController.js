@@ -17,6 +17,7 @@ const loadCart = async (req, res) => {
         res.render("cart", {
             user,
             cartItems,
+            isAuthenticated: true
         })
     } catch (error) {
         console.log("Error loading cart page");

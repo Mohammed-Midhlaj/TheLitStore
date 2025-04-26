@@ -178,17 +178,16 @@ const postNewPassword = async (req, res) => {
 
 const userProfile = async (req, res) => {
     try {
-
-        const userData = req.session.userData;
-        const addressData = await Address.findOne({ userData: userData });
+        const userId = req.session.user;
+        const userData = await User.findById(userId);
+        
         res.render("profile", {
             user: userData,
-            userAddress: addressData,
-        })
-
+            isAuthenticated: true
+        });
     } catch (error) {
-        console.error("Error retrieving profileData", error);
-        res.redirect("/pageNotFound");
+        console.log("Error loading profile page:", error);
+        res.redirect('/pageNotFound');
     }
 }
 
@@ -386,8 +385,13 @@ const verifyChangePasswordOtp = async (req, res) => {
 const loadAddressPage = async (req, res) => {
     try {
         const userId = req.session.user;
+        const user = await User.findById(userId);
         const userAddress = await Address.findOne({ userId: userId });
-        res.render("address", { userAddress });
+        res.render("address", { 
+            user,
+            userAddress,
+            isAuthenticated: true 
+        });
     } catch (error) {
         console.log("Error loading address page: ", error);
         res.redirect('/pageNotFound');

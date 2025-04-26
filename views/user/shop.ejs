@@ -1,820 +1,831 @@
-<%-include("../../views/partials/user/header")%>
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Clothing Shop</title>
-        <style>
-            /* Shop Container Styles */
-            .shop-container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - TheLitStore</title>
+    <link rel="stylesheet" href="/css/user/shop.css">
+    <link rel="stylesheet" href="/css/user/header.css">
+    <style>
+        /* Shop Container Styles */
+        .shop-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Filter Section Styles */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .sort-by {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-by select {
+            padding: 8px 12px;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        #filterBtn {
+            font-weight: bold;
+            letter-spacing: 1px;
+            background-color: #000;
+            color: white;
+        }
+
+        #filterBtn:hover {
+            background-color: white;
+            color: black;
+        }
+
+        /* Filter Button Styles */
+        .filter-options {
+            margin: 20px 0;
+        }
+
+        .product-type-filter button {
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Filter Sidebar Styles */
+        .filter-sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            /* Hide initially */
+            width: 350px;
+            height: 100%;
+            background-color: #fff;
+            border-left: 1px solid #ddd;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .filter-sidebar.active {
+            right: 0;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .filter-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        #closeFilterBtn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .filter-content {
+            padding: 20px;
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .filter-section h3:after {
+            content: '>';
+            position: absolute;
+            right: 0;
+            transform: rotate(90deg);
+        }
+
+        .filter-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-items label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .price-range-btn {
+            background-color: #000000;
+            color: white;
+            font-size: medium;
+            margin: 10px;
+            width: 120px;
+            height: 40px;
+            border-radius: 6px;
+            border-color: white;
+        }
+
+        .price-range-btn:hover {
+            transform: scale(1.05);
+            background-color: white;
+            color: black;
+            border-color: black;
+        }
+
+        /* Price range slider */
+        .price-slider {
+            margin-top: 15px;
+        }
+
+        .price-values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        /* Filter footer */
+        .filter-footer {
+            position: sticky;
+            bottom: 0;
+            display: flex;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+        #clearBtn {
+            flex: 1;
+            padding: 12px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        #applyBtn {
+            flex: 1;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Overlay for background */
+        .filter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .filter-overlay.active {
+            display: block;
+        }
+
+        .category-filter,
+        .product-type-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        .category-filter button,
+        .product-type-filter button {
+            padding: 8px 15px;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-filter button.active,
+        .product-type-filter button.active {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .filter-mobile {
+            display: none;
+        }
+
+        .product-count {
+            margin-top: 10px;
+            color: #666;
+        }
+
+        /* Products Grid Styles */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            position: relative;
+            background-color: #fff;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: auto;
+
+        }
+
+        .product-image img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .wishlist-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 2;
+        }
+
+        .wishlist-button {
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-button svg {
+            stroke: #000;
+            fill: none;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-button.active svg {
+            fill: #ff0000;
+            stroke: #ff0000;
+            transform: scale(1.1);
+        }
+
+        .wishlist-button:hover svg {
+            transform: scale(1.1);
+        }
+
+        .product-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            background-color: #000;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .product-price {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .current-price {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .product-colors {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .color-option {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 1px solid #e1e1e1;
+        }
+
+        .color-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin-top: 30px;
+        }
+
+        .page-prev,
+        .page-next,
+        .page-number {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 35px;
+            height: 35px;
+            border: 1px solid #e1e1e1;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-number.active {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .page-prev.disabled,
+        .page-next.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            /* Filter Section Styles */
-            .filter-section {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #e1e1e1;
-            }
-
-            .sort-by {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .sort-by select {
-                padding: 8px 12px;
-                border: 1px solid #e1e1e1;
-                border-radius: 4px;
-                background-color: #fff;
-                cursor: pointer;
-            }
-
-            #filterBtn {
-                font-weight: bold;
-                letter-spacing: 1px;
-                background-color: #000;
-                color: white;
-            }
-
-            #filterBtn:hover {
-                background-color: white;
-                color: black;
-            }
-
-            /* Filter Button Styles */
             .filter-options {
-                margin: 20px 0;
-            }
-
-            .product-type-filter button {
-                padding: 8px 16px;
-                background-color: #f5f5f5;
-                border: 1px solid #ddd;
-                cursor: pointer;
-                font-size: 14px;
-            }
-
-            /* Filter Sidebar Styles */
-            .filter-sidebar {
-                position: fixed;
-                top: 0;
-                right: -350px;
-                /* Hide initially */
-                width: 350px;
-                height: 100%;
-                background-color: #fff;
-                border-left: 1px solid #ddd;
-                transition: right 0.3s ease;
-                z-index: 1000;
-                overflow-y: auto;
-            }
-
-            .filter-sidebar.active {
-                right: 0;
-            }
-
-            .filter-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 20px;
-                border-bottom: 1px solid #ddd;
-            }
-
-            .filter-header h2 {
-                margin: 0;
-                font-size: 20px;
-            }
-
-            #closeFilterBtn {
-                background: none;
-                border: none;
-                font-size: 24px;
-                cursor: pointer;
-            }
-
-            .filter-content {
-                padding: 20px;
-            }
-
-            .filter-section {
-                margin-bottom: 25px;
-            }
-
-            .filter-section h3 {
-                margin-bottom: 15px;
-                font-size: 16px;
-                position: relative;
-            }
-
-            .filter-section h3:after {
-                content: '>';
-                position: absolute;
-                right: 0;
-                transform: rotate(90deg);
-            }
-
-            .filter-items {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .filter-items label {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                cursor: pointer;
-            }
-
-            .price-range-btn {
-                background-color: #000000;
-                color: white;
-                font-size: medium;
-                margin: 10px;
-                width: 120px;
-                height: 40px;
-                border-radius: 6px;
-                border-color: white;
-            }
-
-            .price-range-btn:hover {
-                transform: scale(1.05);
-                background-color: white;
-                color: black;
-                border-color: black;
-            }
-
-            /* Price range slider */
-            .price-slider {
-                margin-top: 15px;
-            }
-
-            .price-values {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 10px;
-            }
-
-            /* Filter footer */
-            .filter-footer {
-                position: sticky;
-                bottom: 0;
-                display: flex;
-                padding: 15px 20px;
-                background-color: #fff;
-                border-top: 1px solid #ddd;
-            }
-
-            #clearBtn {
-                flex: 1;
-                padding: 12px;
-                background-color: #f5f5f5;
-                border: 1px solid #ddd;
-                margin-right: 10px;
-                cursor: pointer;
-            }
-
-            #applyBtn {
-                flex: 1;
-                padding: 12px;
-                background-color: #222;
-                color: white;
-                border: none;
-                cursor: pointer;
-            }
-
-            /* Overlay for background */
-            .filter-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
                 width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 999;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-options {
                 display: none;
             }
 
-            .filter-overlay.active {
-                display: block;
-            }
-
-            .category-filter,
-            .product-type-filter {
+            .filter-mobile {
                 display: flex;
-                gap: 10px;
+                justify-content: space-between;
+                width: 100%;
+                align-items: center;
+                margin: 15px 0;
             }
 
-            .category-filter button,
-            .product-type-filter button {
+            #filter-button {
+                display: flex;
+                align-items: center;
+                gap: 5px;
                 padding: 8px 15px;
                 border: 1px solid #e1e1e1;
                 border-radius: 4px;
                 background-color: #fff;
                 cursor: pointer;
-                transition: all 0.3s ease;
             }
 
-            .category-filter button.active,
-            .product-type-filter button.active {
-                background-color: #000;
-                color: #fff;
+            .filter-icon {
+                width: 18px;
+                height: 18px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='3' y1='6' x2='21' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='12' x2='21' y2='12'%3E%3C/line%3E%3Cline x1='3' y1='18' x2='21' y2='18'%3E%3C/line%3E%3C/svg%3E");
+                background-size: contain;
+                background-repeat: no-repeat;
             }
 
-            .filter-mobile {
-                display: none;
-            }
-
-            .product-count {
-                margin-top: 10px;
-                color: #666;
-            }
-
-            /* Products Grid Styles */
-            .products-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-
-            .product-card {
-                position: relative;
-                background-color: #fff;
-                border-radius: 4px;
-                overflow: hidden;
-                transition: transform 0.3s ease;
-            }
-
-            .product-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-
-            .product-image {
-                width: 100%;
-                height: auto;
-
-            }
-
-            .product-image img {
-                width: 100%;
-                height: auto;
-                object-fit: contain;
-            }
-
-            .product-card:hover .product-image img {
-                transform: scale(1.05);
-            }
-
-            .wishlist-icon {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                z-index: 2;
-            }
-
-            .wishlist-button {
-                background: transparent;
-                border: none;
-                color: #666;
-                cursor: pointer;
-            }
-
-            .wishlist-button svg {
-                stroke: #000;
-                fill: none;
-                transition: fill 0.3s ease;
-            }
-
-            .wishlist-button.active svg {
-                fill: #ff0000;
-                stroke: #ff0000;
-            }
-
-            .product-tag {
-                position: absolute;
-                bottom: 10px;
-                left: 0;
-                background-color: #000;
-                color: #fff;
-                padding: 4px 8px;
-                font-size: 12px;
-            }
-
-            .product-info {
-                padding: 15px;
-            }
-
-            .product-name {
-                font-size: 16px;
-                font-weight: 500;
-                margin-bottom: 8px;
-                color: #333;
-            }
-
-            .product-price {
+            .view-options {
                 display: flex;
                 gap: 10px;
-                margin-bottom: 8px;
             }
 
-            .current-price {
-                font-weight: bold;
-                color: #000;
-            }
-
-            .old-price {
-                text-decoration: line-through;
-                color: #999;
-            }
-
-            .product-colors {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-
-            .color-option {
-                width: 15px;
-                height: 15px;
-                border-radius: 50%;
+            .grid-view,
+            .list-view {
+                width: 30px;
+                height: 30px;
                 border: 1px solid #e1e1e1;
-            }
-
-            .color-count {
-                font-size: 12px;
-                color: #666;
-            }
-
-            /* Pagination Styles */
-            .pagination {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 5px;
-                margin-top: 30px;
-            }
-
-            .page-prev,
-            .page-next,
-            .page-number {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 35px;
-                height: 35px;
-                border: 1px solid #e1e1e1;
+                border-radius: 4px;
                 background-color: #fff;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                background-position: center;
+                background-repeat: no-repeat;
             }
 
-            .page-number.active {
-                background-color: #000;
-                color: #fff;
+            .grid-view {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='3' y='14' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='14' width='7' height='7'%3E%3C/rect%3E%3C/svg%3E");
             }
 
-            .page-prev.disabled,
-            .page-next.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
+            .list-view {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='8' y1='6' x2='21' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='21' y2='12'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='21' y2='18'%3E%3C/line%3E%3Cline x1='3' y1='6' x2='3.01' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='12' x2='3.01' y2='12'%3E%3C/line%3E%3Cline x1='3' y1='18' x2='3.01' y2='18'%3E%3C/line%3E%3C/svg%3E");
             }
 
-            /* Responsive Styles */
-            @media (max-width: 992px) {
-                .products-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                }
+            .grid-view.active,
+            .list-view.active {
+                background-color: #f0f0f0;
             }
+        }
 
-            @media (max-width: 768px) {
-                .products-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-                .filter-options {
-                    width: 100%;
-                    justify-content: space-between;
-                }
-            }
+        .add-to-wishlist {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-            @media (max-width: 576px) {
-                .filter-section {
-                    flex-direction: column;
-                    align-items: flex-start;
-                }
+        .add-to-wishlist:hover {
+            background: #f5f5f5;
+        }
 
-                .filter-options {
-                    display: none;
-                }
+        .add-to-wishlist.active {
+            color: red;
+            border-color: red;
+        }
 
-                .filter-mobile {
-                    display: flex;
-                    justify-content: space-between;
-                    width: 100%;
-                    align-items: center;
-                    margin: 15px 0;
-                }
+        .add-to-wishlist.active i {
+            color: red;
+        }
+    </style>
+</head>
 
-                #filter-button {
-                    display: flex;
-                    align-items: center;
-                    gap: 5px;
-                    padding: 8px 15px;
-                    border: 1px solid #e1e1e1;
-                    border-radius: 4px;
-                    background-color: #fff;
-                    cursor: pointer;
-                }
-
-                .filter-icon {
-                    width: 18px;
-                    height: 18px;
-                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='3' y1='6' x2='21' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='12' x2='21' y2='12'%3E%3C/line%3E%3Cline x1='3' y1='18' x2='21' y2='18'%3E%3C/line%3E%3C/svg%3E");
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                }
-
-                .view-options {
-                    display: flex;
-                    gap: 10px;
-                }
-
-                .grid-view,
-                .list-view {
-                    width: 30px;
-                    height: 30px;
-                    border: 1px solid #e1e1e1;
-                    border-radius: 4px;
-                    background-color: #fff;
-                    cursor: pointer;
-                    background-position: center;
-                    background-repeat: no-repeat;
-                }
-
-                .grid-view {
-                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='3' width='7' height='7'%3E%3C/rect%3E%3Crect x='3' y='14' width='7' height='7'%3E%3C/rect%3E%3Crect x='14' y='14' width='7' height='7'%3E%3C/rect%3E%3C/svg%3E");
-                }
-
-                .list-view {
-                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='8' y1='6' x2='21' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='21' y2='12'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='21' y2='18'%3E%3C/line%3E%3Cline x1='3' y1='6' x2='3.01' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='12' x2='3.01' y2='12'%3E%3C/line%3E%3Cline x1='3' y1='18' x2='3.01' y2='18'%3E%3C/line%3E%3C/svg%3E");
-                }
-
-                .grid-view.active,
-                .list-view.active {
-                    background-color: #f0f0f0;
-                }
-            }
-        </style>
-    </head>
-
-    <body>
-        <!-- Your header will go here -->
-
-        <div class="shop-container">
-            <!-- Filter and Sort Section -->
-            <div class="filter-section">
-                <div class="sort-by">
-                    <span>Sort by:</span>
-                    <select id="sort-select">
-                        <option value="featured">Featured</option>
+<body>
+    <%- include("../partials/user/header", { isAuthenticated: typeof isAuthenticated !== 'undefined' ? isAuthenticated : false }) %>
+    
+    <div class="shop-container">
+        <!-- Filter and Sort Section -->
+        <div class="filter-section">
+            <h3>Filter Products</h3>
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label for="category">Category</label>
+                    <select id="category">
+                        <option value="">All Categories</option>
+                        <% if (typeof categories !== 'undefined' && categories && categories.length > 0) { %>
+                            <% categories.forEach(function(category) { %>
+                                <option value="<%= category._id %>"><%= category.name %></option>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="price">Price Range</label>
+                    <select id="price">
+                        <option value="">All Prices</option>
+                        <option value="0-50">₹0 - ₹50</option>
+                        <option value="51-100">₹51 - ₹100</option>
+                        <option value="101+">₹101+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Sort By</label>
+                    <select id="sort">
                         <option value="newest">Newest</option>
                         <option value="price-low">Price: Low to High</option>
                         <option value="price-high">Price: High to Low</option>
-                        <option value="name-asc">aA - zZ</option>
-                        <option value="name-desc">zZ - aA</option>
                     </select>
                 </div>
-
-                <!-- Filter Button -->
-                <div class="filter-options">
-                    <div class="product-type-filter">
-                        <button id="filterBtn">Filter</button>
-                    </div>
-                </div>
-
-                <!-- Filter Sidebar -->
-                <div class="filter-sidebar" id="filterSidebar">
-                    <div class="filter-header">
-                        <h2>Filter</h2>
-                        <button id="closeFilterBtn">×</button>
-                    </div>
-
-                    <div class="filter-content">
-                        <!-- Category Filter -->
-                        <div class="filter-section">
-                            <h3>Category</h3>
-                            <div class="filter-items">
-                                <ul>
-                                    <%for(let i=0; i<category.length; i++){%>
-                                        <li>
-                                            <a href="/filter?category=<%=category[i]._id%>" style="color:darkblue;">
-                                                <%=category[i].name%>
-                                            </a>
-                                        </li>
-                                        <%}%>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Price Range Filter -->
-                        <div class="filter-section">
-                            <h3>Price Range</h3>
-                            <div class="price-slider">
-                                <a href="/filterPrice?gt=0&lt=500">
-                                    <button class="price-range-btn">Under 500</button>
-                                </a>
-                                <a href="/filterPrice?gt=500&lt=1000">
-                                    <button class="price-range-btn">500 - 1000</button>
-                                </a>
-                                <a href="/filterPrice?gt=1000&lt=5000">
-                                    <button class="price-range-btn">1000 - 5000</button>
-                                </a>
-                                <a href="/filterPrice?gt=5000&lt=50000">
-                                    <button class="price-range-btn">Above 5000</button>
-                                </a>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="filter-mobile">
-                    <button id="filter-button">
-                        <span>Filter</span>
-                        <i class="filter-icon"></i>
-                    </button>
-                    <div class="view-options">
-                        <button class="grid-view active"></button>
-                        <button class="list-view"></button>
-                    </div>
-                </div>
-                <div class="product-count">
-                    <span>Showing 16 products</span>
-                </div>
             </div>
+        </div>
 
-            <!-- Products Grid -->
-
-            <div class="products-grid">
-                <%for(i=0; i<products.length; i++){%>
+        <!-- Products Grid -->
+        <div class="products-grid">
+            <% if (typeof products !== 'undefined' && products && products.length > 0) { %>
+                <% products.forEach(function(product) { %>
                     <div class="product-card">
-                        <div class="product-image">
-                            <a href="/productDetails?id=<%=products[i]._id%>">
-                                <img src="/uploads/re-image/<%=products[i].productImage[0]%>"
-                                    alt="<%=products[i].productName%>"> </a>
-                            <div class="wishlist-icon">
-                                <button class="wishlist-button" data-product-id="1"
-                                    onclick="addToWishlist('<%=products[i]._id%>')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path
-                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
-                                        </path>
-                                    </svg>
+                        <img src="<%= product.image || '/uploads/re-image/' + product.productImage[0] %>" alt="<%= product.name || product.productName %>" class="product-image">
+                        <div class="product-info">
+                            <h3 class="product-title"><%= product.name || product.productName %></h3>
+                            <p class="product-price">₹<%= product.price || product.salePrice %></p>
+                            <p class="product-description"><%= product.description || '' %></p>
+                            <div class="product-actions">
+                                <button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+                                <button class="add-to-wishlist <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'active' : '' %>" 
+                                        onclick="addToWishlist('<%= product._id %>')"
+                                        data-product-id="<%= product._id %>">
+                                    <i class="fas fa-heart"></i>
                                 </button>
                             </div>
-
-                            <!-- <div class="product-tag">New Arrival</div> -->
                         </div>
-                        <a href="/productDetails?id=<%=products[i]._id%>">
-                            <div class="product-info">
-                                <h3 class="product-name">
-                                    <%=products[i].productName%>
-                                </h3>
-                                <div class="product-price">
-                                    <span
-                                        class="current-price">Rs.<%=products[i].salePrice.toLocaleString('en-IN')%></span>
-                                    <span
-                                        class="old-price">Rs.<%=products[i].regularPrice.toLocaleString('en-IN')%></span>
-                                </div>
-                            </div>
-                        </a>
                     </div>
+                <% }); %>
+            <% } else { %>
+                <p>No products found.</p>
+            <% } %>
+        </div>
 
-
-                    <%}%>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-                <% if (currentPage> 1) { %>
-                    <button class="page-prev" onclick="location.href='/shop?page=<%= currentPage - 1 %>'">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Pagination -->
+        <div class="pagination">
+            <% if (currentPage> 1) { %>
+                <button class="page-prev" onclick="location.href='/shop?page=<%= currentPage - 1 %>'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <% } else { %>
+                    <button class="page-prev disabled" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <polyline points="15 18 9 12 15 6"></polyline>
                         </svg>
                     </button>
-                    <% } else { %>
-                        <button class="page-prev disabled" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                        </button>
-                        <% } %>
+                    <% } %>
 
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <% if (currentPage===i) { %>
-                                    <button class="page-number active" onclick="location.href='/shop?page=<%= i %>'">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <% if (currentPage===i) { %>
+                                <button class="page-number active" onclick="location.href='/shop?page=<%= i %>'">
+                                    <%= i %>
+                                </button>
+                                <% } else { %>
+                                    <button class="page-number" onclick="location.href='/shop?page=<%= i %>'">
                                         <%= i %>
                                     </button>
-                                    <% } else { %>
-                                        <button class="page-number" onclick="location.href='/shop?page=<%= i %>'">
-                                            <%= i %>
-                                        </button>
+                                    <% } %>
                                         <% } %>
-                                            <% } %>
 
-                                                <% if (currentPage < totalPages) { %>
-                                                    <button class="page-next"
-                                                        onclick="location.href='/shop?page=<%= currentPage + 1 %>'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round">
+                                            <% if (currentPage < totalPages) { %>
+                                                <button class="page-next"
+                                                    onclick="location.href='/shop?page=<%= currentPage + 1 %>'">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </button>
+                                                <% } else { %>
+                                                    <button class="page-next disabled" disabled>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                                            height="20" viewBox="0 0 24 24" fill="none"
+                                                            stroke="currentColor" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round">
                                                             <polyline points="9 18 15 12 9 6"></polyline>
                                                         </svg>
                                                     </button>
-                                                    <% } else { %>
-                                                        <button class="page-next disabled" disabled>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
-                                                                height="20" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                                <polyline points="9 18 15 12 9 6"></polyline>
-                                                            </svg>
-                                                        </button>
-                                                        <% } %>
-            </div>
-
+                                                    <% } %>
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
+    </div>
 
-            function addToWishlist(productId) {
-                $.ajax({
-                    url: '/addToWishlist',
-                    method: 'POST',
-                    data: { productId: productId },
-                    success: (response) => {
-                        if (response.status) {
-                            Swal.fire({
-                                title: "Added to wishlist",
-                                text: "The product has been added to wishlist",
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false,
-                            })
-                        } else {
-                            Swal.fire({
-                                title: "Product already in whishlist",
-                                text: response.message,
-                                icon: 'info',
-                                timer: 2000,
-                                showConfirmButton: false,
-                            })
-                        }
-                    },
-                    error: (error) => {
-                        Swal.fire({
-                            title: 'Error',
-                            text: "There was an error adding the product to your wishlist",
-                            icon: "error",
-                            icon: 2000,
-                        })
-                    },
-                })
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const filterBtn = document.getElementById('filterBtn');
-                const filterSidebar = document.getElementById('filterSidebar');
-                const closeFilterBtn = document.getElementById('closeFilterBtn');
-                const clearBtn = document.getElementById('clearBtn');
-                const applyBtn = document.getElementById('applyBtn');
-                const filterbutton = document.getElementById('filter-button');
-
-
-                const overlay = document.createElement('div');
-                overlay.className = 'filter-overlay';
-                document.body.appendChild(overlay);
-
-                filterBtn.addEventListener('click', function () {
-                    filterSidebar.classList.add('active');
-                    overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-
-                filterbutton.addEventListener('click', function () {
-                    filterSidebar.classList.add('active');
-                    overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-
-                function closeFilter() {
-                    filterSidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Add to cart functionality
+        function addToCart(productId) {
+            fetch("/addToCart", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: result.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "info",
+                        title: "Notice",
+                        text: result.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 }
-
-                closeFilterBtn.addEventListener('click', closeFilter);
-                overlay.addEventListener('click', closeFilter);
-
-                clearBtn.addEventListener('click', function () {
-                    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-
-
-                    const priceMin = document.getElementById('priceMin');
-                    const priceMax = document.getElementById('priceMax');
-                    priceMin.value = priceMin.min;
-                    priceMax.value = priceMax.max;
-                    document.getElementById('minValue').textContent = '₹' + priceMin.min;
-                    document.getElementById('maxValue').textContent = '₹' + priceMax.max;
-                });
-
-
-                applyBtn.addEventListener('click', function () {
-                    const form = document.createElement('form');
-                    form.method = 'GET';
-                    form.action = window.location.pathname;
-
-                    const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked'));
-                    selectedCategories.forEach(input => {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'category[]';
-                        hiddenInput.value = input.value;
-                        form.appendChild(hiddenInput);
-                    });
-
-
-                    const selectedBrands = Array.from(document.querySelectorAll('input[name="brand"]:checked'));
-                    selectedBrands.forEach(input => {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'brand[]';
-                        hiddenInput.value = input.value;
-                        form.appendChild(hiddenInput);
-                    });
-
-                    const minPrice = document.getElementById('priceMin').value;
-                    const maxPrice = document.getElementById('priceMax').value;
-
-                    const minPriceInput = document.createElement('input');
-                    minPriceInput.type = 'hidden';
-                    minPriceInput.name = 'minPrice';
-                    minPriceInput.value = minPrice;
-                    form.appendChild(minPriceInput);
-
-                    const maxPriceInput = document.createElement('input');
-                    maxPriceInput.type = 'hidden';
-                    maxPriceInput.name = 'maxPrice';
-                    maxPriceInput.value = maxPrice;
-                    form.appendChild(maxPriceInput);
-
-                    document.body.appendChild(form);
-                    form.submit();
-
-                    closeFilter();
-                });
-
-                const priceMin = document.getElementById('priceMin');
-                const priceMax = document.getElementById('priceMax');
-                const minValue = document.getElementById('minValue');
-                const maxValue = document.getElementById('maxValue');
-
-                priceMin.addEventListener('input', function () {
-                    minValue.textContent = '₹' + this.value;
-                });
-
-                priceMax.addEventListener('input', function () {
-                    maxValue.textContent = '₹' + this.value;
+            })
+            .catch(error => {
+                console.error("Error adding to cart:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong. Please try again later."
                 });
             });
+        }
 
-        </script>
-    </body>
+        // Add to wishlist functionality
+        function addToWishlist(productId) {
+            <% if (!user) { %>
+                Swal.fire({
+                    title: 'Please Sign In',
+                    text: 'You need to be signed in to add items to your wishlist.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sign In',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/login';
+                    }
+                });
+                return;
+            <% } %>
 
-    </html>
-    <%-include("../../views/partials/user/footer")%>
+            fetch('/addToWishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(response => {
+                if (response.ok || response.status === 409) {
+                    return response.json().then(data => ({
+                        ...data,
+                        isAlreadyInWishlist: response.status === 409
+                    }));
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(data => {
+                const button = document.querySelector(`[data-product-id="${productId}"]`);
+                
+                if (data.isAlreadyInWishlist) {
+                    button.classList.add('active');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Already in Wishlist',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else if (data.success) {
+                    button.classList.toggle('active');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Wishlist',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to add to wishlist');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'An error occurred while updating your wishlist.'
+                });
+            });
+        }
+
+        // Filter functionality
+        function updateUrlParameter(key, value) {
+            const searchParams = new URLSearchParams(window.location.search);
+            if (value) {
+                searchParams.set(key, value);
+            } else {
+                searchParams.delete(key);
+            }
+            return `${window.location.pathname}?${searchParams.toString()}`;
+        }
+
+        // Add event listeners for filter functionality
+        document.querySelectorAll('.filter-group select').forEach(select => {
+            select.addEventListener('change', () => {
+                let url = window.location.pathname;
+                const params = new URLSearchParams(window.location.search);
+
+                // Handle category filter
+                if (select.id === 'category') {
+                    if (select.value) {
+                        params.set('category', select.value);
+                    } else {
+                        params.delete('category');
+                    }
+                }
+
+                // Handle price range filter
+                if (select.id === 'price') {
+                    if (select.value) {
+                        const [min, max] = select.value.split('-');
+                        params.set('minPrice', min);
+                        params.set('maxPrice', max || '9999999'); // Use a high number for 101+
+                    } else {
+                        params.delete('minPrice');
+                        params.delete('maxPrice');
+                    }
+                }
+
+                // Handle sort
+                if (select.id === 'sort') {
+                    if (select.value) {
+                        params.set('sort', select.value);
+                    } else {
+                        params.delete('sort');
+                    }
+                }
+
+                // Update page parameter
+                params.set('page', '1'); // Reset to first page when filtering
+
+                // Redirect with new parameters
+                window.location.href = `${url}?${params.toString()}`;
+            });
+        });
+
+        // Set initial filter values from URL
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Set category
+            if (params.has('category')) {
+                document.getElementById('category').value = params.get('category');
+            }
+            
+            // Set price range
+            if (params.has('minPrice') && params.has('maxPrice')) {
+                const min = params.get('minPrice');
+                const max = params.get('maxPrice');
+                const priceSelect = document.getElementById('price');
+                if (max === '9999999') {
+                    priceSelect.value = `${min}+`;
+                } else {
+                    priceSelect.value = `${min}-${max}`;
+                }
+            }
+            
+            // Set sort
+            if (params.has('sort')) {
+                document.getElementById('sort').value = params.get('sort');
+            }
+        });
+    </script>
+</body>
+
+</html>

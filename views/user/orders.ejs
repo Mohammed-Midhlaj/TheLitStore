@@ -1,4 +1,7 @@
-<%-include("../../views/partials/user/header")%>
+<%-include("../../views/partials/user/header", { 
+    isAuthenticated: typeof isAuthenticated !== 'undefined' ? isAuthenticated : false,
+    user: typeof user !== 'undefined' ? user : { name: 'Guest' }
+})%>
 <style>
         /* Account Page Styles (Keep your existing styles) */
         .account-container {
@@ -512,6 +515,13 @@
                                         </tr>
                                     </thead>
                                     <tbody id="ordered-items">
+                                        <% 
+                                        let totalAmount = 0;
+                                        order.orderedItem.forEach(item => {
+                                            const itemTotal = item.price * item.quantity;
+                                            totalAmount += itemTotal;
+                                        });
+                                        %>
                                         <% order.orderedItem.forEach(item=>{%>
                                             <tr>
                                                 <td data-label="Product">
@@ -528,7 +538,7 @@
                                                 <td data-label="Quantity">
                                                     <%= item.quantity %>
                                                 </td>
-                                                <td data-label="Total">₹<%= item.price * item.quantity %>
+                                                <td data-label="Total">₹<%= (item.price * item.quantity).toFixed(2) %>
                                                 </td>
                                             </tr>
                                             <% }); %>
@@ -537,7 +547,7 @@
                                         <tr>
                                             <td colspan="4" style="text-align: right; font-weight: 600;">Total
                                                 Amount:</td>
-                                            <td style="font-weight: 600;">₹<%= order.totalAmount %>
+                                            <td style="font-weight: 600;">₹<%= totalAmount.toFixed(2) %>
                                             </td>
                                         </tr>
                                     </tfoot>

@@ -57,7 +57,6 @@ const addProducts = async (req, res) => {
                 description: products.description,
                 brand: products.brand,
                 category: categoryId._id,
-                categoryOf: products.categoryOf,
                 regularPrice: products.regularPrice,
                 salePrice: products.salePrice,
                 createdOn: new Date(),
@@ -159,18 +158,20 @@ const unblockProduct = async (req, res) => {
 
 const getEditProduct = async (req, res) => {
     try {
-
-        const id = req.query.id;
+        const id = req.params.id;
         const product = await Product.findOne({ _id: id });
+        if (!product) {
+            return res.redirect("/errorpage");
+        }
         const category = await Category.find({});
         const brand = await Brand.find({});
         res.render("edit-product", {
             product: product,
             brand: brand,
             cat: category,
-        })
-
+        });
     } catch (error) {
+        console.log("Error in getEditProduct:", error);
         res.redirect("/errorpage");
     }
 }
@@ -203,7 +204,6 @@ const editProduct = async (req, res) => {
             description: data.description,
             brand: data.brand,
             category: product.category,
-            categoryOf: data.categoryOf,
             regularPrice: data.regularPrice,
             salePrice: data.salePrice,
             quantity: data.quantity,

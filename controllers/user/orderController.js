@@ -18,11 +18,15 @@ const thankingPage = async (req, res) => {
 
 const orderList = async (req, res) => {
     try {
-        
         const userId = req.session.user;
-        const orders = await Order.find({ user: req.session.user }).populate('orderedItem.product').populate('billingAddress');
+        const userData = await User.findById(userId);
+        const orders = await Order.find({ user: userId }).populate('orderedItem.product').populate('billingAddress');
 
-        res.render("orderListing", {orders})
+        res.render("orderListing", {
+            user: userData,
+            orders,
+            isAuthenticated: true
+        })
 
     } catch (error) {
         console.log("error loding orderlist page");
@@ -32,14 +36,16 @@ const orderList = async (req, res) => {
 
 const loadOrderDetails = async (req, res) => {
     try {
-
         const orderId = req.params.orderId;
         const order = await Order.findById(orderId) 
-      .populate('orderedItem.product')
-      .populate('billingAddress')
-      .populate('user');
+            .populate('orderedItem.product')
+            .populate('billingAddress')
+            .populate('user');
 
-        res.render("orders", { order });
+        res.render("orders", { 
+            order,
+            isAuthenticated: true 
+        });
     } catch (error) {
         console.log("Error loading orderDetails page: ", error)
         res.redirect("/pageNotFound");

@@ -72,15 +72,21 @@
                                                 <%=brand.brandName%>
                                             </td>
                                             <td class="text-start">
-                                                <div class="d-flex align-items-center justify-content-center" style="
-                        width: 40px;
-                        height: 40px;
+                                                <div class="brand-image" style="
+                        width: 100px;
+                        height: 100px;
                         border-radius: 50%;
                         overflow: hidden;
                       ">
-                                                    <img src="/uploads/re-image/<%=brand.brandImage[0]%>"
-                                                        alt="<%=brand.brandName%>" class="img-fluid rounded-circle"
-                                                        style="width: 100%; height: auto" />
+                                                    <% if (brand.brandImage && brand.brandImage[0]) { %>
+                                                        <img src="/uploads/re-image/<%=brand.brandImage[0]%>"
+                                                            alt="<%=brand.brandName%>" class="img-fluid rounded-circle"
+                                                            style="width: 100%; height: auto" />
+                                                    <% } else { %>
+                                                        <img src="/images/default-brand.png"
+                                                            alt="<%=brand.brandName%>" class="img-fluid rounded-circle"
+                                                            style="width: 100%; height: auto" />
+                                                    <% } %>
                                                 </div>
                                             </td>
                                             <td class="text-start">

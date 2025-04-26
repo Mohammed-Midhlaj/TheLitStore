@@ -46,10 +46,7 @@ router.get('/logout', userController.logout);
 
 router.get('/shop', userController.loadShoppingPage);
 
-// --Filter Page--
-
-router.get('/filter', userController.filterProducts);
-router.get('/filterPrice', userController.filterByPrice);
+// --Search Products--
 router.post('/search', userController.searchProducts);
 
 // --Profile Management--
@@ -113,6 +110,7 @@ router.post('/return', userAuth, orderController.returnOrder);
 // --Wallet Management--
 
 router.get('/wallet', userAuth, walletController.loadWallet);
+router.post('/addMoneyToWallet', userAuth, walletController.addMoneyToWallet);
 
 // --payment Management--
 

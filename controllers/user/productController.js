@@ -48,7 +48,8 @@ const productDetails = async (req, res) => {
       category: findCategory,
       relatedProducts,
       currentPage: page,
-      totalPages
+      totalPages,
+      isAuthenticated: !!userId
     });
 
   } catch (error) {

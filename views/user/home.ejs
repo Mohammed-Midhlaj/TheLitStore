@@ -1,133 +1,568 @@
 <%-include("../../views/partials/user/header")%>
 
-  <!-- small section -->
-  <section class="small">
-    <div class="two-text">
-      <p>Join our book club & get welcome bonus points</p>
-      <p>Free shipping on orders above Rs. 999</p>
-    </div>
-    <div class="container-small">
-      <h1>Book Sale - Up to 50% off</h1>
-      <p>Valid on selected books while stock lasts. The assortment may differ between stores and at TheLitStore.com.</p>
-    </div>
-  </section>
-
-  <!-- big section  -->
-  <section class="big">
-    <div class="container-big">
-      <div class="inside-big">
-        <h1>New Arrivals</h1>
-        <button>SHOP NOW</button>
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="hero-title">Discover Your Next Favorite Book</h1>
+        <p class="hero-subtitle">Explore our curated collection of bestsellers, new releases, and timeless classics.</p>
+        <div class="hero-buttons">
+          <a href="/shop" class="btn btn-primary">Shop Now</a>
+          <a href="#featured" class="btn btn-outline">View Featured</a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-image">
+          <img src="/images/hero-books.jpg" alt="Book Collection" class="img-fluid">
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- small section -->
-  <section class="small">
-    <div class="container-small second-small-section">
-      <h1>Free & flexible returns</h1>
-      <p>Online returns made easier!</p>
-      <button>READ MORE</button>
-    </div>
-  </section>
-
-  <!-- second big section  -->
-  <section class="big">
-    <div class="container-big second-big-section">
-      <div class="inside-big">
-        <h1>Best Sellers</h1>
-        <button>SHOP NOW</button>
+<!-- Promo Banner -->
+<section class="promo-banner">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="promo-card">
+          <i class="fas fa-truck"></i>
+          <h3>Free Shipping</h3>
+          <p>On orders above Rs. 999</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="promo-card">
+          <i class="fas fa-undo"></i>
+          <h3>Easy Returns</h3>
+          <p>30-day return policy</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="promo-card">
+          <i class="fas fa-gift"></i>
+          <h3>Book Club</h3>
+          <p>Join & get welcome bonus</p>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- new arrival section  -->
-  <section class="product-section">
+<!-- Featured Categories -->
+<section class="featured-categories" id="featured">
+  <div class="container">
+    <h2 class="section-title">Browse Categories</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <a href="/category/fiction" class="category-card">
+          <img src="/images/fiction.jpg" alt="Fiction">
+          <h3>Fiction</h3>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/category/non-fiction" class="category-card">
+          <img src="/images/non-fiction.jpg" alt="Non-Fiction">
+          <h3>Non-Fiction</h3>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="/category/children" class="category-card">
+          <img src="/images/children.jpg" alt="Children's Books">
+          <h3>Children's Books</h3>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="new-arrivals">
+  <div class="container">
     <div class="section-header">
-      <h2>New Arrivals</h2>
+      <h2 class="section-title">New Arrivals</h2>
+      <a href="/shop" class="view-all">View All</a>
     </div>
-    <div class="product-container">
+    <div class="row">
       <%for(let i=0; i<products.length; i++){%>
-        <div class="product-card">
-          <div class="product-image">
-            <a href="/productDetails?id=<%=products[i]._id%>">
-              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
-            </a>
-          </div>
-          <div class="product-info">
-            <h3 class="product-name" style="margin-bottom: 0%;">
-              <%=products[i].productName%>
-            </h3>
-            <p class="product-author" style="margin-bottom: 4px;">By <%=products[i].author%></p>
-            <p class="product-price" style="margin-bottom: 8px;">Rs. <%=products[i].salePrice%></p>
-            <button class="addCart-homeBtn" onclick="addToCart('<%=products[i]._id%>')">ADD TO CART</button>
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="product-card">
+            <div class="product-image">
+              <a href="/productDetails?id=<%=products[i]._id%>">
+                <img src="/uploads/re-image/<%=products[i].productImage[0]%>" 
+                     alt="<%=products[i].productName%>"
+                     class="img-fluid">
+              </a>
+              <% if (user) { %>
+                <div class="wishlist-icon">
+                  <button class="wishlist-button <%= products[i].isInWishlist ? 'active' : '' %>" 
+                          data-product-id="<%= products[i]._id %>"
+                          onclick="addToWishlist('<%= products[i]._id %>')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </button>
+                </div>
+              <% } %>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">
+                <a href="/productDetails?id=<%=products[i]._id%>" class="text-decoration-none text-dark">
+                  <%=products[i].productName%>
+                </a>
+              </h3>
+              <div class="product-price">
+                <span class="current-price">Rs. <%=products[i].salePrice.toLocaleString('en-IN')%></span>
+                <% if (products[i].regularPrice > products[i].salePrice) { %>
+                  <span class="old-price">Rs. <%=products[i].regularPrice.toLocaleString('en-IN')%></span>
+                <% } %>
+              </div>
+            </div>
           </div>
         </div>
-        <%}%>
+      <%}%>
     </div>
-    <div class="view-all">
-      <a href="/shop" class="view-all-btn">VIEW ALL</a>
-    </div>
-  </section>
+  </div>
+</section>
 
-  <!-- third big section -->
-  <section class="big">
-    <div class="container-big third-big-section">
-      <div class="inside-big">
-        <h1>Classic Collection</h1>
-        <button>SHOP NOW</button>
+<!-- Special Offers -->
+<section class="special-offers">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="offer-card">
+          <h2>Book Sale</h2>
+          <p>Up to 50% off on selected books</p>
+          <a href="/shop" class="btn btn-light">Shop Now</a>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="offer-card">
+          <h2>Classic Collection</h2>
+          <p>Timeless stories that never fade</p>
+          <a href="/category/classics" class="btn btn-light">Explore</a>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- fourth big section -->
-  <section class="big">
-    <div class="container-big fourth-big-section">
-      <div class="inside-big">
-        <h1>Featured Authors</h1>
-        <button>SHOP NOW</button>
-      </div>
+<!-- Newsletter -->
+<section class="newsletter">
+  <div class="container">
+    <div class="newsletter-content">
+      <h2>Stay Updated</h2>
+      <p>Subscribe to our newsletter for the latest releases and exclusive offers</p>
+      <form class="newsletter-form">
+        <input type="email" placeholder="Enter your email">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- footer -->
-  <%-include("../../views/partials/user/footer")%>
+<%-include("../../views/partials/user/footer")%>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    function addToCart(productId) {
-      fetch("/addToCart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId })
-      })
-        .then(response => response.json())
-        .then(result => {
-          if (result.status) {
-            Swal.fire({
-              icon: "success",
-              title: "Success",
-              text: result.message,
-              timer: 1500,
-              showConfirmButton: false
-            });
-          } else {
-            Swal.fire({
-              icon: "info",
-              title: "Notice",
-              text: result.message,
-              timer: 1500,
-              showConfirmButton: false
-            });
-          }
-        })
-        .catch(error => {
-          console.error("Error adding to cart:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong. Please try again later."
-          });
-        });
+<style>
+  :root {
+    --primary-color: #2c3e50;
+    --secondary-color: #e74c3c;
+    --accent-color: #f39c12;
+    --text-color: #333;
+    --light-bg: #f9f9f9;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 80px 0;
+    background-color: var(--light-bg);
+  }
+
+  .hero-title {
+    font-family: 'Merriweather', serif;
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .hero-image {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Promo Banner */
+  .promo-banner {
+    padding: 40px 0;
+    background-color: white;
+  }
+
+  .promo-card {
+    text-align: center;
+    padding: 2rem;
+    transition: transform 0.3s ease;
+  }
+
+  .promo-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .promo-card i {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+  }
+
+  .promo-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Featured Categories */
+  .featured-categories {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+  }
+
+  .section-title {
+    font-family: 'Merriweather', serif;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+  }
+
+  .category-card {
+    display: block;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  .category-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .category-card:hover img {
+    transform: scale(1.05);
+  }
+
+  .category-card h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    margin: 0;
+  }
+
+  /* New Arrivals */
+  .new-arrivals {
+    padding: 60px 0;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .view-all {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* Product Card Styles */
+  .product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 2rem;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .product-image {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-image img {
+    transform: scale(1.05);
+  }
+
+  .wishlist-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: white;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .product-card:hover .wishlist-icon {
+    opacity: 1;
+  }
+
+  .wishlist-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .wishlist-button svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--primary-color);
+    fill: none;
+    transition: all 0.3s ease;
+  }
+
+  .wishlist-button.active svg {
+    fill: var(--secondary-color);
+    stroke: var(--secondary-color);
+  }
+
+  .wishlist-button:hover svg {
+    transform: scale(1.1);
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  .product-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+  }
+
+  .product-price {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .current-price {
+    font-weight: bold;
+    color: var(--secondary-color);
+  }
+
+  .old-price {
+    text-decoration: line-through;
+    color: #999;
+  }
+
+  /* Special Offers */
+  .special-offers {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+  }
+
+  .offer-card {
+    background: var(--primary-color);
+    color: white;
+    padding: 3rem;
+    border-radius: 10px;
+    height: 100%;
+  }
+
+  .offer-card h2 {
+    font-family: 'Merriweather', serif;
+    margin-bottom: 1rem;
+  }
+
+  /* Newsletter */
+  .newsletter {
+    padding: 60px 0;
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  .newsletter-content {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 40px 0;
+      text-align: center;
     }
-  </script>
+
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-buttons {
+      justify-content: center;
+    }
+
+    .hero-image {
+      margin-top: 2rem;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function addToCart(productId) {
+    fetch("/addToCart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId })
+    })
+      .then(response => response.json())
+      .then(result => {
+        if (result.status) {
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: result.message,
+            timer: 1500,
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            icon: "info",
+            title: "Notice",
+            text: result.message,
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+      })
+      .catch(error => {
+        console.error("Error adding to cart:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong. Please try again later."
+        });
+      });
+  }
+
+  function addToWishlist(productId) {
+    <% if (!user) { %>
+        Swal.fire({
+            title: 'Please Sign In',
+            text: 'You need to be signed in to add items to your wishlist.',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Sign In',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            }
+        });
+        return;
+    <% } %>
+
+    fetch('/addToWishlist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productId: productId })
+    })
+    .then(response => {
+        if (response.ok || response.status === 409) {
+            return response.json().then(data => ({
+                ...data,
+                isAlreadyInWishlist: response.status === 409
+            }));
+        }
+        throw new Error('Network response was not ok');
+    })
+    .then(data => {
+        const button = document.querySelector(`[data-product-id="${productId}"]`);
+        
+        if (data.isAlreadyInWishlist) {
+            button.classList.add('active');
+            Swal.fire({
+                icon: 'info',
+                title: 'Already in Wishlist',
+                text: data.message,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else if (data.success) {
+            button.classList.toggle('active');
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist',
+                text: data.message,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } else {
+            throw new Error(data.message || 'Failed to add to wishlist');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'An error occurred while updating your wishlist.'
+        });
+    });
+  }
+</script>

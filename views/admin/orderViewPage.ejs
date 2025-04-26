@@ -389,7 +389,7 @@
                         <img src=" /uploads/re-image/<%=item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
                         <div class="product-details">
                           <div class="product-name"><%= item.product.productName %></div>
-                          <div class="product-price">$<%= item.price.toFixed(2) %></div>
+                          <div class="product-price">₹<%= item.price.toFixed(2) %></div>
                           <div class="product-quantity">Quantity: <%= item.quantity %></div>
                         </div>
                       </div>
@@ -397,12 +397,12 @@
 
                 <div class="order-total">
                     <span class="total-label">Total Price:</span>
-                    <span class="total-value">$<%= order.totalPrice.toFixed(2) %></span>
+                    <span class="total-value">₹<%= order.totalPrice.toFixed(2) %></span>
                   </div>
                 
                 <div class="order-total">
                     <span class="total-label">Final Amount:</span>
-                    <span class="total-value">$<%= order.finalAmount.toFixed(2) %>%></span>
+                    <span class="total-value">₹<%= order.finalAmount.toFixed(2) %></span>
                 </div>
             </div>
             

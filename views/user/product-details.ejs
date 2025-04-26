@@ -140,6 +140,13 @@
                 font-weight: 600;
             }
 
+            .original-price {
+                text-decoration: line-through;
+                color: #888;
+                font-size: 14px;
+                margin-left: 5px;
+            }
+
             .product-colors {
                 display: flex;
                 gap: 10px;
@@ -418,10 +425,8 @@
                     </button>
                     <p style="margin-bottom: 5px; color: #888;">MRP inclusive of all taxes</p>
 
-                    <p class="product-price">Rs.<%=product.salePrice%><span
-                                style="text-decoration: line-through; color: #888; font-size: 14px; margin-left: 5px;">
-                                <%=product.regularPrice%>
-                            </span></p>
+                    <p class="product-price">₹<%= product.salePrice %></p>
+                    <p class="original-price">₹<%= product.regularPrice %></p>
                     <p style="margin-bottom: 5px;">
                         <%=product.color%>
                     </p>
@@ -516,7 +521,7 @@
                                 <h3 class="product-card-title">
                                     <%= product.productName %>
                                 </h3>
-                                <p class="product-card-price">Rs.<%= product.salePrice %>
+                                <p class="product-card-price">₹<%= product.salePrice %>
                                 </p>
                             </div>
                         </div>
