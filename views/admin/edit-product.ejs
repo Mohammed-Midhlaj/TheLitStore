@@ -323,20 +323,24 @@
             });
         }
 
-        // Form submission handler
-        document.getElementById('productForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (validateForm()) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You are about to update this product.",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, Update",
-                    cancelButtonText: "Cancel"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('productForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (validateForm()) {
+                        Swal.fire({
+                            title: "Are you sure?",
+                            text: "You are about to update this product.",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, Update",
+                            cancelButtonText: "Cancel"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
                     }
                 });
             }
@@ -349,7 +353,6 @@
             const description = document.getElementById('descriptionid').value;
             const price = document.getElementsByName('regularPrice')[0].value;
             const saleprice = document.getElementsByName('salePrice')[0].value;
-            const color = document.getElementsByName('color')[0].value;
             const quantity = document.getElementsByName('quantity')[0].value;
             let isValid = true;
 
@@ -385,11 +388,6 @@
                 displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
                 isValid = false;
             }
-
-            // if (color.trim() === "") {
-            //     displayErrorMessage('color-error', 'Please enter a color.');
-            //     isValid = false;
-            // }
 
             return isValid;
         }

@@ -557,8 +557,19 @@
                             <span>Total</span>
                             <span id="totalAmount">₹<%= (totalOrderValue + 149).toLocaleString('en-IN') %></span>
                         </div>
-                        <a href="/checkout">
-                            <button class="checkout-btn">Continue to checkout</button>
+                        <% if (hasInvalidItems) { %>
+                            <div class="alert alert-danger" style="color: #b30000; background: #ffeaea; border: 1px solid #ffcccc; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                                <strong>Some items in your cart cannot be checked out:</strong>
+                                <ul style="margin: 8px 0 0 18px;">
+                                    <% invalidItems.forEach(function(item) { %>
+                                        <li><%= item.name %> - <%= item.reason %></li>
+                                    <% }); %>
+                                </ul>
+                                Please remove or update these items to proceed to checkout.
+                            </div>
+                        <% } %>
+                        <a href="<%= hasInvalidItems ? '#' : '/checkout' %>">
+                            <button class="checkout-btn" <%= hasInvalidItems ? 'disabled style="background:#ccc;cursor:not-allowed;"' : '' %>>Continue to checkout</button>
                         </a>
                         <div class="payment-info">
                             <p>We accept</p>

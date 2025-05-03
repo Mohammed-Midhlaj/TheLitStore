@@ -14,10 +14,25 @@ const loadCart = async (req, res) => {
         let cart = await Cart.findOne({ userId: userId }).populate('items.productId');
         const cartItems = cart ? cart.items : [];
 
+        // Check for out-of-stock or blocked products
+        let hasInvalidItems = false;
+        let invalidItems = [];
+        cartItems.forEach(item => {
+            if (!item.productId || item.productId.isBlocked || item.productId.quantity === 0) {
+                hasInvalidItems = true;
+                invalidItems.push({
+                    name: item.productId ? item.productId.productName : 'Unknown',
+                    reason: !item.productId ? 'Product not found' : (item.productId.isBlocked ? 'Blocked' : 'Out of stock')
+                });
+            }
+        });
+
         res.render("cart", {
             user,
             cartItems,
-            isAuthenticated: true
+            isAuthenticated: true,
+            hasInvalidItems,
+            invalidItems
         })
     } catch (error) {
         console.log("Error loading cart page");
