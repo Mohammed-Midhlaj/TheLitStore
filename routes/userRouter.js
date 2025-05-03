@@ -109,6 +109,16 @@ router.post('/cancelOrder', userAuth, orderController.cancelOrder);
 router.post('/return', userAuth, orderController.returnOrder);
 router.get('/download-invoice/:orderId', userAuth, orderController.downloadInvoice);
 
+// ---Cancel/Return/Refund Request APIs ---
+router.post('/order/request-cancel', userAuth, orderController.requestCancel);
+router.post('/order/request-return', userAuth, orderController.requestReturn);
+router.post('/order/request-refund', userAuth, orderController.requestRefund);
+
+// --- Item-level Cancel/Return/Refund APIs ---
+router.post('/order/item/request-cancel', userAuth, orderController.requestCancelItem);
+router.post('/order/item/request-return', userAuth, orderController.requestReturnItem);
+router.post('/order/item/request-refund', userAuth, orderController.requestRefundItem);
+
 // --Wallet Management--
 
 router.get('/wallet', userAuth, walletController.loadWallet);

@@ -66,7 +66,10 @@ router.post('/removeProductOffer', adminAuth, productController.removeProductOff
 
 router.get("/orderList", adminAuth, orderController.listOrders);
 router.get("/orderView/:orderId", adminAuth, orderController.viewOrderDetailPage);
-router.post("/orderView/:orderId", adminAuth, orderController.updateOrderStatus)
-
+router.post("/orderView/:orderId", adminAuth, orderController.updateOrderStatus);
+// --- New: Process Cancel/Return/Refund Requests ---
+router.post("/order/:orderId/process-cancel", adminAuth, orderController.processCancelRequest);
+router.post("/order/:orderId/process-return", adminAuth, orderController.processReturnRequest);
+router.post("/order/:orderId/process-refund", adminAuth, orderController.processRefundRequest);
 
 module.exports = router;

@@ -25,17 +25,26 @@ const listOrders = async (req, res) => {
 
       console.log("Received orderFilter:", orderFilter);
   
-      const orders = await Order.find(query)
+      const allOrders = await Order.find(query)
         .sort({ createdOn: -1 })
         .populate('billingAddress')
-        .populate('user')
-        .skip((page - 1) * limit)
-        .limit(limit);
-  
-      const totalOrders = await Order.countDocuments(query);
-  
+        .populate('user');
+      // Separate orders with pending requests
+      const requestOrders = allOrders.filter(order =>
+        (order.cancellationRequested && order.cancellationStatus === 'Requested') ||
+        (order.returnRequested && order.returnStatus === 'Requested') ||
+        (order.refundRequested && order.refundStatus === 'Requested')
+      );
+      const normalOrders = allOrders.filter(order => !requestOrders.includes(order));
+      // Pagination on combined list
+      const combinedOrders = [...requestOrders, ...normalOrders];
+      const totalOrders = combinedOrders.length;
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedOrders = combinedOrders.slice(start, end);
       res.render("adminOrders", {
-        orders,
+        orders: paginatedOrders,
+        requestOrders,
         currentPage: page,
         totalPages: Math.ceil(totalOrders / limit),
         search,
@@ -89,9 +98,90 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
+// --- New: Admin Approve/Deny Cancel/Return/Refund ---
+const processCancelRequest = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { action } = req.body; // 'approve' or 'deny'
+        const order = await Order.findById(orderId);
+        if (!order || !order.cancellationRequested) {
+            return res.status(404).json({ status: false, message: "No cancellation request found." });
+        }
+        if (action === 'approve') {
+            order.cancellationStatus = 'Approved';
+            order.status = 'Cancelled';
+            order.cancellationProcessedAt = new Date();
+            // Restock products
+            await Promise.all(order.orderedItem.map(async (item) => {
+                await require('../../models/productSchema').findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+            }));
+        } else {
+            order.cancellationStatus = 'Denied';
+            order.cancellationProcessedAt = new Date();
+        }
+        await order.save();
+        res.json({ status: true, message: `Cancellation ${action}d.` });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const processReturnRequest = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { action } = req.body; // 'approve' or 'deny'
+        const order = await Order.findById(orderId);
+        if (!order || !order.returnRequested) {
+            return res.status(404).json({ status: false, message: "No return request found." });
+        }
+        if (action === 'approve') {
+            order.returnStatus = 'Approved';
+            order.status = 'Returned';
+            order.returnProcessedAt = new Date();
+            // Restock products
+            await Promise.all(order.orderedItem.map(async (item) => {
+                await require('../../models/productSchema').findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+            }));
+        } else {
+            order.returnStatus = 'Denied';
+            order.returnProcessedAt = new Date();
+        }
+        await order.save();
+        res.json({ status: true, message: `Return ${action}d.` });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const processRefundRequest = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const { action } = req.body; // 'approve', 'deny', or 'process'
+        const order = await Order.findById(orderId);
+        if (!order || !order.refundRequested) {
+            return res.status(404).json({ status: false, message: "No refund request found." });
+        }
+        if (action === 'approve') {
+            order.refundStatus = 'Approved';
+        } else if (action === 'process') {
+            order.refundStatus = 'Processed';
+            order.refundProcessedAt = new Date();
+            order.paymentStatus = 'Refunded';
+        } else {
+            order.refundStatus = 'Denied';
+        }
+        await order.save();
+        res.json({ status: true, message: `Refund ${action}d.` });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
 
 module.exports = {
     listOrders,
     viewOrderDetailPage,
     updateOrderStatus,
+    processCancelRequest,
+    processReturnRequest,
+    processRefundRequest,
 }

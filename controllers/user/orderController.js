@@ -22,17 +22,24 @@ const orderList = async (req, res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findById(userId);
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+        const totalOrders = await Order.countDocuments({ user: userId });
         const orders = await Order.find({ user: userId })
             .populate('orderedItem.product')
             .populate('billingAddress')
-            .sort({ createdOn: -1 });
-
+            .sort({ createdOn: -1 })
+            .skip(skip)
+            .limit(limit);
+        const totalPages = Math.ceil(totalOrders / limit);
         res.render("orderListing", {
             user: userData,
             orders,
-            isAuthenticated: true
+            isAuthenticated: true,
+            currentPage: page,
+            totalPages
         })
-
     } catch (error) {
         console.log("error loding orderlist page");
         res.redirect('/pageNotFound')
@@ -185,6 +192,158 @@ const downloadInvoice = async (req, res) => {
     }
 }
 
+// --- New: Request Cancel, Return, Refund ---
+const requestCancel = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        if (order.status === 'Cancelled' || order.cancellationStatus === 'Approved') {
+            return res.status(400).json({ status: false, message: "Order already cancelled" });
+        }
+        if (order.status !== 'Pending' && order.status !== 'Processing') {
+            return res.status(400).json({ status: false, message: "Order cannot be cancelled at this stage" });
+        }
+        order.cancellationRequested = true;
+        order.cancellationStatus = 'Requested';
+        order.cancellationRequestedAt = new Date();
+        await order.save();
+        res.status(200).json({ status: true, message: "Cancellation request submitted." });
+    } catch (error) {
+        console.log("Error requesting cancel:", error);
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const requestReturn = async (req, res) => {
+    try {
+        const { orderId, returnReason } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        if (order.status !== 'Delivered') {
+            return res.status(400).json({ status: false, message: "Order cannot be returned at this stage" });
+        }
+        if (order.returnRequested || order.returnStatus === 'Approved') {
+            return res.status(400).json({ status: false, message: "Return already requested/approved" });
+        }
+        order.returnRequested = true;
+        order.returnStatus = 'Requested';
+        order.returnRequestedAt = new Date();
+        order.returnReason = returnReason || '';
+        await order.save();
+        res.status(200).json({ status: true, message: "Return request submitted." });
+    } catch (error) {
+        console.log("Error requesting return:", error);
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const requestRefund = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        if (order.refundRequested || order.refundStatus === 'Processed') {
+            return res.status(400).json({ status: false, message: "Refund already requested/processed" });
+        }
+        if (order.returnStatus !== 'Approved' && order.status !== 'Cancelled') {
+            return res.status(400).json({ status: false, message: "Refund can only be requested after return approval or cancellation" });
+        }
+        order.refundRequested = true;
+        order.refundStatus = 'Requested';
+        order.refundRequestedAt = new Date();
+        await order.save();
+        res.status(200).json({ status: true, message: "Refund request submitted." });
+    } catch (error) {
+        console.log("Error requesting refund:", error);
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+// Helper for frontend to get request status
+const getOrderRequestStatus = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        res.status(200).json({
+            cancellationRequested: order.cancellationRequested,
+            cancellationStatus: order.cancellationStatus,
+            returnRequested: order.returnRequested,
+            returnStatus: order.returnStatus,
+            refundRequested: order.refundRequested,
+            refundStatus: order.refundStatus
+        });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+// --- Item-level Cancel/Return/Refund ---
+const requestCancelItem = async (req, res) => {
+    try {
+        const { orderId, itemId } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        const item = order.orderedItem.id(itemId);
+        if (!item) return res.status(404).json({ status: false, message: "Item not found" });
+        if (item.cancellationRequested || item.cancellationStatus === 'Approved') {
+            return res.status(400).json({ status: false, message: "Item already cancelled" });
+        }
+        item.cancellationRequested = true;
+        item.cancellationStatus = 'Requested';
+        item.cancellationRequestedAt = new Date();
+        await order.save();
+        res.status(200).json({ status: true, message: "Cancellation request submitted for item." });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const requestReturnItem = async (req, res) => {
+    try {
+        const { orderId, itemId, returnReason } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        const item = order.orderedItem.id(itemId);
+        if (!item) return res.status(404).json({ status: false, message: "Item not found" });
+        if (item.returnRequested || item.returnStatus === 'Approved') {
+            return res.status(400).json({ status: false, message: "Return already requested/approved for this item" });
+        }
+        item.returnRequested = true;
+        item.returnStatus = 'Requested';
+        item.returnRequestedAt = new Date();
+        item.returnReason = returnReason || '';
+        await order.save();
+        res.status(200).json({ status: true, message: "Return request submitted for item." });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
+const requestRefundItem = async (req, res) => {
+    try {
+        const { orderId, itemId } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        if (!order) return res.status(404).json({ status: false, message: "Order not found" });
+        const item = order.orderedItem.id(itemId);
+        if (!item) return res.status(404).json({ status: false, message: "Item not found" });
+        if (item.refundRequested || item.refundStatus === 'Processed') {
+            return res.status(400).json({ status: false, message: "Refund already requested/processed for this item" });
+        }
+        if (item.returnStatus !== 'Approved' && item.cancellationStatus !== 'Approved') {
+            return res.status(400).json({ status: false, message: "Refund can only be requested after return/cancellation approval for this item" });
+        }
+        item.refundRequested = true;
+        item.refundStatus = 'Requested';
+        item.refundRequestedAt = new Date();
+        await order.save();
+        res.status(200).json({ status: true, message: "Refund request submitted for item." });
+    } catch (error) {
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+};
+
 module.exports = {
     thankingPage,
     orderList,
@@ -192,4 +351,12 @@ module.exports = {
     cancelOrder,
     returnOrder,
     downloadInvoice,
+    requestCancel,
+    requestReturn,
+    requestRefund,
+    getOrderRequestStatus,
+    // Item-level actions
+    requestCancelItem,
+    requestReturnItem,
+    requestRefundItem,
 }

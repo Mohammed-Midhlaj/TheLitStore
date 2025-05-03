@@ -404,6 +404,59 @@
                     <span class="total-label">Final Amount:</span>
                     <span class="total-value">₹<%= order.finalAmount.toFixed(2) %></span>
                 </div>
+
+                <!-- Admin Request Management Section -->
+                <div class="order-total" style="margin-top:30px;">
+                  <h3 style="margin-bottom:10px;">Request Management</h3>
+                  <!-- Cancellation -->
+                  <div style="margin-bottom:10px;">
+                    <strong>Cancellation:</strong>
+                    <% if (order.cancellationRequested && order.cancellationStatus === 'Requested') { %>
+                      <span class="status-badge status-pending">Requested</span>
+                      <button class="update-btn" id="approveCancelBtn">Approve</button>
+                      <button class="cancel-btn" id="denyCancelBtn">Deny</button>
+                    <% } else if (order.cancellationStatus === 'Approved') { %>
+                      <span class="status-badge status-completed">Approved</span>
+                    <% } else if (order.cancellationStatus === 'Denied') { %>
+                      <span class="status-badge status-failed">Denied</span>
+                    <% } else { %>
+                      <span class="status-badge">None</span>
+                    <% } %>
+                  </div>
+                  <!-- Return -->
+                  <div style="margin-bottom:10px;">
+                    <strong>Return:</strong>
+                    <% if (order.returnRequested && order.returnStatus === 'Requested') { %>
+                      <span class="status-badge status-pending">Requested</span>
+                      <button class="update-btn" id="approveReturnBtn">Approve</button>
+                      <button class="cancel-btn" id="denyReturnBtn">Deny</button>
+                    <% } else if (order.returnStatus === 'Approved') { %>
+                      <span class="status-badge status-completed">Approved</span>
+                    <% } else if (order.returnStatus === 'Denied') { %>
+                      <span class="status-badge status-failed">Denied</span>
+                    <% } else { %>
+                      <span class="status-badge">None</span>
+                    <% } %>
+                  </div>
+                  <!-- Refund -->
+                  <div style="margin-bottom:10px;">
+                    <strong>Refund:</strong>
+                    <% if (order.refundRequested && order.refundStatus === 'Requested') { %>
+                      <span class="status-badge status-pending">Requested</span>
+                      <button class="update-btn" id="approveRefundBtn">Approve</button>
+                      <button class="cancel-btn" id="denyRefundBtn">Deny</button>
+                      <button class="update-btn" id="processRefundBtn">Mark as Processed</button>
+                    <% } else if (order.refundStatus === 'Approved') { %>
+                      <span class="status-badge status-completed">Approved</span>
+                    <% } else if (order.refundStatus === 'Denied') { %>
+                      <span class="status-badge status-failed">Denied</span>
+                    <% } else if (order.refundStatus === 'Processed') { %>
+                      <span class="status-badge status-completed">Processed</span>
+                    <% } else { %>
+                      <span class="status-badge">None</span>
+                    <% } %>
+                  </div>
+                </div>
             </div>
             
             <form action="/admin/orderView/<%= order._id %>" method="POST">
@@ -453,6 +506,35 @@ const urlParams = new URLSearchParams(window.location.search);
       timer: 1500
     });
   }
+
+// --- Admin Approve/Deny Logic ---
+const orderId = '<%= order._id %>';
+function handleRequest(action, type) {
+  let url = '';
+  if (type === 'cancel') url = `/admin/order/${orderId}/process-cancel`;
+  if (type === 'return') url = `/admin/order/${orderId}/process-return`;
+  if (type === 'refund') url = `/admin/order/${orderId}/process-refund`;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status) {
+        Swal.fire('Success', data.message, 'success').then(() => location.reload());
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    });
+}
+document.getElementById('approveCancelBtn')?.addEventListener('click', () => handleRequest('approve', 'cancel'));
+document.getElementById('denyCancelBtn')?.addEventListener('click', () => handleRequest('deny', 'cancel'));
+document.getElementById('approveReturnBtn')?.addEventListener('click', () => handleRequest('approve', 'return'));
+document.getElementById('denyReturnBtn')?.addEventListener('click', () => handleRequest('deny', 'return'));
+document.getElementById('approveRefundBtn')?.addEventListener('click', () => handleRequest('approve', 'refund'));
+document.getElementById('denyRefundBtn')?.addEventListener('click', () => handleRequest('deny', 'refund'));
+document.getElementById('processRefundBtn')?.addEventListener('click', () => handleRequest('process', 'refund'));
 
     </script>
 

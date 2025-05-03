@@ -531,7 +531,67 @@
                     </div>
 
                     <div class="orders-container">
-                        <% orders.forEach(order=> { %>
+                        <% const requestOrders = orders.filter(order =>
+                            (order.cancellationRequested && order.cancellationStatus === 'Requested') ||
+                            (order.returnRequested && order.returnStatus === 'Requested') ||
+                            (order.refundRequested && (order.refundStatus === 'Requested' || order.refundStatus === 'Approved'))
+                        ); %>
+                        <% const normalOrders = orders.filter(order => !requestOrders.includes(order)); %>
+
+                        <% if (requestOrders.length > 0) { %>
+                        <div style="background:#fffbe6;border:1px solid #ffe58f;padding:16px 20px;border-radius:8px;margin-bottom:24px;">
+                            <h3 style="color:#b37f00;margin-bottom:10px;">Attention: You have active requests</h3>
+                            <% requestOrders.forEach(order => { %>
+                                <div class="order-card" style="border:2px solid #ffe58f;">
+                                    <div class="order-card-header">
+                                        <div class="order-id">
+                                            <% if (order.orderedItem && order.orderedItem.length > 0) { %>
+                                                <%= order.orderedItem[0].product.productName %>
+                                                <% if (order.orderedItem.length > 1) { %>
+                                                    &nbsp;and <%= order.orderedItem.length - 1 %> more
+                                                <% } %>
+                                            <% } %>
+                                        </div>
+                                        <div class="order-date">
+                                            <%= new Date(order.createdOn).toLocaleDateString() %>
+                                        </div>
+                                    </div>
+                                    <div class="order-card-body">
+                                        <div class="order-details-grid">
+                                            <div class="order-detail">
+                                                <div class="detail-label">Status</div>
+                                                <div class="detail-value status-badge <%= order.status.toLowerCase() %>">
+                                                    <%= order.status %>
+                                                </div>
+                                                <% if (order.cancellationRequested && order.cancellationStatus === 'Requested') { %>
+                                                    <div class="status-badge pending" style="margin-top:4px;background:#fff1f0;color:#cf1322;">Cancellation Requested</div>
+                                                <% } %>
+                                                <% if (order.returnRequested && order.returnStatus === 'Requested') { %>
+                                                    <div class="status-badge pending" style="margin-top:4px;background:#e6f7ff;color:#1890ff;">Return Requested</div>
+                                                <% } %>
+                                                <% if (order.refundRequested && (order.refundStatus === 'Requested' || order.refundStatus === 'Approved')) { %>
+                                                    <div class="status-badge pending" style="margin-top:4px;background:#f6ffed;color:#389e0d;">Refund <%= order.refundStatus %></div>
+                                                <% } %>
+                                            </div>
+                                            <div class="order-detail">
+                                                <div class="detail-label">Payment Method</div>
+                                                <div class="detail-value">
+                                                    <%= order.paymentMethod %>
+                                                </div>
+                                            </div>
+                                            <div class="order-detail order-actions">
+                                                <a href="/orderDetails/<%= order._id %>">
+                                                    <button class="view-order-btn">View Details</button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                        <% } %>
+
+                        <% normalOrders.forEach(order=> { %>
                             <div class="order-card">
                                 <div class="order-card-header">
                                     <div class="order-id">
@@ -563,6 +623,29 @@
                                             <div class="detail-value status-badge <%= order.status.toLowerCase() %>">
                                                 <%= order.status %>
                                             </div>
+                                            <% if (order.cancellationRequested && order.cancellationStatus === 'Requested') { %>
+                                                <div class="status-badge pending" style="margin-top:4px;">Cancellation Requested</div>
+                                            <% } else if (order.cancellationStatus === 'Denied') { %>
+                                                <div class="status-badge cancelled" style="margin-top:4px;">Cancellation Denied</div>
+                                            <% } else if (order.cancellationStatus === 'Approved') { %>
+                                                <div class="status-badge delivered" style="margin-top:4px;">Cancelled</div>
+                                            <% } %>
+                                            <% if (order.returnRequested && order.returnStatus === 'Requested') { %>
+                                                <div class="status-badge pending" style="margin-top:4px;">Return Requested</div>
+                                            <% } else if (order.returnStatus === 'Denied') { %>
+                                                <div class="status-badge cancelled" style="margin-top:4px;">Return Denied</div>
+                                            <% } else if (order.returnStatus === 'Approved' || order.status === 'Returned') { %>
+                                                <div class="status-badge delivered" style="margin-top:4px;">Returned</div>
+                                            <% } %>
+                                            <% if (order.refundRequested && order.refundStatus === 'Requested') { %>
+                                                <div class="status-badge pending" style="margin-top:4px;">Refund Requested</div>
+                                            <% } else if (order.refundStatus === 'Denied') { %>
+                                                <div class="status-badge cancelled" style="margin-top:4px;">Refund Denied</div>
+                                            <% } else if (order.refundStatus === 'Approved') { %>
+                                                <div class="status-badge delivered" style="margin-top:4px;">Refund Approved</div>
+                                            <% } else if (order.refundStatus === 'Processed') { %>
+                                                <div class="status-badge delivered" style="margin-top:4px;">Refund Processed</div>
+                                            <% } %>
                                         </div>
                                         <div class="order-detail">
                                             <div class="detail-label">Payment Method</div>
@@ -578,14 +661,33 @@
                                     </div>
                                 </div>
                             </div>
-                            <% }); %>
+                        <% }); %>
 
-                                <% if (orders.length===0) { %>
-                                    <div class="no-orders">
-                                        <div class="no-orders-icon">📦</div>
-                                        <div class="no-orders-text">You don't have any orders yet</div>
-                                    </div>
-                                    <% } %>
+                        <% if (orders.length===0) { %>
+                            <div class="no-orders">
+                                <div class="no-orders-icon">📦</div>
+                                <div class="no-orders-text">You don't have any orders yet</div>
+                            </div>
+                        <% } %>
+
+                        <!-- Pagination Controls -->
+                        <% if (totalPages > 1) { %>
+                        <div style="display:flex;justify-content:center;align-items:center;margin:30px 0;gap:8px;">
+                            <% if (currentPage > 1) { %>
+                                <a href="?page=<%= currentPage - 1 %>" class="view-order-btn">Previous</a>
+                            <% } %>
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <% if (i === currentPage) { %>
+                                    <span class="view-order-btn" style="background:#333;color:#fff;cursor:default;"><%= i %></span>
+                                <% } else { %>
+                                    <a href="?page=<%= i %>" class="view-order-btn"><%= i %></a>
+                                <% } %>
+                            <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <a href="?page=<%= currentPage + 1 %>" class="view-order-btn">Next</a>
+                            <% } %>
+                        </div>
+                        <% } %>
                     </div>
                 </div>
 

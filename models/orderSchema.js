@@ -21,7 +21,20 @@ const orderSchema = new mongoose.Schema({
         price: {
             type: Number,
             default: 0
-        }
+        },
+        cancellationRequested: { type: Boolean, default: false },
+        cancellationStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied'], default: 'None' },
+        cancellationRequestedAt: { type: Date },
+        cancellationProcessedAt: { type: Date },
+        returnRequested: { type: Boolean, default: false },
+        returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied'], default: 'None' },
+        returnRequestedAt: { type: Date },
+        returnProcessedAt: { type: Date },
+        returnReason: { type: String, default: '' },
+        refundRequested: { type: Boolean, default: false },
+        refundStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied', 'Processed'], default: 'None' },
+        refundRequestedAt: { type: Date },
+        refundProcessedAt: { type: Date }
     }],
     totalPrice: {
         type: Number,
@@ -80,7 +93,19 @@ const orderSchema = new mongoose.Schema({
     returnReason: {
         type: String,
         default: ""
-      }
+    },
+    cancellationRequested: { type: Boolean, default: false },
+    cancellationStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied'], default: 'None' },
+    cancellationRequestedAt: { type: Date },
+    cancellationProcessedAt: { type: Date },
+    returnRequested: { type: Boolean, default: false },
+    returnStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied'], default: 'None' },
+    returnRequestedAt: { type: Date },
+    returnProcessedAt: { type: Date },
+    refundRequested: { type: Boolean, default: false },
+    refundStatus: { type: String, enum: ['None', 'Requested', 'Approved', 'Denied', 'Processed'], default: 'None' },
+    refundRequestedAt: { type: Date },
+    refundProcessedAt: { type: Date },
 })
 
 const Order = mongoose.model("Order", orderSchema);

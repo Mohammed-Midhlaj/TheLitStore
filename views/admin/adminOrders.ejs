@@ -337,6 +337,49 @@
                 </div>
                 <div class="card-body">
                     <div class="table-container">
+                        <% if (requestOrders && requestOrders.length > 0) { %>
+                        <div style="margin-bottom: 18px;">
+                            <h5 style="color:#b30000;">Orders with Pending Requests</h5>
+                            <table class="table table-hover order-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Payment Method</th>
+                                        <th>Payment Status</th>
+                                        <th>Order Status</th>
+                                        <th>Request Type</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% requestOrders.forEach(order => { %>
+                                    <tr style="background:#fff7e6;">
+                                        <td><span class="order-id"><%= order.orderId %></span></td>
+                                        <td class="date-col"><%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : "N/A" %></td>
+                                        <td><span class="customer-name"><%= order.user ? order.user.name : "Unknown" %></span></td>
+                                        <td><%= order.paymentMethod %></td>
+                                        <td><span class="order-status payment-status-paid"><%= order.paymentStatus %></span></td>
+                                        <td><span class="order-status status-delivered"><%= order.status %></span></td>
+                                        <td>
+                                            <% if (order.cancellationRequested && order.cancellationStatus === 'Requested') { %>
+                                                <span class="badge bg-warning text-dark">Cancellation</span>
+                                            <% } else if (order.returnRequested && order.returnStatus === 'Requested') { %>
+                                                <span class="badge bg-info text-dark">Return</span>
+                                            <% } else if (order.refundRequested && order.refundStatus === 'Requested') { %>
+                                                <span class="badge bg-success text-dark">Refund</span>
+                                            <% } %>
+                                        </td>
+                                        <td><span class="order-amount">₹ <%= order.finalAmount %></span></td>
+                                        <td><a href="/admin/orderView/<%= order._id %>" class="btn-view">View</a></td>
+                                    </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% } %>
                         <table class="table table-hover order-table">
                             <thead>
                                 <tr>
