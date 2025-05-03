@@ -15,6 +15,12 @@
                         <label class="form-label">Description</label>
                         <textarea name="description" class="form-control border"><%=category.description%></textarea>
                     </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Offer (%)</label>
+                        <input type="number" name="categoryOffer" class="form-control border" min="0" max="100" step="1" value="<%=category.categoryOffer || 0%>" />
+                        <small class="text-muted">Set to 0 to remove offer. Max 100%.</small>
+                    </div>
                 </form>
             </div>
         </div>

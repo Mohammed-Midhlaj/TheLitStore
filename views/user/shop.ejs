@@ -245,124 +245,108 @@
             /* Products Grid Styles */
             .products-grid {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 20px;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 24px;
                 margin-bottom: 30px;
             }
 
             .product-card {
-                position: relative;
-                background-color: #fff;
-                border-radius: 4px;
+                display: flex;
+                flex-direction: column;
+                background: #fff;
+                border-radius: 10px;
                 overflow: hidden;
-                transition: transform 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                transition: transform 0.2s;
+                height: 100%;
             }
 
             .product-card:hover {
-                transform: translateY(-5px);
+                transform: translateY(-4px) scale(1.02);
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
 
             .product-image {
                 width: 100%;
-                height: auto;
-
+                height: 260px;
+                background: #f7f7f7;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
             }
 
             .product-image img {
                 width: 100%;
-                height: auto;
-                object-fit: contain;
-            }
-
-            .product-card:hover .product-image img {
-                transform: scale(1.05);
-            }
-
-            .wishlist-icon {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                z-index: 2;
-            }
-
-            .wishlist-button {
-                background: transparent;
-                border: none;
-                color: #666;
-                cursor: pointer;
-            transition: all 0.3s ease;
-            }
-
-            .wishlist-button svg {
-                stroke: #000;
-                fill: none;
-            transition: all 0.3s ease;
-            }
-
-            .wishlist-button.active svg {
-                fill: #ff0000;
-                stroke: #ff0000;
-            transform: scale(1.1);
-        }
-
-        .wishlist-button:hover svg {
-            transform: scale(1.1);
-            }
-
-            .product-tag {
-                position: absolute;
-                bottom: 10px;
-                left: 0;
-                background-color: #000;
-                color: #fff;
-                padding: 4px 8px;
-                font-size: 12px;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.2s;
             }
 
             .product-info {
-                padding: 15px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 16px;
             }
 
-            .product-name {
-                font-size: 16px;
-                font-weight: 500;
+            .product-title, .product-name {
+                font-size: 1.1rem;
+                font-weight: 600;
                 margin-bottom: 8px;
-                color: #333;
+                color: #222;
             }
 
             .product-price {
-                display: flex;
-                gap: 10px;
+                font-weight: bold;
+                color: #e74c3c;
                 margin-bottom: 8px;
             }
 
-            .current-price {
-                font-weight: bold;
-                color: #000;
+            .product-description {
+                margin-bottom: 10px;
             }
 
-            .old-price {
-                text-decoration: line-through;
-                color: #999;
-            }
-
-            .product-colors {
+            .product-actions {
                 display: flex;
-                align-items: center;
-                gap: 5px;
+                gap: 10px;
+                margin-top: 10px;
             }
 
-            .color-option {
-                width: 15px;
-                height: 15px;
-                border-radius: 50%;
-                border: 1px solid #e1e1e1;
+            .add-to-wishlist {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
 
-            .color-count {
-                font-size: 12px;
-                color: #666;
+            .add-to-wishlist:hover {
+                background: #f5f5f5;
+            }
+
+            .add-to-wishlist.active {
+                color: red;
+                border-color: red;
+            }
+
+            .add-to-wishlist.active i {
+                color: red;
+            }
+
+            .product-card-link {
+                display: block;
+                color: inherit;
+                text-decoration: none;
+            }
+            .product-card-link:visited {
+                color: inherit;
+            }
+            .product-card-link:hover .product-card {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+                transform: translateY(-2px) scale(1.01);
             }
 
             /* Pagination Styles */
@@ -484,34 +468,6 @@
                     background-color: #f0f0f0;
                 }
             }
-
-        .product-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .add-to-wishlist {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .add-to-wishlist:hover {
-            background: #f5f5f5;
-        }
-
-        .add-to-wishlist.active {
-            color: red;
-            border-color: red;
-        }
-
-        .add-to-wishlist.active i {
-            color: red;
-        }
         </style>
     </head>
 
@@ -558,22 +514,26 @@
             <div class="products-grid">
             <% if (typeof products !== 'undefined' && products && products.length > 0) { %>
                 <% products.forEach(function(product) { %>
-                    <div class="product-card">
-                        <img src="<%= product.image || '/uploads/re-image/' + product.productImage[0] %>" alt="<%= product.name || product.productName %>" class="product-image">
-                        <div class="product-info">
-                            <h3 class="product-title"><%= product.name || product.productName %></h3>
-                            <p class="product-price">₹<%= product.price || product.salePrice %></p>
-                            <p class="product-description"><%= product.description || '' %></p>
-                            <div class="product-actions">
-                                <button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
-                                <button class="add-to-wishlist <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'active' : '' %>" 
-                                        onclick="addToWishlist('<%= product._id %>')"
-                                        data-product-id="<%= product._id %>">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="/productDetails?productId=<%= product._id %>" class="product-card-link">
+                      <div class="product-card">
+                          <div class="product-image">
+                              <img src="<%= product.image || '/uploads/re-image/' + product.productImage[0] %>" alt="<%= product.name || product.productName %>">
+                          </div>
+                          <div class="product-info">
+                              <h3 class="product-title"><%= product.name || product.productName %></h3>
+                              <p class="product-price">₹<%= product.price || product.salePrice %></p>
+                              <p class="product-description"><%= product.description || '' %></p>
+                              <div class="product-actions" onclick="event.stopPropagation();">
+                                  <button class="add-to-cart" onclick="addToCart('<%= product._id %>'); event.stopPropagation(); return false;">Add to Cart</button>
+                                  <button class="add-to-wishlist <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'active' : '' %>" 
+                                          onclick="addToWishlist('<%= product._id %>'); event.stopPropagation(); return false;"
+                                          data-product-id="<%= product._id %>">
+                                      <i class="fas fa-heart"></i>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                    </a>
                 <% }); %>
             <% } else { %>
                 <p>No products found.</p>
@@ -582,55 +542,52 @@
 
             <!-- Pagination -->
             <div class="pagination">
-                <% if (currentPage> 1) { %>
+                <% if (currentPage > 1) { %>
                     <button class="page-prev" onclick="location.href='/shop?page=<%= currentPage - 1 %>'">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="15 18 9 12 15 6"></polyline>
                         </svg>
                     </button>
-                    <% } else { %>
-                        <button class="page-prev disabled" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
+                <% } else { %>
+                    <button class="page-prev disabled" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                <% } %>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <% if (currentPage === i) { %>
+                        <button class="page-number active" onclick="location.href='/shop?page=<%= i %>'">
+                            <%= i %>
                         </button>
-                        <% } %>
-
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <% if (currentPage===i) { %>
-                                    <button class="page-number active" onclick="location.href='/shop?page=<%= i %>'">
-                                        <%= i %>
-                                    </button>
-                                    <% } else { %>
-                                        <button class="page-number" onclick="location.href='/shop?page=<%= i %>'">
-                                            <%= i %>
-                                        </button>
-                                        <% } %>
-                                            <% } %>
-
-                                                <% if (currentPage < totalPages) { %>
-                                                    <button class="page-next"
-                                                        onclick="location.href='/shop?page=<%= currentPage + 1 %>'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round">
-                                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                                        </svg>
-                                                    </button>
-                                                    <% } else { %>
-                                                        <button class="page-next disabled" disabled>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20"
-                                                                height="20" viewBox="0 0 24 24" fill="none"
-                                                                stroke="currentColor" stroke-width="2"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                                <polyline points="9 18 15 12 9 6"></polyline>
-                                                            </svg>
-                                                        </button>
-                                                        <% } %>
+                    <% } else { %>
+                        <button class="page-number" onclick="location.href='/shop?page=<%= i %>'">
+                            <%= i %>
+                        </button>
+                    <% } %>
+                <% } %>
+                <% if (currentPage < totalPages) { %>
+                    <button class="page-next" onclick="location.href='/shop?page=<%= currentPage + 1 %>'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                <% } else { %>
+                    <button class="page-next disabled" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                            height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                <% } %>
             </div>
 
         </div>

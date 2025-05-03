@@ -165,10 +165,12 @@ const getEditProduct = async (req, res) => {
         }
         const category = await Category.find({});
         const brand = await Brand.find({});
+        const previousUrl = req.get('referer') || req.query.previousUrl || '/admin/products';
         res.render("edit-product", {
             product: product,
             brand: brand,
             cat: category,
+            previousUrl: previousUrl
         });
     } catch (error) {
         console.log("Error in getEditProduct:", error);
@@ -215,7 +217,8 @@ const editProduct = async (req, res) => {
         }
 
         await Product.findByIdAndUpdate(id, updateFields, { new: true });
-        res.redirect("/admin/products");
+        const redirectUrl = req.body.previousUrl || '/admin/products';
+        res.redirect(redirectUrl);
 
     } catch (error) {
         console.log("edit error: ", error);
@@ -244,6 +247,58 @@ const deleteSingleImage = async (req, res) => {
     }
 }
 
+// ---Add Product Offer---
+const addProductOffer = async (req, res) => {
+    try {
+        const { productId, percentage } = req.body;
+        if (!productId || percentage === undefined) {
+            return res.status(400).json({ status: false, message: 'Missing productId or percentage' });
+        }
+        if (percentage < 0 || percentage > 100) {
+            return res.status(400).json({ status: false, message: 'Offer must be between 0 and 100%' });
+        }
+        // Get the product to read regularPrice
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ status: false, message: 'Product not found' });
+        }
+        const newSalePrice = Math.round(product.regularPrice * (1 - percentage / 100));
+        const updated = await Product.findByIdAndUpdate(
+            productId,
+            { productOffer: percentage, salePrice: newSalePrice },
+            { new: true }
+        );
+        res.json({ status: true, message: 'Offer added successfully', salePrice: updated.salePrice });
+    } catch (error) {
+        console.error('Error in addProductOffer:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
+// ---Remove Product Offer---
+const removeProductOffer = async (req, res) => {
+    try {
+        const { productId } = req.body;
+        if (!productId) {
+            return res.status(400).json({ status: false, message: 'Missing productId' });
+        }
+        // Get the product to read regularPrice
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ status: false, message: 'Product not found' });
+        }
+        const updated = await Product.findByIdAndUpdate(
+            productId,
+            { productOffer: 0, salePrice: product.regularPrice },
+            { new: true }
+        );
+        res.json({ status: true, message: 'Offer removed successfully' });
+    } catch (error) {
+        console.error('Error in removeProductOffer:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     getProductAddPage,
     addProducts,
@@ -253,4 +308,6 @@ module.exports = {
     getEditProduct,
     editProduct,
     deleteSingleImage,
+    addProductOffer,
+    removeProductOffer,
 }

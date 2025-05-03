@@ -12,15 +12,12 @@ const productSchema = new mongoose.Schema({
     },
     author: {
         type: String,
-        required: true
     },
     publisher: {
         type: String,
-        required: true
     },
     isbn: {
         type: String,
-        required: true,
         unique: true
     },
     category: {
@@ -60,21 +57,17 @@ const productSchema = new mongoose.Schema({
     },
     language: {
         type: String,
-        required: true
     },
     format: {
         type: String,
         enum: ["Hardcover", "Paperback", "E-book"],
-        required: true
     },
     pageCount: {
         type: Number,
-        required: true
     },
     publicationDate: {
         type: Date,
-        required: true
-    }
+    },
 }, { timestamps: true });
 
 const Product = mongoose.model("Product", productSchema);

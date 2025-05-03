@@ -490,12 +490,7 @@
                                     <p class="cart-item-price">₹<%= item.price || item.salePrice %></p>
 
                                     <div class="cart-item-info">
-                                        <div class="info-row">
-                                            <span class="info-label">Colour:</span>
-                                            <span class="info-value">
-                                                <%= item.productId.color %>
-                                            </span>
-                                        </div>
+                                        <!-- info of the product -->
                                     </div>
 
                                     <div class="cart-item-actions">
@@ -533,10 +528,6 @@
                                         </svg>
                                     </button>
                                     <div class="item-total">
-                                        <span class="info-label">Size</span>
-                                        <span class="size-value">
-                                            <%= item.size %>
-                                        </span>
                                         <span class="info-label">Total</span>
                                         <span class="total-value">₹<%= item.totalPrice.toLocaleString('en-IN') %></span>
                                     </div>

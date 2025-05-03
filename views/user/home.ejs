@@ -84,41 +84,39 @@
       <h2 class="section-title">New Arrivals</h2>
       <a href="/shop" class="view-all">View All</a>
     </div>
-    <div class="row">
+    <div class="products-grid">
       <%for(let i=0; i<products.length; i++){%>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-          <div class="product-card">
-            <div class="product-image">
-              <a href="/productDetails?id=<%=products[i]._id%>">
-                <img src="/uploads/re-image/<%=products[i].productImage[0]%>" 
-                     alt="<%=products[i].productName%>"
-                     class="img-fluid">
-              </a>
-              <% if (user) { %>
-                <div class="wishlist-icon">
-                  <button class="wishlist-button <%= products[i].isInWishlist ? 'active' : '' %>" 
-                          data-product-id="<%= products[i]._id %>"
-                          onclick="addToWishlist('<%= products[i]._id %>')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                  </button>
-                </div>
-              <% } %>
-            </div>
-            <div class="product-info">
-              <h3 class="product-name">
-                <a href="/productDetails?id=<%=products[i]._id%>" class="text-decoration-none text-dark">
-                  <%=products[i].productName%>
-                </a>
-              </h3>
-              <div class="product-price">
-                <span class="current-price">Rs. <%=products[i].salePrice.toLocaleString('en-IN')%></span>
-                <% if (products[i].regularPrice > products[i].salePrice) { %>
-                  <span class="old-price">Rs. <%=products[i].regularPrice.toLocaleString('en-IN')%></span>
-                <% } %>
+        <div class="product-card">
+          <div class="product-image">
+            <a href="/productDetails?id=<%=products[i]._id%>">
+              <img src="/uploads/re-image/<%=products[i].productImage[0]%>" 
+                   alt="<%=products[i].productName%>"
+                   class="img-fluid">
+            </a>
+            <% if (user) { %>
+              <div class="wishlist-icon">
+                <button class="wishlist-button <%= products[i].isInWishlist ? 'active' : '' %>" 
+                        data-product-id="<%= products[i]._id %>"
+                        onclick="addToWishlist('<%= products[i]._id %>')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                       fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </button>
               </div>
+            <% } %>
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">
+              <a href="/productDetails?id=<%=products[i]._id%>" class="text-decoration-none text-dark">
+                <%=products[i].productName%>
+              </a>
+            </h3>
+            <div class="product-price">
+              <span class="current-price">Rs. <%=products[i].salePrice.toLocaleString('en-IN')%></span>
+              <% if (products[i].regularPrice !== products[i].salePrice) { %>
+                <span class="old-price" style="text-decoration: line-through;">Rs. <%=products[i].regularPrice.toLocaleString('en-IN')%></span>
+              <% } %>
             </div>
           </div>
         </div>
@@ -293,22 +291,35 @@
   }
 
   /* Product Card Styles */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+
   .product-card {
-    background: white;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+    height: 100%;
   }
 
   .product-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px) scale(1.02);
   }
 
   .product-image {
-    position: relative;
-    height: 300px;
+    width: 100%;
+    height: 260px;
+    background: #f7f7f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
   }
 
@@ -316,11 +327,28 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s;
   }
 
-  .product-card:hover .product-image img {
-    transform: scale(1.05);
+  .product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+  }
+
+  .product-title, .product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #222;
+  }
+
+  .product-price {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 8px;
   }
 
   .wishlist-icon {
@@ -362,32 +390,6 @@
 
   .wishlist-button:hover svg {
     transform: scale(1.1);
-  }
-
-  .product-info {
-    padding: 1.5rem;
-  }
-
-  .product-name {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary-color);
-  }
-
-  .product-price {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .current-price {
-    font-weight: bold;
-    color: var(--secondary-color);
-  }
-
-  .old-price {
-    text-decoration: line-through;
-    color: #999;
   }
 
   /* Special Offers */
