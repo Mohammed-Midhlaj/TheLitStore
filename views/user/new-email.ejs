@@ -214,11 +214,20 @@
                 <h1 class="personaldetails">CHANGE EMAIL</h1>
                 <form id="registerform" method="post" action="/update-email" onsubmit="return validateForm()">
                     <div class="form-group">
+                        <label for="EMAIL">CURRENT EMAIL</label>
+                        <input type="email" value="<%= currentEmail %>" readonly>
+                    </div>
+                    <div class="form-group">
                         <label for="EMAIL">ENTER NEW EMAIL</label>
                         <input type="email" name="newEmail" id="newEmail" required>
                         <div id="error1" class="error-message"></div>
                     </div>
-                            <button type="submit" id="btn">UPDATE EMAIL</button>
+                    <% if (locals.message && message.length>0) { %>
+                        <div class="alert alert-danger text-center">
+                            <%=message%>
+                        </div>
+                    <% } %>
+                    <button type="submit" id="btn">UPDATE EMAIL</button>
                 </form>
             </div>
         </div>

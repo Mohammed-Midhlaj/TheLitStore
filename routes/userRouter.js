@@ -62,11 +62,12 @@ router.get("/editProfile", userAuth, profileController.editUserProfile);
 router.post('/editProfile', userAuth, profileController.postEditProfile);
 router.get("/change-email", userAuth, profileController.changeEmail);
 router.post("/change-email", userAuth, profileController.changeEmailValid);
-router.post("/verify-email-otp", userAuth, profileController.verifyEmailOtp);
+router.post("/verifyEmailOtp", userAuth, profileController.verifyEmailOtp);
 router.post("/update-email", userAuth, profileController.updateEmail);
 router.get('/change-password', userAuth, profileController.changePassword);
 router.post('/change-password', userAuth, profileController.changePasswordValid);
 router.post('/verify-changePassword-otp', userAuth, profileController.verifyChangePasswordOtp);
+router.post('/update-profile-image', userAuth, profileController.updateProfileImage);
 
 // --Address Management--
 
@@ -106,6 +107,7 @@ router.get('/orders', userAuth, orderController.orderList);
 router.get('/orderDetails/:orderId', userAuth, orderController.loadOrderDetails);
 router.post('/cancelOrder', userAuth, orderController.cancelOrder);
 router.post('/return', userAuth, orderController.returnOrder);
+router.get('/download-invoice/:orderId', userAuth, orderController.downloadInvoice);
 
 // --Wallet Management--
 

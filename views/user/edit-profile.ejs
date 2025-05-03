@@ -359,16 +359,14 @@
             <!-- Account Details (Right Side) -->
             <div class="account-details-container">
                 <div class="account-details">
-                    <form action="/editProfile?id=<%=userData._id%>" method="post">
-                        <div id="address-form-container" class="address-form">
-                            <input type="text" id="full-name" name="name" placeholder="Name" value="<%=userData.name%>"
-                                required>
-                            <input type="tel" id="phone" name="phone" placeholder="Phone Number"
-                                value="<%=userData.phone%>" required>
-                            <div>
-                                <button id="save-address-btn" class="btn">Edit Profile</button>
-                                <button id="cancel-address-btn" class="btn btn-secondary">Cancel</button>
-                            </div>
+                    <form id="profile-form" class="address-form">
+                        <input type="text" id="full-name" name="name" placeholder="Name" value="<%=userData.name%>"
+                            required>
+                        <input type="tel" id="phone" name="phone" placeholder="Phone Number"
+                            value="<%=userData.phone%>" required>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="/userProfile" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -451,13 +449,13 @@
                 return isValid;
             }
 
-            // Save Address Button Handler
-            saveAddressBtn.addEventListener('click', function (e) {
+            // Form Submission Handler
+            document.getElementById('profile-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (validateAddressForm()) {
-                    const addressData = {
-                        name: addressForm.fullName.value,
-                        phone: addressForm.phone.value,
+                    const formData = {
+                        name: document.getElementById('full-name').value,
+                        phone: document.getElementById('phone').value,
                     };
 
                     fetch(`/editProfile?id=<%=userData._id%>`, {
@@ -465,57 +463,43 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(addressData)
+                        body: JSON.stringify(formData)
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Network response was not ok");
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Profile edited successfully!',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    window.location.href = data.redirect;
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Error!',
-                                    text: data.message || 'There was an error editing the profile.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error editing address:', error);
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Profile edited successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/userProfile';
+                            });
+                        } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'There was an error editing the profile.',
+                                text: data.message || 'There was an error editing the profile.',
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error editing profile:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'There was an error editing the profile.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
                         });
+                    });
                 }
-            });
-
-            // Cancel Button Handler
-            cancelAddressBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                // Reset form
-                Object.values(addressForm).forEach(input => {
-                    input.value = '';
-                    input.style.borderColor = '';
-                });
-
-                // Remove any error messages
-                const errorMessages = document.querySelectorAll('.error-message');
-                errorMessages.forEach(msg => msg.remove());
             });
         });
     </script>

@@ -2,6 +2,8 @@ const User = require("../../models/userSchema")
 const Order = require("../../models/orderSchema");
 const Cart = require("../../models/cartSchema");
 const Product = require('../../models/productSchema');
+const PDFDocument = require('pdfkit');
+const moment = require('moment');
 
 
 const thankingPage = async (req, res) => {
@@ -20,7 +22,10 @@ const orderList = async (req, res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findById(userId);
-        const orders = await Order.find({ user: userId }).populate('orderedItem.product').populate('billingAddress');
+        const orders = await Order.find({ user: userId })
+            .populate('orderedItem.product')
+            .populate('billingAddress')
+            .sort({ createdOn: -1 });
 
         res.render("orderListing", {
             user: userData,
@@ -106,10 +111,85 @@ const returnOrder = async (req, res) => {
     }
 }
 
+const downloadInvoice = async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId)
+            .populate('orderedItem.product')
+            .populate('billingAddress')
+            .populate('user');
+        if (!order) return res.status(404).send('Order not found');
+
+        // Set up PDF
+        const doc = new PDFDocument({ margin: 50 });
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId}.pdf`);
+        doc.pipe(res);
+
+        // Header
+        doc.fontSize(22).text('TheLitStore', { align: 'center' });
+        doc.moveDown(0.5);
+        doc.fontSize(16).text('INVOICE', { align: 'center' });
+        doc.moveDown(1);
+
+        // Order/User Info
+        doc.fontSize(12).text(`Order ID: ${order.orderId}`);
+        doc.text(`Order Date: ${moment(order.createdOn).format('YYYY-MM-DD HH:mm')}`);
+        doc.text(`Customer: ${order.user.name}`);
+        doc.text(`Email: ${order.user.email}`);
+        doc.moveDown(0.5);
+
+        // Address
+        const addr = order.billingAddress;
+        doc.fontSize(13).text('Shipping Address:', { underline: true });
+        doc.fontSize(12).text(`Type: ${addr.addressType || addr.type || 'N/A'}`);
+        doc.text(`${addr.name}`);
+        doc.text(`${addr.landMark}, ${addr.city}, ${addr.state}, ${addr.pincode}`);
+        doc.text(`Phone: ${addr.phone}`);
+        doc.moveDown(1);
+
+        // Product Table Header
+        doc.fontSize(13).text('Products:', { underline: true });
+        doc.moveDown(0.2);
+        doc.fontSize(12).text('Name', 50, doc.y, { continued: true });
+        doc.text('Qty', 250, doc.y, { continued: true });
+        doc.text('Price', 300, doc.y, { continued: true });
+        doc.text('Total', 370, doc.y);
+        doc.moveDown(0.2);
+        doc.moveTo(50, doc.y).lineTo(500, doc.y).stroke();
+
+        // Product Table Rows
+        order.orderedItem.forEach(item => {
+            doc.text(item.product.productName, 50, doc.y, { continued: true });
+            doc.text(item.quantity.toString(), 250, doc.y, { continued: true });
+            doc.text(`₹${item.price.toFixed(2)}`, 300, doc.y, { continued: true });
+            doc.text(`₹${(item.price * item.quantity).toFixed(2)}`, 370, doc.y);
+        });
+        doc.moveDown(1);
+
+        // Payment Breakdown
+        doc.fontSize(13).text('Payment Breakdown:', { underline: true });
+        doc.fontSize(12).text(`Subtotal: ₹${order.totalPrice.toFixed(2)}`);
+        doc.text(`Shipping: ₹${order.shippingCharge ? order.shippingCharge.toFixed(2) : '149.00'}`);
+        doc.text(`Discount: ₹${order.discount ? order.discount.toFixed(2) : '0.00'}`);
+        doc.font('Helvetica-Bold').text(`Total Paid: ₹${order.finalAmount.toFixed(2)}`);
+        doc.font('Helvetica');
+        doc.moveDown(1);
+
+        // Footer
+        doc.fontSize(10).text('Thank you for shopping with TheLitStore!', { align: 'center' });
+        doc.end();
+    } catch (error) {
+        console.log('Error generating invoice:', error);
+        res.status(500).send('Error generating invoice');
+    }
+}
+
 module.exports = {
     thankingPage,
     orderList,
     loadOrderDetails,
     cancelOrder,
     returnOrder,
+    downloadInvoice,
 }

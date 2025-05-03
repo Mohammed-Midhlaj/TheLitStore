@@ -428,7 +428,7 @@
                                     <div class="order-info-item">
                                         <div class="order-info-label">Order Date</div>
                                         <div class="order-info-value" id="order-date">
-                                            <%= new Date(order.createdAt).toLocaleDateString() %>
+                                            <%= new Date(order.createdOn).toLocaleString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
                                         </div>
                                     </div>
                                     <div class="order-info-item">
@@ -456,14 +456,20 @@
                                 </div>
                                 <div class="order-total-row">
                                     <div class="order-info-item">
-                                        <div class="order-info-label">Total Amount</div>
-                                        <div class="order-info-value" id="total-amount">₹<%= order.totalAmount %>
-                                        </div>
+                                        <div class="order-info-label">Subtotal</div>
+                                        <div class="order-info-value" id="subtotal">₹<%= order.totalPrice.toFixed(2) %></div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label">Shipping</div>
+                                        <div class="order-info-value" id="shipping">₹<%= order.shippingCharge ? order.shippingCharge.toFixed(2) : '149.00' %></div>
                                     </div>
                                     <div class="order-info-item">
                                         <div class="order-info-label">Discount</div>
-                                        <div class="order-info-value" id="discount">₹<%= order.discount %>
-                                        </div>
+                                        <div class="order-info-value" id="discount">₹<%= order.discount ? order.discount.toFixed(2) : '0.00' %></div>
+                                    </div>
+                                    <div class="order-info-item">
+                                        <div class="order-info-label" style="font-weight:bold;">Total Amount</div>
+                                        <div class="order-info-value" id="total-amount" style="font-weight:bold;">₹<%= order.finalAmount.toFixed(2) %></div>
                                     </div>
                                 </div>
                             </div>
@@ -504,6 +510,7 @@
                             <!-- Ordered Items Section -->
                             <div class="order-section">
                                 <div class="section-title">Ordered Items</div>
+                                <button onclick="window.location.href='/download-invoice/<%= order._id %>'" class="view-order-btn" style="float:right;margin-bottom:10px;">Download Invoice</button>
                                 <table class="ordered-items-table">
                                     <thead>
                                         <tr>
@@ -545,10 +552,20 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="4" style="text-align: right; font-weight: 600;">Total
-                                                Amount:</td>
-                                            <td style="font-weight: 600;">₹<%= totalAmount.toFixed(2) %>
-                                            </td>
+                                            <td colspan="4" style="text-align: right; font-weight: 600;">Subtotal:</td>
+                                            <td style="font-weight: 600;">₹<%= totalAmount.toFixed(2) %></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right; font-weight: 600;">Shipping:</td>
+                                            <td style="font-weight: 600;">₹<%= order.shippingCharge ? order.shippingCharge.toFixed(2) : '149.00' %></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right; font-weight: 600;">Discount:</td>
+                                            <td style="font-weight: 600;">₹<%= order.discount ? order.discount.toFixed(2) : '0.00' %></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" style="text-align: right; font-weight: bold;">Total Paid:</td>
+                                            <td style="font-weight: bold;">₹<%= order.finalAmount.toFixed(2) %></td>
                                         </tr>
                                     </tfoot>
                                 </table>

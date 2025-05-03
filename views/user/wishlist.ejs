@@ -589,18 +589,62 @@ function addToCart(productId) {
 
                 function confirmRemove(productId) {
                     Swal.fire({
-                        title: "Are you sure",
-                        text: "You won't be able to revert this",
+                        title: "Are you sure?",
+                        text: "Do you want to remove this item from your favourites?",
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, remove it!'
+                        confirmButtonColor: '#000',
+                        cancelButtonColor: '#666',
+                        confirmButtonText: 'Yes, remove it!',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = `/removeFromWishlist?productId=${productId}`
+                            fetch(`/removeFromWishlist?productId=${productId}`, {
+                                method: 'GET'
+                            })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "Removed!",
+                                        text: result.message,
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        // Remove the product card from the DOM
+                                        const productCard = document.getElementById(`product-card-${productId}`);
+                                        if (productCard) {
+                                            productCard.remove();
+                                        }
+                                        
+                                        // Check if there are any products left
+                                        const productsGrid = document.querySelector('.products-grid');
+                                        if (productsGrid && productsGrid.children.length === 0) {
+                                            // If no products left, show empty message
+                                            const shopContainer = document.querySelector('.shop-container');
+                                            shopContainer.innerHTML = '<h1 style="text-align: center; margin-top: 30px;">No items in Favourites</h1>';
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Error",
+                                        text: result.message
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error removing from wishlist:", error);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: "Something went wrong. Please try again later."
+                                });
+                            });
                         }
-                    })
+                    });
                 }
 
             </script>

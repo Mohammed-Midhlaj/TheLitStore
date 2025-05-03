@@ -534,7 +534,13 @@
                         <% orders.forEach(order=> { %>
                             <div class="order-card">
                                 <div class="order-card-header">
-                                    <div class="order-id">Order id: <%= order.orderId %>
+                                    <div class="order-id">
+                                      <% if (order.orderedItem && order.orderedItem.length > 0) { %>
+                                        <%= order.orderedItem[0].product.productName %>
+                                        <% if (order.orderedItem.length > 1) { %>
+                                          &nbsp;and <%= order.orderedItem.length - 1 %> more
+                                        <% } %>
+                                      <% } %>
                                     </div>
                                     <div class="order-date">
                                         <%= new Date(order.createdOn).toLocaleDateString() %>

@@ -80,20 +80,33 @@
         /* Cart item styles */
         .cart-item {
             display: flex;
-            padding: 20px 0;
+            padding: 20px;
             border-bottom: 1px solid #eee;
             position: relative;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .cart-item-image {
             width: 120px;
             margin-right: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .cart-item-image img {
             width: 100%;
             height: auto;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .cart-item-image:hover img {
+            transform: scale(1.05);
         }
 
         .cart-item-details {
@@ -137,87 +150,80 @@
             gap: 15px;
         }
 
-        .wishlist-btn {
-            background: none;
-            border: 1px solid #ddd;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        /* Quantity Counter styles */
-        .cart-item-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            /* Space between wishlist button and counter */
-        }
-
-        .wishlist-btn {
-            background: none;
-            border: 1px solid #ddd;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .quantity-counter {
+        .item-quantity {
             display: flex;
             align-items: center;
             height: 40px;
-            /* Same height as wishlist button */
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .quantity-btn {
-            width: 36px;
+        .decrease-qty, .increase-qty {
+            width: 40px;
             height: 100%;
-            background: none;
+            background: #f8f8f8;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             padding: 0;
-            color: #666;
-            background-color: #f5f5f5;
-            transition: background-color 0.2s;
-        }
-
-        .quantity-btn:hover {
-            background-color: #e0e0e0;
-        }
-
-        .quantity-input {
-            width: 36px;
-            height: 100%;
-            border: none;
-            text-align: center;
-            font-size: 14px;
+            color: #333;
+            font-size: 18px;
             font-weight: 500;
-            padding: 0;
-            background: white;
+            transition: all 0.2s ease;
         }
 
-        .quantity-input:focus {
-            outline: none;
+        .decrease-qty:hover, .increase-qty:hover {
+            background: #f0f0f0;
+            color: #000;
         }
 
-        .cart-item-right {
+        .qty {
+            width: 40px;
+            height: 100%;
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: space-between;
-            min-width: 120px;
-            margin-right: 20px;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            background: #fff;
+        }
+
+        .wishlist-btn {
+            background: #fff;
+            border: 1px solid #ddd;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .wishlist-btn:hover {
+            background: #f8f8f8;
+            border-color: #ccc;
+            transform: translateY(-2px);
+        }
+
+        .wishlist-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-btn:hover svg {
+            color: #ff4d4d;
+            transform: scale(1.1);
         }
 
         .remove-item {
@@ -225,6 +231,21 @@
             border: none;
             cursor: pointer;
             color: #666;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-item:hover {
+            background: #f8f8f8;
+            color: #ff4d4d;
+            transform: translateY(-2px);
+        }
+
+        .remove-item svg {
+            width: 20px;
+            height: 20px;
+            transition: all 0.3s ease;
         }
 
         .item-total {
@@ -242,16 +263,23 @@
         .order-summary {
             flex: 1 1 30%;
             min-width: 300px;
-            background-color: #eaeaea;
-            padding: 20px;
-            border-radius: 4px;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
             height: fit-content;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
         }
 
         .apply-discount {
@@ -274,17 +302,23 @@
         .checkout-btn {
             width: 100%;
             padding: 15px;
-            background-color: #222;
+            background-color: #000;
             color: white;
             border: none;
             margin: 20px 0;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .checkout-btn:hover {
-            background-color: #000;
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .payment-info {
@@ -299,57 +333,92 @@
         .payment-methods {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
         }
 
         .payment-icon {
-            height: 30px;
+            height: 24px;
             width: auto;
+            opacity: 0.8;
+            transition: all 0.3s ease;
         }
 
-        .visa {
-            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 324'%3E%3Cpath fill='%230066B2' d='M651.3 0H348.5v324h302.8V0z'/%3E%3Cpath fill='%23FFF' d='M387.8 131.5l-33.7 88.2h-22.6l-16.5-63.9c-1-3.8-1.8-5.2-4.7-6.8-4.8-2.7-12.5-5.1-19.5-6.7l.5-1.8h33.6c4.3 0 8.1 2.9 9.1 7.8l8.3 44.1 20.5-52h22.5zm89.1 59.5c.1-20.8-28.9-22-28.7-31.3.1-2.8 2.8-5.8 8.7-6.6 2.9-.4 11-.7 20.2 3.7l3.6-16.8c-4.9-1.8-11.3-3.5-19.2-3.5-20.3 0-34.5 10.8-34.6 26.2-.1 11.4 10.2 17.8 17.9 21.6 8 3.9 10.7 6.4 10.6 9.8-.1 5.3-6.4 7.7-12.2 7.7-10.3.2-16.2-2.8-21-5l-3.7 17.3c4.8 2.2 13.5 4.1 22.6 4.2 21.4 0 35.4-10.6 35.4-27.1m53.2 28.7h19.8l-17.3-88.2h-18.3c-4.1 0-7.6 2.4-9.1 6.1l-32.1 82.1h22.5l4.5-12.3h27.5l2.5 12.3zm-23.8-29l11.4-31.4 6.5 31.4h-17.9zm-78.2-59.2l-17.7 88.2h-21.4l17.7-88.2h21.4z'/%3E%3C/svg%3E");
-        }
-
-        .mastercard {
-            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 131.39 86.9'%3E%3Cpath d='M48.37 15.14h34.66v56.61H48.37z' fill='%23ff5f00'/%3E%3Cpath d='M51.94 43.45a35.94 35.94 0 0113.75-28.3 36 36 0 100 56.61 35.94 35.94 0 01-13.75-28.31z' fill='%23eb001b'/%3E%3Cpath d='M120.5 65.76V64.6h.5v-.24h-1.19v.24h.47v1.16zm2.31 0v-1.4h-.36l-.42 1-.42-1h-.36v1.4h.26V64.7l.39.91h.27l.39-.91v1.06zM123.94 43.45a36 36 0 01-58.25 28.3 36 36 0 000-56.61 36 36 0 0158.25 28.3z' fill='%23f79e1b'/%3E%3C/svg%3E");
+        .payment-icon:hover {
+            opacity: 1;
+            transform: scale(1.05);
         }
 
         .cod {
             font-size: 14px;
             color: #666;
+            padding: 5px 10px;
+            background: #f8f8f8;
+            border-radius: 4px;
         }
 
         .delivery-info {
-            margin-bottom: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 8px;
         }
 
         .delivery-info p {
             font-size: 13px;
             color: #666;
             margin-bottom: 10px;
+            line-height: 1.5;
         }
 
         .delivery-info a {
-            color: #333;
+            color: #000;
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .delivery-info a:hover {
+            color: #333;
+            text-decoration: underline;
         }
 
         .delivery-options {
             display: flex;
             align-items: center;
-            padding: 15px 0;
-            border-top: 1px solid #ddd;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delivery-options:hover {
+            background: #f8f8f8;
+            border-color: #ddd;
         }
 
         .option-icon {
-            margin-right: 10px;
+            margin-right: 15px;
+            color: #666;
         }
 
         .delivery-options span {
             flex: 1;
             font-size: 14px;
+            font-weight: 500;
+        }
+
+        .delivery-options svg {
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .delivery-options:hover svg {
+            color: #000;
+            transform: translateX(5px);
         }
 
         /* Responsive styles */
@@ -490,12 +559,12 @@
                         <div class="summary-row-deliveryCharge"
                             style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                             <span>delivery charge</span>
-                            <a href="#" class="apply-deliveryCharge">₹ 150</a>
+                            <a href="#" class="apply-deliveryCharge">₹ 149</a>
                         </div>
                         <div class="summary-divider"></div>
                         <div class="summary-row total">
                             <span>Total</span>
-                            <span id="totalAmount">₹<%= (totalOrderValue + 150).toLocaleString('en-IN') %></span>
+                            <span id="totalAmount">₹<%= (totalOrderValue + 149).toLocaleString('en-IN') %></span>
                         </div>
                         <a href="/checkout">
                             <button class="checkout-btn">Continue to checkout</button>
@@ -625,6 +694,20 @@
             button.addEventListener('click', async function () {
                 const cartItem = this.closest('.cart-item');
                 const productId = cartItem.getAttribute('data-product-id');
+                const currentQty = parseInt(cartItem.querySelector('.qty').innerText);
+
+                // Check if quantity is already at max limit
+                if (currentQty >= 10) {
+                    Swal.fire({
+                        title: 'Maximum Limit Reached',
+                        text: 'You can only add up to 10 items per product',
+                        icon: 'warning',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Okay'
+                    });
+                    return;
+                }
+
                 try {
                     const response = await fetch('updateQuantity', {
                         method: 'POST',
@@ -633,10 +716,12 @@
                     });
                     const result = await response.json();
                     if (result.status) {
-                        location.reload();
+                        // Update quantity display
                         cartItem.querySelector('.qty').innerText = result.quantity;
                         cartItem.querySelector('.total-value').innerText = "₹ " + result.totalPrice.toLocaleString('en-IN');
-
+                        
+                        // Update order summary
+                        updateOrderSummary();
                     } else {
                         Swal.fire({
                             title: 'Oops!',
@@ -656,6 +741,20 @@
             button.addEventListener('click', async function () {
                 const cartItem = this.closest('.cart-item');
                 const productId = cartItem.getAttribute('data-product-id');
+                const currentQty = parseInt(cartItem.querySelector('.qty').innerText);
+
+                // Check if quantity is already at minimum
+                if (currentQty <= 1) {
+                    Swal.fire({
+                        title: 'Minimum Quantity',
+                        text: 'Quantity cannot be less than 1',
+                        icon: 'warning',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Okay'
+                    });
+                    return;
+                }
+
                 try {
                     const response = await fetch('updateQuantity', {
                         method: 'POST',
@@ -664,10 +763,12 @@
                     });
                     const result = await response.json();
                     if (result.status) {
-                        location.reload();
+                        // Update quantity display
                         cartItem.querySelector('.qty').innerText = result.quantity;
                         cartItem.querySelector('.total-value').innerText = "₹ " + result.totalPrice.toLocaleString('en-IN');
-
+                        
+                        // Update order summary
+                        updateOrderSummary();
                     } else {
                         Swal.fire({
                             title: 'Oops!',
@@ -682,6 +783,23 @@
                 }
             });
         });
+
+        // Function to update order summary
+        function updateOrderSummary() {
+            let totalOrderValue = 0;
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const totalPrice = parseFloat(item.querySelector('.total-value').innerText.replace('₹', '').replace(',', ''));
+                totalOrderValue += totalPrice;
+            });
+
+            // Update order value
+            document.querySelector('.apply-orderVal').innerText = '₹' + totalOrderValue.toLocaleString('en-IN');
+            
+            // Update total amount (order value + delivery charge)
+            const deliveryCharge = 150;
+            const totalAmount = totalOrderValue + deliveryCharge;
+            document.getElementById('totalAmount').innerText = '₹' + totalAmount.toLocaleString('en-IN');
+        }
 
         function removeFromCart(productId) {
             Swal.fire({

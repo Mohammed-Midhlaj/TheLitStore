@@ -359,24 +359,22 @@
             <!-- Account Details (Right Side) -->
             <div class="account-details-container">
                 <div class="account-details">
-                    <form action="/addAddress" method="post">
-                        <div id="address-form-container" class="address-form">
-                            <input type="text" id="full-name" name="name" placeholder="Full Name" required>
-                            <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
-                            <input type="tel" id="altPhone" name="altPhone" placeholder="AltPhone Number" required>
-                            <input type="text" id="landMark" name="landMark" placeholder="landMark" required>
-                            <input type="text" id="city" name="city" placeholder="City" required>
-                            <input type="text" id="state" name="state" placeholder="State" required>
-                            <input type="text" id="pincode" name="pincode" placeholder="pincode" required>
-                            <select id="address-type" name="addressType">
-                                <option value="home">HOME</option>
-                                <option value="work">OFFICE</option>
-                                <option value="other">OTHER</option>
-                            </select>
-                            <div>
-                                <button id="save-address-btn" class="btn">Save Address</button>
-                                <button id="cancel-address-btn" class="btn btn-secondary">Cancel</button>
-                            </div>
+                    <form id="address-form" class="address-form">
+                        <input type="text" id="full-name" name="name" placeholder="Full Name" required>
+                        <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
+                        <input type="tel" id="altPhone" name="altPhone" placeholder="Alternate Phone Number">
+                        <input type="text" id="landMark" name="landMark" placeholder="Street Address" required>
+                        <input type="text" id="city" name="city" placeholder="City" required>
+                        <input type="text" id="state" name="state" placeholder="State" required>
+                        <input type="text" id="pincode" name="pincode" placeholder="Pincode" required>
+                        <select id="address-type" name="addressType" required>
+                            <option value="home">Home</option>
+                            <option value="work">Work</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Address</button>
+                            <a href="/address" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -480,19 +478,19 @@
                 return isValid;
             }
 
-            // Save Address Button Handler
-            saveAddressBtn.addEventListener('click', function (e) {
+            // Form Submission Handler
+            document.getElementById('address-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 if (validateAddressForm()) {
-                    const addressData = {
-                        name: addressForm.fullName.value,
-                        phone: addressForm.phone.value,
-                        altPhone: addressForm.altPhone.value,
-                        landMark: addressForm.street.value,
-                        city: addressForm.city.value,
-                        state: addressForm.state.value,
-                        pincode: addressForm.zipCode.value,
-                        addressType: addressForm.addressType.value
+                    const formData = {
+                        name: document.getElementById('full-name').value,
+                        phone: document.getElementById('phone').value,
+                        altPhone: document.getElementById('altPhone').value,
+                        landMark: document.getElementById('landMark').value,
+                        city: document.getElementById('city').value,
+                        state: document.getElementById('state').value,
+                        pincode: document.getElementById('pincode').value,
+                        addressType: document.getElementById('address-type').value
                     };
 
                     fetch('/addAddress', {
@@ -500,42 +498,42 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(addressData)
+                        body: JSON.stringify(formData)
                     })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Network response was not ok");
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    title: 'Success!',
-                                    text: 'Address added successfully!',
-                                    icon: 'success',
-                                    confirmButtonText: 'OK'
-                                }).then(() => {
-                                    window.location.href = data.redirect;
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Error!',
-                                    text: data.message || 'There was an error adding the address.',
-                                    icon: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error adding address:', error);
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Address added successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/address';
+                            });
+                        } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'There was an error adding the address.',
+                                text: data.message || 'There was an error adding the address.',
                                 icon: 'error',
                                 confirmButtonText: 'OK'
                             });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding address:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'There was an error adding the address.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
                         });
+                    });
                 }
             });
 

@@ -195,15 +195,14 @@ const userProfile = async (req, res) => {
 
 const editUserProfile = async (req, res) => {
     try {
-
-        const userData = req.session.userData;
-        const findUser = await User.findOne({ userData: userData })
+        const userId = req.session.user;
+        const user = await User.findById(userId);
         res.render("edit-profile", {
-            userData: userData
-        })
-
+            user: user,
+            isAuthenticated: true
+        });
     } catch (error) {
-        res.redirect("/pageNotFound")
+        res.redirect("/pageNotFound");
     }
 }
 
@@ -249,8 +248,8 @@ const changeEmail = async (req, res) => {
 
 const changeEmailValid = async (req, res) => {
     try {
-
         const { email } = req.body;
+        const userId = req.session.user;
 
         const userExists = await User.findOne({ email });
         if (userExists) {
@@ -258,24 +257,25 @@ const changeEmailValid = async (req, res) => {
             const emailSent = await sendVerificationEmail(email, otp);
             if (emailSent) {
                 req.session.userOtp = otp;
-                req.session.userData = req.body;
-                req.session.email = email;
+                req.session.userId = userId;
+                req.session.currentEmail = email;
                 res.render("change-email-otp");
-                console.log("Emaill Sent: ", email);
-                console.log("Otp in session: ", req.session.userOtp)
+                console.log("Email Sent: ", email);
+                console.log("OTP in session: ", req.session.userOtp);
                 console.log("Email Change OTP: ", otp);
-
             } else {
-                res.json("email-error");
+                res.render("change-email", {
+                    message: "Failed to send OTP. Please try again."
+                });
             }
         } else {
             res.render("change-email", {
-                message: "user with this email not exists"
+                message: "User with this email does not exist"
             });
         }
-
     } catch (error) {
-        res.redirect("pageNotFound")
+        console.log("Error in email change validation: ", error);
+        res.redirect("/pageNotFound");
     }
 }
 
@@ -283,22 +283,36 @@ const changeEmailValid = async (req, res) => {
 
 const verifyEmailOtp = async (req, res) => {
     try {
-
         const enteredOtp = req.body.otp;
-        if (enteredOtp === req.session.userOtp) {
-            req.session.userData = req.body.userData;
-            res.render("new-email", {
-                userData: req.session.userData,
-            })
-        } else {
-            res.render("change-email-otp", {
-                message: "OTP not matching",
-                userData: req.session.userData
-            })
+        const userId = req.session.userId;
+        const currentEmail = req.session.currentEmail;
+
+        if (!userId || !currentEmail) {
+            return res.render("change-email", {
+                message: "Session expired. Please try again."
+            });
         }
 
+        if (!enteredOtp) {
+            return res.render("change-email-otp", {
+                message: "Please enter the OTP"
+            });
+        }
+
+        if (enteredOtp === req.session.userOtp) {
+            res.render("new-email", {
+                currentEmail: currentEmail
+            });
+        } else {
+            res.render("change-email-otp", {
+                message: "Invalid OTP. Please try again."
+            });
+        }
     } catch (error) {
-        res.redirect("/pageNotFound");
+        console.log("Error in OTP verification: ", error);
+        res.render("change-email-otp", {
+            message: "An error occurred. Please try again."
+        });
     }
 }
 
@@ -306,13 +320,32 @@ const verifyEmailOtp = async (req, res) => {
 
 const updateEmail = async (req, res) => {
     try {
-
         const newEmail = req.body.newEmail;
-        const userId = req.session.user;
-        await User.findByIdAndUpdate(userId, { email: newEmail });
-        res.redirect("/userProfile")
+        const userId = req.session.userId;
 
+        if (!userId) {
+            return res.render("change-email", {
+                message: "Session expired. Please try again."
+            });
+        }
+
+        // Check if new email already exists
+        const emailExists = await User.findOne({ email: newEmail });
+        if (emailExists) {
+            return res.render("new-email", {
+                message: "This email is already registered. Please use a different email.",
+                currentEmail: req.session.currentEmail
+            });
+        }
+
+        await User.findByIdAndUpdate(userId, { email: newEmail });
+        req.session.userId = null;
+        req.session.currentEmail = null;
+        req.session.userOtp = null;
+        
+        res.redirect("/userProfile");
     } catch (error) {
+        console.log("Error updating email: ", error);
         res.redirect("/pageNotFound");
     }
 }
@@ -331,35 +364,41 @@ const changePassword = async (req, res) => {
 
 const changePasswordValid = async (req, res) => {
     try {
-
         const { email } = req.body;
+        const userId = req.session.user;
+
+        if (!userId) {
+            return res.render("change-password", {
+                message: "Session expired. Please try again."
+            });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             const otp = generateOtp();
-            const emailSent = await sendVerificationEmail(email, otp)
+            const emailSent = await sendVerificationEmail(email, otp);
 
             if (emailSent) {
                 req.session.userOtp = otp;
-                req.session.userData = req.body;
-                req.session.email = email;
+                req.session.userId = userId;
+                req.session.currentEmail = email;
                 res.render("change-password-otp");
-                console.log("OTP stored in section: ", req.session.userOtp)
                 console.log("Password Change OTP: ", otp);
             } else {
-                res.json({
-                    success: false,
-                    message: "Failed to send OTP. Please try again",
-                })
+                res.render("change-password", {
+                    message: "Failed to send OTP. Please try again."
+                });
             }
         } else {
             res.render("change-password", {
-                message: "user with this email does not exists"
-            })
+                message: "User with this email does not exist"
+            });
         }
-
     } catch (error) {
-        console.log("Error in password change  validation: ", error)
-        res.redirect("/pageNotFound")
+        console.log("Error in password change validation: ", error);
+        res.render("change-password", {
+            message: "An error occurred. Please try again."
+        });
     }
 }
 
@@ -367,16 +406,36 @@ const changePasswordValid = async (req, res) => {
 
 const verifyChangePasswordOtp = async (req, res) => {
     try {
-
         const enteredOtp = req.body.otp;
-        if (enteredOtp == req.session.userOtp) {
-            res.redirect("/reset-password")
-        } else {
-            res.json({ success: false, message: "OTP not matching" })
+        const userId = req.session.userId;
+        const currentEmail = req.session.currentEmail;
+
+        if (!userId || !currentEmail) {
+            return res.render("change-password", {
+                message: "Session expired. Please try again."
+            });
         }
 
+        if (!enteredOtp) {
+            return res.render("change-password-otp", {
+                message: "Please enter the OTP"
+            });
+        }
+
+        if (enteredOtp === req.session.userOtp) {
+            res.render("reset-password", {
+                currentEmail: currentEmail
+            });
+        } else {
+            res.render("change-password-otp", {
+                message: "Invalid OTP. Please try again."
+            });
+        }
     } catch (error) {
-        res.status(500).json({ success: true, message: "An error occured.Please try again" })
+        console.log("Error in OTP verification: ", error);
+        res.render("change-password-otp", {
+            message: "An error occurred. Please try again."
+        });
     }
 }
 
@@ -535,7 +594,22 @@ const deleteAddress = async (req, res) => {
     }
 }
 
+const updateProfileImage = async (req, res) => {
+    try {
+        const { profileImage } = req.body;
+        const userId = req.session.user;
 
+        if (!userId) {
+            return res.json({ success: false, message: "Session expired" });
+        }
+
+        await User.findByIdAndUpdate(userId, { profileImage });
+        res.json({ success: true, message: "Profile image updated successfully" });
+    } catch (error) {
+        console.log("Error updating profile image: ", error);
+        res.json({ success: false, message: "Failed to update profile image" });
+    }
+}
 
 module.exports = {
     getForgotPasswordPage,
@@ -560,4 +634,5 @@ module.exports = {
     editAddress,
     postEditAddress,
     deleteAddress,
+    updateProfileImage,
 }
