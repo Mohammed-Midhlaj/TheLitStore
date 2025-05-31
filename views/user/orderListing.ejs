@@ -153,7 +153,7 @@
             padding: 15px;
         }
 
-        /* Add these styles to your existing CSS */
+
 
         .orders-container {
             display: flex;
@@ -523,7 +523,7 @@
                 </div>
             </div>
 
-            <!-- My Details Section - Always visible -->
+            <!-- my details -->
             <div class="account-details-container" id="order-content-container">
                 <div id="order-management" class="account-details">
                     <div class="details-header">
@@ -534,7 +534,7 @@
                         <% const requestOrders = orders.filter(order =>
                             (order.cancellationRequested && order.cancellationStatus === 'Requested') ||
                             (order.returnRequested && order.returnStatus === 'Requested') ||
-                            (order.refundRequested && (order.refundStatus === 'Requested' || order.refundStatus === 'Approved'))
+                            (order.refundRequested && order.refundStatus === 'Requested')
                         ); %>
                         <% const normalOrders = orders.filter(order => !requestOrders.includes(order)); %>
 
@@ -569,8 +569,8 @@
                                                 <% if (order.returnRequested && order.returnStatus === 'Requested') { %>
                                                     <div class="status-badge pending" style="margin-top:4px;background:#e6f7ff;color:#1890ff;">Return Requested</div>
                                                 <% } %>
-                                                <% if (order.refundRequested && (order.refundStatus === 'Requested' || order.refundStatus === 'Approved')) { %>
-                                                    <div class="status-badge pending" style="margin-top:4px;background:#f6ffed;color:#389e0d;">Refund <%= order.refundStatus %></div>
+                                                <% if (order.refundRequested && order.refundStatus === 'Requested') { %>
+                                                    <div class="status-badge pending" style="margin-top:4px;background:#f6ffed;color:#389e0d;">Refund Requested</div>
                                                 <% } %>
                                             </div>
                                             <div class="order-detail">

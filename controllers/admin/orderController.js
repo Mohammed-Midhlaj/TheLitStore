@@ -163,12 +163,15 @@ const processRefundRequest = async (req, res) => {
         }
         if (action === 'approve') {
             order.refundStatus = 'Approved';
+            order.refundRequested = false;
         } else if (action === 'process') {
             order.refundStatus = 'Processed';
             order.refundProcessedAt = new Date();
             order.paymentStatus = 'Refunded';
+            order.refundRequested = false;
         } else {
             order.refundStatus = 'Denied';
+            order.refundRequested = false;
         }
         await order.save();
         res.json({ status: true, message: `Refund ${action}d.` });
@@ -183,5 +186,5 @@ module.exports = {
     updateOrderStatus,
     processCancelRequest,
     processReturnRequest,
-    processRefundRequest,
-}
+    processRefundRequest
+};

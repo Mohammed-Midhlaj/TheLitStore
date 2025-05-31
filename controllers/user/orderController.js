@@ -279,7 +279,7 @@ const getOrderRequestStatus = async (req, res) => {
     }
 };
 
-// --- Item-level Cancel/Return/Refund ---
+// --- item level cancel and return ---
 const requestCancelItem = async (req, res) => {
     try {
         const { orderId, itemId } = req.body;
