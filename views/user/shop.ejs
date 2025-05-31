@@ -481,11 +481,14 @@
             <div class="filter-options">
                 <div class="filter-group">
                     <label for="category">Category</label>
-                    <select id="category">
+                    <select id="category" class="form-select">
                         <option value="">All Categories</option>
-                        <% if (typeof categories !== 'undefined' && categories && categories.length > 0) { %>
-                            <% categories.forEach(function(category) { %>
-                                <option value="<%= category._id %>"><%= category.name %></option>
+                        <% if (typeof category !== 'undefined' && category && category.length > 0) { %>
+                            <% category.forEach(function(category) { %>
+                                <option value="<%= category._id %>" 
+                                    <%= query.category === category._id.toString() ? 'selected' : '' %>>
+                                    <%= category.name %> (<%= category.productCount %>)
+                                </option>
                             <% }); %>
                         <% } %>
                     </select>

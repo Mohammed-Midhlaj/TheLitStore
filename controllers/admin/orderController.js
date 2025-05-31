@@ -80,9 +80,23 @@ const viewOrderDetailPage = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
     try {
-
         const orderId = req.params.orderId;
-        const { status, paymentStatus } = req.body;
+        const { status } = req.body;
+
+        // Get the current order to check its status
+        const currentOrder = await Order.findById(orderId);
+        if (!currentOrder) {
+            return res.redirect("/admin/orderList");
+        }
+
+        // Prevent reverting from Delivered status
+        if (currentOrder.status === "Delivered" && 
+            ["Pending", "Processing", "Shipped"].includes(status)) {
+            return res.redirect("/admin/orderView/" + orderId + "?error=invalid_status");
+        }
+
+        // If status is being updated to Delivered, automatically set payment status to Completed
+        const paymentStatus = status === "Delivered" ? "Completed" : currentOrder.paymentStatus;
 
         await Order.findByIdAndUpdate(orderId, {
             status,
@@ -92,7 +106,6 @@ const updateOrderStatus = async (req, res) => {
         res.redirect("/admin/orderView/" + orderId + "?updated=true");
 
     } catch (error) {
-
         console.error("Error updating order status:", error);
         res.redirect("/admin/orderView/" + req.params.orderId);
     }

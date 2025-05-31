@@ -463,21 +463,21 @@
                 <div class="action-buttons">
                   <div class="status-update">
                     <div>
-                      <span class="info-label">Update Payment Status:</span>
-                      <select name="paymentStatus">
-                        <option value="Pending" <%= order.paymentStatus === "Pending" ? "selected" : "" %>>Pending</option>
-                        <option value="Completed" <%= order.paymentStatus === "Completed" ? "selected" : "" %>>Completed</option>
-                        <option value="Failed" <%= order.paymentStatus === "Failed" ? "selected" : "" %>>Failed</option>
-                        <option value="Refunded" <%= order.paymentStatus === "Refunded" ? "selected" : "" %>>Refunded</option>
-                      </select>
+                      <span class="info-label">Payment Status:</span>
+                      <span class="status-badge <%= order.paymentStatus.toLowerCase() %>" style="margin-left: 10px;">
+                        <%= order.paymentStatus %>
+                      </span>
                     </div>
                     
                     <div style="margin-top: 10px;">
                       <span class="info-label">Update Order Status:</span>
                       <select name="status">
-                        <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %>>Pending</option>
-                        <option value="Processing" <%= order.status === "Processing" ? "selected" : "" %>>Processing</option>
-                        <option value="Shipped" <%= order.status === "Shipped" ? "selected" : "" %>>Shipped</option>
+                        <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %> 
+                            <%= order.status === "Delivered" ? "disabled" : "" %>>Pending</option>
+                        <option value="Processing" <%= order.status === "Processing" ? "selected" : "" %>
+                            <%= order.status === "Delivered" ? "disabled" : "" %>>Processing</option>
+                        <option value="Shipped" <%= order.status === "Shipped" ? "selected" : "" %>
+                            <%= order.status === "Delivered" ? "disabled" : "" %>>Shipped</option>
                         <option value="Delivered" <%= order.status === "Delivered" ? "selected" : "" %>>Delivered</option>
                         <option value="Cancelled" <%= order.status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
                         <option value="Return Request" <%= order.status === "Return Request" ? "selected" : "" %>>Return Request</option>
@@ -504,6 +504,15 @@ const urlParams = new URLSearchParams(window.location.search);
       title: 'Order status updated!',
       showConfirmButton: false,
       timer: 1500
+    });
+  } else if (urlParams.get('error') === 'invalid_status') {
+    Swal.fire({
+      position: 'top-end',
+      icon: 'error',
+      toast: true,
+      title: 'Cannot revert from Delivered status!',
+      showConfirmButton: false,
+      timer: 3000
     });
   }
 

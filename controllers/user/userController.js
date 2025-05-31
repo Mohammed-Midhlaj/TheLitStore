@@ -332,8 +332,9 @@ const loadShoppingPage = async (req, res) => {
         const userId = req.session.user;
         const user = await User.findById(userId);
         
-        // Get listed categories
-        const categories = await Category.find({ isListed: true });
+        // Get listed categories and sort them alphabetically
+        const categories = await Category.find({ isListed: true })
+            .sort({ name: 1 }); // Sort categories alphabetically
         const categoryIds = categories.map(category => category._id);
 
         // Build query conditions
@@ -375,7 +376,7 @@ const loadShoppingPage = async (req, res) => {
         const skip = (page - 1) * limit;
 
         // Sort setup
-        let sortOptions = { createdAt: -1 }; // Default sort by newest
+        let sortOptions = { createdAt: -1 };
         if (req.query.sort) {
             switch (req.query.sort) {
                 case 'price-low':
@@ -401,20 +402,33 @@ const loadShoppingPage = async (req, res) => {
 
         // Fetch brands
         const brands = await Brand.find({ isBlocked: false });
-        const categoriesWithIds = categories.map(category => ({ 
+        
+        // Prepare categories with additional information
+        const categoriesWithInfo = categories.map(category => ({ 
             _id: category._id, 
-            name: category.name 
+            name: category.name,
+            productCount: 0 // Will be updated below
         }));
+
+        // Get product count for each category
+        for (let category of categoriesWithInfo) {
+            category.productCount = await Product.countDocuments({
+                category: category._id,
+                isBlocked: false,
+                quantity: { $gt: 0 }
+            });
+        }
 
         res.render("shop", { 
             user,
             products,
-            category: categoriesWithIds,
+            category: categoriesWithInfo,
             brand: brands,
             currentPage: page,
             totalPages: totalPages,
             totalProducts: totalProducts,
-            isAuthenticated: !!userId
+            isAuthenticated: !!userId,
+            query: req.query // Pass query parameters to template
         });
     } catch (error) {
         console.log("Error loading shopping page: ", error);

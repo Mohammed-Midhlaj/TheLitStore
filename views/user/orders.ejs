@@ -621,11 +621,7 @@
                                     <button class="return-btn" disabled>Returned</button>
                                 <% } %>
 
-                                <% if ((order.returnStatus === 'Approved' || order.status === 'Cancelled') && 
-                                      !order.refundRequested && 
-                                      order.refundStatus !== 'Approved' && 
-                                      order.refundStatus !== 'Processed' && 
-                                      order.refundStatus !== 'Denied') { %>
+                                <% if ((order.paymentStatus === 'Completed') && (order.returnStatus === 'Approved' || order.status === 'Cancelled') && !order.refundRequested && order.refundStatus !== 'Approved' && order.refundStatus !== 'Processed' && order.refundStatus !== 'Denied' && order.status !== 'Cancelled') { %>
                                     <button class="view-order-btn" id="refundOrderBtn">Request Refund</button>
                                 <% } %>
                             </div>

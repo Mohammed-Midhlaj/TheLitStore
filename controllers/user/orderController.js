@@ -127,63 +127,124 @@ const downloadInvoice = async (req, res) => {
             .populate('user');
         if (!order) return res.status(404).send('Order not found');
 
-        // Set up PDF
-        const doc = new PDFDocument({ margin: 50 });
+        // Set up PDF with proper margins
+        const doc = new PDFDocument({ 
+            margin: 50,
+            size: 'A4'
+        });
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.orderId}.pdf`);
         doc.pipe(res);
 
-        // Header
+        // Header with proper spacing
         doc.fontSize(22).text('TheLitStore', { align: 'center' });
         doc.moveDown(0.5);
         doc.fontSize(16).text('INVOICE', { align: 'center' });
         doc.moveDown(1);
 
-        // Order/User Info
-        doc.fontSize(12).text(`Order ID: ${order.orderId}`);
-        doc.text(`Order Date: ${moment(order.createdOn).format('YYYY-MM-DD HH:mm')}`);
+        // Order/User Info with consistent spacing
+        doc.fontSize(12);
+        doc.text(`Order ID: ${order.orderId}`, { continued: true, align: 'left' });
+        doc.text(`Date: ${moment(order.createdOn).format('YYYY-MM-DD HH:mm')}`, { align: 'right' });
+        doc.moveDown(0.5);
         doc.text(`Customer: ${order.user.name}`);
         doc.text(`Email: ${order.user.email}`);
-        doc.moveDown(0.5);
+        doc.moveDown(1);
 
-        // Address
+        // Address with proper formatting
         const addr = order.billingAddress;
         doc.fontSize(13).text('Shipping Address:', { underline: true });
-        doc.fontSize(12).text(`Type: ${addr.addressType || addr.type || 'N/A'}`);
+        doc.fontSize(12);
+        doc.text(`Type: ${addr.addressType || addr.type || 'N/A'}`);
         doc.text(`${addr.name}`);
-        doc.text(`${addr.landMark}, ${addr.city}, ${addr.state}, ${addr.pincode}`);
+        doc.text(`${addr.landMark}`);
+        doc.text(`${addr.city}, ${addr.state}, ${addr.pincode}`);
         doc.text(`Phone: ${addr.phone}`);
         doc.moveDown(1);
 
-        // Product Table Header
+        // Product Table with improved alignment
         doc.fontSize(13).text('Products:', { underline: true });
         doc.moveDown(0.2);
-        doc.fontSize(12).text('Name', 50, doc.y, { continued: true });
-        doc.text('Qty', 250, doc.y, { continued: true });
-        doc.text('Price', 300, doc.y, { continued: true });
-        doc.text('Total', 370, doc.y);
-        doc.moveDown(0.2);
-        doc.moveTo(50, doc.y).lineTo(500, doc.y).stroke();
 
-        // Product Table Rows
+        // Table header with fixed column widths
+        const tableTop = doc.y;
+        const nameWidth = 200;
+        const qtyWidth = 50;
+        const priceWidth = 80;
+        const totalWidth = 80;
+
+        // Draw table header
+        doc.fontSize(12);
+        doc.text('Name', 50, tableTop, { width: nameWidth });
+        doc.text('Qty', 50 + nameWidth, tableTop, { width: qtyWidth, align: 'center' });
+        doc.text('Price', 50 + nameWidth + qtyWidth, tableTop, { width: priceWidth, align: 'right' });
+        doc.text('Total', 50 + nameWidth + qtyWidth + priceWidth, tableTop, { width: totalWidth, align: 'right' });
+        
+        // Draw header line
+        doc.moveTo(50, tableTop + 15).lineTo(50 + nameWidth + qtyWidth + priceWidth + totalWidth, tableTop + 15).stroke();
+        doc.moveDown(0.5);
+
+        // Product rows with consistent alignment
+        let y = doc.y;
         order.orderedItem.forEach(item => {
-            doc.text(item.product.productName, 50, doc.y, { continued: true });
-            doc.text(item.quantity.toString(), 250, doc.y, { continued: true });
-            doc.text(`₹${item.price.toFixed(2)}`, 300, doc.y, { continued: true });
-            doc.text(`₹${(item.price * item.quantity).toFixed(2)}`, 370, doc.y);
+            doc.text(item.product.productName, 50, y, { width: nameWidth });
+            doc.text(item.quantity.toString(), 50 + nameWidth, y, { width: qtyWidth, align: 'center' });
+            doc.text(`₹${item.price.toFixed(2)}`, 50 + nameWidth + qtyWidth, y, { width: priceWidth, align: 'right' });
+            doc.text(`₹${(item.price * item.quantity).toFixed(2)}`, 50 + nameWidth + qtyWidth + priceWidth, y, { width: totalWidth, align: 'right' });
+            y = doc.y + 5;
         });
         doc.moveDown(1);
 
-        // Payment Breakdown
+        // Payment Breakdown with right alignment
         doc.fontSize(13).text('Payment Breakdown:', { underline: true });
-        doc.fontSize(12).text(`Subtotal: ₹${order.totalPrice.toFixed(2)}`);
-        doc.text(`Shipping: ₹${order.shippingCharge ? order.shippingCharge.toFixed(2) : '149.00'}`);
-        doc.text(`Discount: ₹${order.discount ? order.discount.toFixed(2) : '0.00'}`);
-        doc.font('Helvetica-Bold').text(`Total Paid: ₹${order.finalAmount.toFixed(2)}`);
+        doc.moveDown(0.5);
+        
+        // Calculate positions for payment breakdown
+        const breakdownStartX = 50;
+        const breakdownEndX = 50 + nameWidth + qtyWidth + priceWidth + totalWidth;
+        const breakdownWidth = breakdownEndX - breakdownStartX;
+        const labelWidth = 100;
+        const amountWidth = 100;
+        const breakdownY = doc.y;
+        
+        // Draw divider line
+        doc.moveTo(breakdownStartX, breakdownY).lineTo(breakdownEndX, breakdownY).stroke();
+        doc.moveDown(0.5);
+        
+        // Payment breakdown items with consistent spacing
+        const lineHeight = 25;
+        let currentY = doc.y;
+        
+        // Subtotal
+        doc.fontSize(12);
+        doc.text('Subtotal:', breakdownStartX, currentY, { width: labelWidth, align: 'right' });
+        doc.text(`₹${order.totalPrice.toFixed(2)}`, breakdownEndX - amountWidth, currentY, { width: amountWidth, align: 'right' });
+        
+        // Shipping
+        currentY += lineHeight;
+        doc.text('Shipping:', breakdownStartX, currentY, { width: labelWidth, align: 'right' });
+        doc.text(`₹${order.shippingCharge ? order.shippingCharge.toFixed(2) : '149.00'}`, breakdownEndX - amountWidth, currentY, { width: amountWidth, align: 'right' });
+        
+        // Discount
+        currentY += lineHeight;
+        doc.text('Discount:', breakdownStartX, currentY, { width: labelWidth, align: 'right' });
+        doc.text(`₹${order.discount ? order.discount.toFixed(2) : '0.00'}`, breakdownEndX - amountWidth, currentY, { width: amountWidth, align: 'right' });
+        
+        // Draw divider line before total
+        currentY += lineHeight;
+        doc.moveTo(breakdownStartX, currentY).lineTo(breakdownEndX, currentY).stroke();
+        doc.moveDown(0.5);
+        
+        // Total Paid with bold font
+        currentY = doc.y;
+        doc.font('Helvetica-Bold');
+        doc.text('Total Paid:', breakdownStartX, currentY, { width: labelWidth, align: 'right' });
+        doc.text(`₹${order.finalAmount.toFixed(2)}`, breakdownEndX - amountWidth, currentY, { width: amountWidth, align: 'right' });
         doc.font('Helvetica');
-        doc.moveDown(1);
+        
+        doc.moveDown(2);
 
-        // Footer
+        // Footer with proper spacing
         doc.fontSize(10).text('Thank you for shopping with TheLitStore!', { align: 'center' });
         doc.end();
     } catch (error) {
