@@ -182,6 +182,23 @@ const processRefundRequest = async (req, res) => {
             order.refundProcessedAt = new Date();
             order.paymentStatus = 'Refunded';
             order.refundRequested = false;
+            
+            // If payment was made through Razorpay, initiate refund
+            if (order.paymentMethod === 'razorpay' && order.razorpay_payment_id) {
+                try {
+                    const refund = await razorpay.payments.refund(order.razorpay_payment_id, {
+                        amount: order.finalAmount * 100, // Convert to paise
+                        speed: 'normal'
+                    });
+                    order.razorpay_refund_id = refund.id;
+                } catch (refundError) {
+                    console.error("Error processing Razorpay refund:", refundError);
+                    return res.status(500).json({ 
+                        status: false, 
+                        message: "Error processing Razorpay refund. Please try again." 
+                    });
+                }
+            }
         } else {
             order.refundStatus = 'Denied';
             order.refundRequested = false;

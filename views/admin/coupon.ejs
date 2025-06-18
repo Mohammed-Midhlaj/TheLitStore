@@ -1,0 +1,183 @@
+<%-include("../partials/admin/header")%>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Create New Coupon</h4>
+                </div>
+                <div class="card-body">
+                    <form id="createCouponForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Coupon Name</label>
+                                    <input type="text" class="form-control" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Offer Price (₹)</label>
+                                    <input type="number" class="form-control" name="offerPrice" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Minimum Purchase Amount (₹)</label>
+                                    <input type="number" class="form-control" name="minimumPrice" min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="date" class="form-control" name="expireOn" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Coupon</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Coupon List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Coupon Name</th>
+                                    <th>Offer Price</th>
+                                    <th>Minimum Amount</th>
+                                    <th>Created On</th>
+                                    <th>Expires On</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% coupons.forEach(coupon => { %>
+                                    <tr>
+                                        <td><%= coupon.name %></td>
+                                        <td>₹<%= coupon.offerPrice %></td>
+                                        <td>₹<%= coupon.minimumPrice %></td>
+                                        <td><%= new Date(coupon.createdOn).toLocaleDateString() %></td>
+                                        <td><%= new Date(coupon.expireOn).toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="badge <%= coupon.isListed ? 'bg-success' : 'bg-danger' %>">
+                                                <%= coupon.isListed ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning toggle-status" 
+                                                    data-coupon-id="<%= coupon._id %>"
+                                                    data-status="<%= coupon.isListed %>">
+                                                <%= coupon.isListed ? 'Deactivate' : 'Activate' %>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger delete-coupon" 
+                                                    data-coupon-id="<%= coupon._id %>">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Create Coupon
+    document.getElementById('createCouponForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/admin/coupon/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (result.status) {
+                Swal.fire('Success', result.message, 'success').then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Error', result.message, 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Something went wrong', 'error');
+        }
+    });
+
+    // Toggle Coupon Status
+    document.querySelectorAll('.toggle-status').forEach(button => {
+        button.addEventListener('click', async () => {
+            const couponId = button.dataset.couponId;
+            try {
+                const response = await fetch(`/admin/coupon/${couponId}/toggle`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                if (result.status) {
+                    Swal.fire('Success', result.message, 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Something went wrong', 'error');
+            }
+        });
+    });
+
+    // Delete Coupon
+    document.querySelectorAll('.delete-coupon').forEach(button => {
+        button.addEventListener('click', async () => {
+            const couponId = button.dataset.couponId;
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/coupon/${couponId}/delete`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+                    if (data.status) {
+                        Swal.fire('Deleted!', data.message, 'success').then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                }
+            }
+        });
+    });
+</script>
+
+<%-include("../partials/admin/footer")%> 

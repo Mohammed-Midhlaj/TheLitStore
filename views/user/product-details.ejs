@@ -37,27 +37,21 @@
             .product-images {
                 flex: 1;
                 min-width: 300px;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
             }
 
-            .images-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: 1fr 1fr;
-                gap: 10px;
-                border: 1px solid #e1e1e1;
-                padding: 10px;
-                border-radius: 4px;
-            }
-
-            .images-grid img {
+            .main-image-container {
                 width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 2px;
+                height: 500px;
+                border: 1px solid #e1e1e1;
+                border-radius: 4px;
+                overflow: hidden;
             }
 
             .zoom-container {
-                width: 350px;
+                width: 100%;
                 height: 100%;
                 overflow: hidden;
                 position: relative;
@@ -67,12 +61,43 @@
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                transition: transform 0.1s ease;
+                transition: transform 0.3s ease;
             }
 
             .zoom-container:hover .zoom-image {
-                transform: scale(2);
+                transform: scale(1.5);
                 cursor: zoom-in;
+            }
+
+            .thumbnail-gallery {
+                display: flex;
+                gap: 10px;
+                overflow-x: auto;
+                padding: 10px 0;
+            }
+
+            .thumbnail-item {
+                width: 80px;
+                height: 80px;
+                border: 2px solid transparent;
+                border-radius: 4px;
+                cursor: pointer;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .thumbnail-item.active {
+                border-color: #d73333;
+            }
+
+            .thumbnail-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .thumbnail-item:hover {
+                transform: scale(1.05);
             }
 
             .modal {
@@ -360,6 +385,15 @@
                 .product-info {
                     width: 100%;
                 }
+
+                .main-image-container {
+                    height: 400px;
+                }
+
+                .thumbnail-item {
+                    width: 60px;
+                    height: 60px;
+                }
             }
 
             @media (max-width: 480px) {
@@ -386,20 +420,19 @@
             <div class="product-detail">
                 <!-- Product Images Section -->
                 <div class="product-images">
-                    <div class="images-grid">
+                    <div class="main-image-container">
                         <div class="zoom-container">
                             <img src="/uploads/re-image/<%= product.productImage[0] %>" alt="Product image"
-                                class="zoom-image"
-                                onclick="openModal('/uploads/re-image/<%= product.productImage[1] %>')" />
+                                class="zoom-image main-image" id="mainImage" />
                         </div>
-                        <img src="/uploads/re-image/<%=product.productImage[1]%>" alt="Product image"
-                            onclick="openModal('/uploads/re-image/<%= product.productImage[1] %>')">
-                        <img src="/uploads/re-image/<%=product.productImage[2]%>" alt="Product image"
-                            onclick="openModal('/uploads/re-image/<%= product.productImage[2] %>')">
-                        <img src="/uploads/re-image/<%=product.productImage[3]%>" alt="Product image"
-                            onclick="openModal('/uploads/re-image/<%= product.productImage[3] %>')">
-                        <img src="/uploads/re-image/<%=product.productImage[0]%>" alt="Product image"
-                            onclick="openModal('/uploads/re-image/<%= product.productImage[0] %>')">
+                    </div>
+                    <div class="thumbnail-gallery">
+                        <% product.productImage.forEach((image, index) => { %>
+                            <div class="thumbnail-item <%= index === 0 ? 'active' : '' %>" 
+                                 onclick="changeMainImage('/uploads/re-image/<%= image %>', this)">
+                                <img src="/uploads/re-image/<%= image %>" alt="Product thumbnail" />
+                            </div>
+                        <% }); %>
                     </div>
                 </div>
 
@@ -743,6 +776,25 @@
                     }
                 });
 
+                function changeMainImage(imageSrc, thumbnail) {
+                    // Update main image
+                    const mainImage = document.getElementById('mainImage');
+                    mainImage.src = imageSrc;
+                    
+                    // Update active thumbnail
+                    document.querySelectorAll('.thumbnail-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    thumbnail.classList.add('active');
+                }
+
+                // Close modal when clicking outside the image
+                window.onclick = function(event) {
+                    const modal = document.getElementById('image-modal');
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                }
 
             </script>
     </body>

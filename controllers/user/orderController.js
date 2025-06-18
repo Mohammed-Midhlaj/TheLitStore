@@ -4,7 +4,13 @@ const Cart = require("../../models/cartSchema");
 const Product = require('../../models/productSchema');
 const PDFDocument = require('pdfkit');
 const moment = require('moment');
+const Razorpay = require('razorpay');
 
+// Initialize Razorpay
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 const thankingPage = async (req, res) => {
     try {
@@ -66,9 +72,9 @@ const loadOrderDetails = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
-
         const { orderId } = req.body;
         const order = await Order.findOne({ _id: orderId, user: req.session.user });
+        
         if (!order) {
             return res.status(404).json({ status: false, message: "Order not found" });
         }
@@ -77,24 +83,59 @@ const cancelOrder = async (req, res) => {
             return res.status(400).json({ status: false, message: "Order already cancelled" });
         }
 
-        order.status = "Cancelled";
-        await order.save();
+        // If payment was made through Razorpay, initiate refund
+        if (order.paymentMethod === 'razorpay' && order.paymentStatus === 'Completed') {
+            try {
+                // Create refund in Razorpay
+                const refund = await razorpay.payments.refund(order.razorpay_payment_id, {
+                    amount: order.finalAmount * 100, // Convert to paise
+                    speed: 'normal'
+                });
 
-        await Promise.all(order.orderedItem.map(async (item) => {
-            await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
-        }))
+                // Update order status
+                order.status = "Cancelled";
+                order.paymentStatus = "Refunded";
+                order.refundStatus = "Processed";
+                order.refundProcessedAt = new Date();
+                await order.save();
 
-        res.status(200).json({ status: true, message: "Order cancelled successfully" });
+                // Restore product quantities
+                await Promise.all(order.orderedItem.map(async (item) => {
+                    await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+                }));
 
+                res.status(200).json({ 
+                    status: true, 
+                    message: "Order cancelled and refund initiated successfully",
+                    refundId: refund.id
+                });
+            } catch (refundError) {
+                console.error("Error processing refund:", refundError);
+                return res.status(500).json({ 
+                    status: false, 
+                    message: "Error processing refund. Please contact support." 
+                });
+            }
+        } else {
+            // For COD orders or other payment methods
+            order.status = "Cancelled";
+            await order.save();
+
+            // Restore product quantities
+            await Promise.all(order.orderedItem.map(async (item) => {
+                await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+            }));
+
+            res.status(200).json({ status: true, message: "Order cancelled successfully" });
+        }
     } catch (error) {
-        console.log("Error occured during cancel order: ", error);
+        console.log("Error occurred during cancel order: ", error);
         res.status(500).json({ status: false, message: "Internal server error" });
     }
 }
 
 const returnOrder = async (req, res) => {
     try {
-
         const { orderId, returnReason } = req.body;
         const order = await Order.findOne({ _id: orderId, user: req.session.user });
 
@@ -106,14 +147,25 @@ const returnOrder = async (req, res) => {
             return res.status(400).json({ status: false, message: "Order cannot be returned" });
         }
 
+        // Update order status
         order.status = "Return Request";
         order.returnReason = returnReason;
+        order.returnRequested = true;
+        order.returnStatus = "Requested";
+        order.returnRequestedAt = new Date();
         await order.save();
 
-        res.status(200).json({ status: true, message: "Return request submitted successfully." });
+        // If payment was made through Razorpay, prepare for refund
+        if (order.paymentMethod === 'razorpay' && order.paymentStatus === 'Completed') {
+            order.refundRequested = true;
+            order.refundStatus = "Requested";
+            order.refundRequestedAt = new Date();
+            await order.save();
+        }
 
+        res.status(200).json({ status: true, message: "Return request submitted successfully." });
     } catch (error) {
-        console.log("Error occured during return request: ", error);
+        console.log("Error occurred during return request: ", error);
         res.status(500).json({ status: false, message: "Internal server error" });
     }
 }
@@ -405,6 +457,55 @@ const requestRefundItem = async (req, res) => {
     }
 };
 
+// Add new function to handle refund processing
+const processRefund = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+        const order = await Order.findOne({ _id: orderId, user: req.session.user });
+
+        if (!order) {
+            return res.status(404).json({ status: false, message: "Order not found" });
+        }
+
+        if (order.paymentMethod !== 'razorpay' || order.paymentStatus !== 'Completed') {
+            return res.status(400).json({ status: false, message: "Refund not applicable for this order" });
+        }
+
+        if (order.refundStatus === 'Processed') {
+            return res.status(400).json({ status: false, message: "Refund already processed" });
+        }
+
+        try {
+            // Create refund in Razorpay
+            const refund = await razorpay.payments.refund(order.razorpay_payment_id, {
+                amount: order.finalAmount * 100, // Convert to paise
+                speed: 'normal'
+            });
+
+            // Update order status
+            order.refundStatus = "Processed";
+            order.refundProcessedAt = new Date();
+            order.paymentStatus = "Refunded";
+            await order.save();
+
+            res.status(200).json({ 
+                status: true, 
+                message: "Refund processed successfully",
+                refundId: refund.id
+            });
+        } catch (refundError) {
+            console.error("Error processing refund:", refundError);
+            return res.status(500).json({ 
+                status: false, 
+                message: "Error processing refund. Please contact support." 
+            });
+        }
+    } catch (error) {
+        console.log("Error processing refund:", error);
+        res.status(500).json({ status: false, message: "Internal server error" });
+    }
+}
+
 module.exports = {
     thankingPage,
     orderList,
@@ -412,6 +513,7 @@ module.exports = {
     cancelOrder,
     returnOrder,
     downloadInvoice,
+    processRefund,
     requestCancel,
     requestReturn,
     requestRefund,

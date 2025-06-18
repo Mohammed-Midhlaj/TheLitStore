@@ -10,6 +10,8 @@ const { userAUth, adminAuth } = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
 const uploads = multer({ storage: storage });
+const couponController = require('../controllers/admin/couponController');
+const salesReportController = require('../controllers/admin/salesReportController');
 
 // --Login Management--
 
@@ -71,5 +73,15 @@ router.post("/orderView/:orderId", adminAuth, orderController.updateOrderStatus)
 router.post("/order/:orderId/process-cancel", adminAuth, orderController.processCancelRequest);
 router.post("/order/:orderId/process-return", adminAuth, orderController.processReturnRequest);
 router.post("/order/:orderId/process-refund", adminAuth, orderController.processRefundRequest);
+
+// Coupon Management Routes
+router.get('/coupon', adminAuth, couponController.listCoupons);
+router.post('/coupon/create', adminAuth, couponController.createCoupon);
+router.post('/coupon/:couponId/toggle', adminAuth, couponController.toggleCouponStatus);
+router.delete('/coupon/:couponId/delete', adminAuth, couponController.deleteCoupon);
+
+// Sales report route
+router.get('/sales-report', adminAuth, salesReportController.getSalesReport);
+router.get('/sales-report/download', adminAuth, salesReportController.downloadSalesReport);
 
 module.exports = router;

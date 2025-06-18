@@ -6,5 +6,196 @@
             </div>
 
         </div>
+        <div class="dashboard-summary">
+            <div class="summary-card">
+                <h3>Total Orders</h3>
+                <div class="summary-value" id="totalOrders">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Sales</h3>
+                <div class="summary-value">₹<span id="totalSales">0</span></div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Discount</h3>
+                <div class="summary-value">₹<span id="totalDiscount">0</span></div>
+            </div>
+        </div>
+        <div class="sales-report-section">
+            <h2>Sales Report</h2>
+            <div class="sales-filters">
+                <select id="filterType">
+                    <option value="all" selected>Show All</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="date" id="startDate" style="display:none;">
+                <input type="date" id="endDate" style="display:none;">
+                <button onclick="fetchSalesReport()">Filter</button>
+                <button onclick="downloadReport('pdf')">Download PDF</button>
+                <button onclick="downloadReport('excel')">Download Excel</button>
+            </div>
+            <div class="sales-table-container">
+                <table id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Coupon Discount</th>
+                            <th>Total Discount</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </section>
+    <script>
+    function fetchSalesReport() {
+        const filterType = document.getElementById('filterType').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        let url = `/admin/sales-report?filterType=${filterType}`;
+        if (filterType === 'custom') {
+            url += `&startDate=${startDate}&endDate=${endDate}`;
+        }
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('totalOrders').textContent = data.overallSalesCount;
+                document.getElementById('totalSales').textContent = data.overallOrderAmount;
+                document.getElementById('totalDiscount').textContent = data.overallDiscount;
+                const tbody = document.querySelector('#salesTable tbody');
+                tbody.innerHTML = '';
+                data.orderList.forEach(order => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(order.date).toLocaleDateString()}</td>
+                        <td>${order.id}</td>
+                        <td>₹${order.amount}</td>
+                        <td>₹${order.discount}</td>
+                        <td>₹${order.couponDiscount}</td>
+                        <td>₹${order.totalDiscount}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+    document.getElementById('filterType').addEventListener('change', function() {
+        const show = this.value === 'custom';
+        document.getElementById('startDate').style.display = show ? '' : 'none';
+        document.getElementById('endDate').style.display = show ? '' : 'none';
+    });
+    fetchSalesReport();
+
+    function downloadReport(type) {
+        const filterType = document.getElementById('filterType').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        let url = `/admin/sales-report/download?type=${type}&filterType=${filterType}`;
+        if (filterType === 'custom') {
+            url += `&startDate=${startDate}&endDate=${endDate}`;
+        }
+        window.open(url, '_blank');
+    }
+    </script>
     <%- include("../../views/partials/admin/footer") %>
+<style>
+    .dashboard-summary {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    .summary-card {
+        flex: 1;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        padding: 24px 20px;
+        text-align: center;
+        transition: box-shadow 0.2s;
+    }
+    .summary-card h3 {
+        font-size: 18px;
+        color: #888;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    .summary-card .summary-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #d73333;
+    }
+    .sales-report-section {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        padding: 30px 24px;
+        margin-bottom: 40px;
+    }
+    .sales-report-section h2 {
+        font-size: 22px;
+        margin-bottom: 18px;
+        color: #222;
+    }
+    .sales-filters {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .sales-filters select, .sales-filters input[type="date"] {
+        padding: 7px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 15px;
+    }
+    .sales-filters button {
+        background: #d73333;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 18px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .sales-filters button:hover {
+        background: #b32929;
+    }
+    .sales-summary {
+        display: none;
+    }
+    .sales-table-container {
+        overflow-x: auto;
+        margin-top: 18px;
+    }
+    #salesTable {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fafbfc;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    #salesTable th, #salesTable td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+    #salesTable th {
+        background: #f5f5f5;
+        color: #d73333;
+        font-weight: 600;
+    }
+    #salesTable tr:last-child td {
+        border-bottom: none;
+    }
+    @media (max-width: 900px) {
+        .dashboard-summary { flex-direction: column; gap: 16px; }
+        .sales-report-section { padding: 16px 6px; }
+    }
+</style>
