@@ -1,0 +1,121 @@
+<%- include("../../views/partials/admin/header") %>
+<section class="content-main">
+    <div class="content-header mb-4">
+        <h2 class="content-title card-title">Analytics Dashboard</h2>
+        <a href="/admin" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light d-flex align-items-center" style="border-bottom: 1px solid #f0f0f0;">
+                    <h4 class="card-title mb-0">Top 10 Best Selling Products</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% topProducts.forEach((item, idx) => { %>
+                                <tr>
+                                    <td>
+                                        <% if(idx === 0) { %><span class="badge bg-warning text-dark">1</span><% } %>
+                                        <% if(idx === 1) { %><span class="badge bg-secondary">2</span><% } %>
+                                        <% if(idx === 2) { %><span class="badge bg-info text-dark">3</span><% } %>
+                                        <% if(idx > 2) { %><span class="text-muted"><%= idx + 1 %></span><% } %>
+                                    </td>
+                                    <td><strong><%= item.productName %></strong></td>
+                                    <td><%= item.brand || '-' %></td>
+                                    <td><%= item.categoryName || '-' %></td>
+                                    <td><span class="fw-bold text-success"><%= item.totalSold %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light d-flex align-items-center" style="border-bottom: 1px solid #f0f0f0;">
+                    <h4 class="card-title mb-0">Top 10 Best Selling Categories</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Category</th>
+                                <th>Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% topCategories.forEach((item, idx) => { %>
+                                <tr>
+                                    <td>
+                                        <% if(idx === 0) { %><span class="badge bg-warning text-dark">1</span><% } %>
+                                        <% if(idx === 1) { %><span class="badge bg-secondary">2</span><% } %>
+                                        <% if(idx === 2) { %><span class="badge bg-info text-dark">3</span><% } %>
+                                        <% if(idx > 2) { %><span class="text-muted"><%= idx + 1 %></span><% } %>
+                                    </td>
+                                    <td><strong><%= item.categoryName %></strong></td>
+                                    <td><span class="fw-bold text-success"><%= item.totalSold %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light d-flex align-items-center" style="border-bottom: 1px solid #f0f0f0;">
+                    <h4 class="card-title mb-0">Top 10 Best Selling Brands</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Brand</th>
+                                <th>Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% topBrands.forEach((item, idx) => { %>
+                                <tr>
+                                    <td>
+                                        <% if(idx === 0) { %><span class="badge bg-warning text-dark">1</span><% } %>
+                                        <% if(idx === 1) { %><span class="badge bg-secondary">2</span><% } %>
+                                        <% if(idx === 2) { %><span class="badge bg-info text-dark">3</span><% } %>
+                                        <% if(idx > 2) { %><span class="text-muted"><%= idx + 1 %></span><% } %>
+                                    </td>
+                                    <td><strong><%= item._id || '-' %></strong></td>
+                                    <td><span class="fw-bold text-success"><%= item.totalSold %></span></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<%- include("../../views/partials/admin/footer") %>
+<style>
+.card-title { font-size: 20px; font-weight: 600; }
+.table th, .table td { vertical-align: middle; }
+.table-primary th { background: #f3f6fa !important; color: #3b3b3b; }
+.card-header { font-size: 17px; font-weight: 500; }
+.badge { font-size: 15px; padding: 6px 12px; }
+.fw-bold.text-success { color: #16a34a !important; }
+@media (max-width: 991px) {
+    .row.g-4 > [class^='col-'] { margin-bottom: 24px; }
+}
+</style> 

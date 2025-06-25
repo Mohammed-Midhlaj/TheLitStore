@@ -601,19 +601,16 @@
                         <div class="section-content">
                             <p class="payment-question">How Would you like to pay?</p>
                             <div class="payment-options">
-                                <div class="payment-option">
-                                    <input type="radio" id="netbanking" name="payment" value="razorpay">
+                                <div class="payment-option <%= finalAmount > 1000 ? 'selected' : '' %>">
+                                    <input type="radio" id="netbanking" name="payment" value="razorpay" <%= finalAmount > 1000 ? 'checked' : '' %>>
                                     <label for="netbanking">Razorpay</label>
                                 </div>
-                                <!-- <div class="payment-option">
-                                    <input type="radio" id="upi" name="payment" value="upi">
-                                    <label for="upi">UPI</label>
-                                    <img src="/placeholder.svg?height=20&width=40" alt="Google Pay"
-                                        class="payment-icon">
-                                </div> -->
-                                <div class="payment-option selected">
-                                    <input type="radio" id="cod" name="payment" value="cod" checked>
-                                    <label for="cod">Cash on delivery</label>
+                                <div class="payment-option <%= finalAmount > 1000 ? '' : 'selected' %>">
+                                    <input type="radio" id="cod" name="payment" value="cod" <%= finalAmount > 1000 ? 'disabled' : 'checked' %>>
+                                    <label for="cod" style="<%= finalAmount > 1000 ? 'color:#aaa;' : '' %>">Cash on delivery</label>
+                                    <% if (finalAmount > 1000) { %>
+                                        <span style="color:#d73333; font-size:13px; margin-left:10px;">COD not available for orders above ₹1000</span>
+                                    <% } %>
                                 </div>
                                 <p class="payment-note">You pay only cash at time of receiving the order</p>
                             </div>
@@ -711,8 +708,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: "Your Company Name",
                 description: "Test Transaction",
                 order_id: order.id,
-                handler: function (paymentResponse) {
-                    verifyPayment(paymentResponse);
+                handler: function (response) {
+                    verifyPayment({
+                        ...response,
+                        orderDetails: placeOrderResult.orderDetails
+                    });
                 },
                 prefill: {
                     name: <%- JSON.stringify(user.name || '') %>,
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         handler: function (response) {
                             verifyPayment({
                                 ...response,
-                                orderId: placeOrderResult.orderId
+                                orderDetails: placeOrderResult.orderDetails
                             });
                         },
                         prefill: {

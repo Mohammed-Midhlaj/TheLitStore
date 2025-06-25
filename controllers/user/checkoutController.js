@@ -153,8 +153,8 @@ const placeOrder = async (req, res) => {
             return res.status(500).json({ status: false, message: 'Order calculation error.' });
         }
 
-        // Create order
-        const order = new Order({
+        // Create order object (not saved yet)
+        const orderDetails = {
             user: userId,
             orderedItem: cart.items.map(item => {
                 const product = item.productId;
@@ -175,21 +175,18 @@ const placeOrder = async (req, res) => {
             finalAmount: finalAmount,
             status: 'Pending',
             paymentStatus: 'Pending'
-        });
+        };
 
-        await order.save();
-
-        // Update product quantities
-        for (const item of cart.items) {
-            await Product.findByIdAndUpdate(item.productId._id, {
-                $inc: { quantity: -item.quantity }
-            });
+        // For COD, save the order immediately
+        if (paymentMethod === 'cod') {
+            const order = new Order(orderDetails);
+            await order.save();
+            // For COD, clear cart and redirect to success page
+            await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
+            return res.redirect(`/order-success/${order._id}`);
         }
 
-        // Clear cart
-        await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
-
-        // Handle payment based on method
+        // For Razorpay, do not save the order yet
         if (paymentMethod === 'razorpay') {
             if (!razorpay) {
                 return res.status(400).json({
@@ -198,20 +195,21 @@ const placeOrder = async (req, res) => {
                 });
             }
             // Create Razorpay order
+            const shortUserId = String(userId).slice(-6);
+            const receiptStr = `temp_${Date.now()}_${shortUserId}`;
+            // Ensure receipt is no more than 40 characters
+            const safeReceipt = receiptStr.slice(0, 40);
             const razorpayOrder = await razorpay.orders.create({
                 amount: finalAmount * 100, // Convert to paise
                 currency: 'INR',
-                receipt: order._id.toString()
+                receipt: safeReceipt
             });
             res.json({
                 status: true,
-                orderId: order._id,
                 razorpayOrderId: razorpayOrder.id,
-                amount: finalAmount
+                amount: finalAmount,
+                orderDetails // send to frontend for payment verification
             });
-        } else {
-            // For COD, redirect to success page
-            return res.redirect(`/order-success/${order._id}`);
         }
     } catch (error) {
         console.error('Error placing order:', error);

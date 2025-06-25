@@ -3,6 +3,9 @@ const moment = require('moment');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
+const Product = require('../../models/productSchema');
+const Category = require('../../models/categorySchema');
+const Brand = require('../../models/brandSchema');
 
 // Get sales report data (filtered)
 const getSalesReport = async (req, res) => {
@@ -260,7 +263,102 @@ const downloadSalesReport = async (req, res) => {
     }
 };
 
+// Analytics Dashboard: Top 10 best selling products, categories, brands
+const getAnalyticsDashboard = async (req, res) => {
+    try {
+        // Top 10 Products
+        const topProductsAgg = await Order.aggregate([
+            { $unwind: "$orderedItem" },
+            { $group: {
+                _id: "$orderedItem.product",
+                totalSold: { $sum: "$orderedItem.quantity" }
+            }},
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            { $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "product"
+            }},
+            { $unwind: "$product" },
+            { $lookup: {
+                from: "categories",
+                localField: "product.category",
+                foreignField: "_id",
+                as: "category"
+            }},
+            { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+            { $project: {
+                _id: 1,
+                totalSold: 1,
+                productName: "$product.productName",
+                brand: "$product.brand",
+                categoryName: "$category.name"
+            }}
+        ]);
+
+        // Top 10 Categories
+        const topCategoriesAgg = await Order.aggregate([
+            { $unwind: "$orderedItem" },
+            { $lookup: {
+                from: "products",
+                localField: "orderedItem.product",
+                foreignField: "_id",
+                as: "product"
+            }},
+            { $unwind: "$product" },
+            { $group: {
+                _id: "$product.category",
+                totalSold: { $sum: "$orderedItem.quantity" }
+            }},
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            { $lookup: {
+                from: "categories",
+                localField: "_id",
+                foreignField: "_id",
+                as: "category"
+            }},
+            { $unwind: "$category" },
+            { $project: {
+                _id: 1,
+                totalSold: 1,
+                categoryName: "$category.name"
+            }}
+        ]);
+
+        // Top 10 Brands (brand is a string in product)
+        const topBrandsAgg = await Order.aggregate([
+            { $unwind: "$orderedItem" },
+            { $lookup: {
+                from: "products",
+                localField: "orderedItem.product",
+                foreignField: "_id",
+                as: "product"
+            }},
+            { $unwind: "$product" },
+            { $group: {
+                _id: "$product.brand",
+                totalSold: { $sum: "$orderedItem.quantity" }
+            }},
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 }
+        ]);
+
+        res.render('admin/dashboard-analytics', {
+            topProducts: topProductsAgg,
+            topCategories: topCategoriesAgg,
+            topBrands: topBrandsAgg
+        });
+    } catch (err) {
+        console.error('Analytics dashboard error:', err);
+        res.status(500).send('Failed to load analytics dashboard');
+    }
+};
+
 module.exports = {
     getSalesReport,
-    downloadSalesReport
+    downloadSalesReport,
+    getAnalyticsDashboard
 }; 
