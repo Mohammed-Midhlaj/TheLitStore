@@ -50,6 +50,10 @@ const loadCheckoutPage = async (req, res) => {
         // Filter out used coupons
         const validCoupons = availableCoupons.filter(coupon => !usedCoupons.includes(coupon.name));
 
+        // Defensive: filter out any expired coupons (in case of clock skew)
+        const now = new Date();
+        const filteredValidCoupons = validCoupons.filter(coupon => new Date(coupon.expireOn) > now);
+
         res.render("checkout", {
             user,
             cartItems: cart.items,
@@ -57,7 +61,7 @@ const loadCheckoutPage = async (req, res) => {
             deliveryCharge,
             finalAmount,
             addresses,
-            validCoupons
+            validCoupons: filteredValidCoupons
         });
 
     } catch (error) {

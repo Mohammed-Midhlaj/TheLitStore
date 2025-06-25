@@ -59,7 +59,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% coupons.forEach(coupon => { %>
+                                <% coupons.forEach(coupon => { 
+                                    const isExpired = new Date(coupon.expireOn) < new Date();
+                                %>
                                     <tr>
                                         <td><%= coupon.name %></td>
                                         <td>₹<%= coupon.offerPrice %></td>
@@ -67,14 +69,19 @@
                                         <td><%= new Date(coupon.createdOn).toLocaleDateString() %></td>
                                         <td><%= new Date(coupon.expireOn).toLocaleDateString() %></td>
                                         <td>
-                                            <span class="badge <%= coupon.isListed ? 'bg-success' : 'bg-danger' %>">
-                                                <%= coupon.isListed ? 'Active' : 'Inactive' %>
-                                            </span>
+                                            <% if (isExpired) { %>
+                                                <span class="badge bg-secondary">Expired</span>
+                                            <% } else { %>
+                                                <span class="badge <%= coupon.isListed ? 'bg-success' : 'bg-danger' %>">
+                                                    <%= coupon.isListed ? 'Active' : 'Inactive' %>
+                                                </span>
+                                            <% } %>
                                         </td>
                                         <td>
                                             <button class="btn btn-sm btn-warning toggle-status" 
                                                     data-coupon-id="<%= coupon._id %>"
-                                                    data-status="<%= coupon.isListed %>">
+                                                    data-status="<%= coupon.isListed %>"
+                                                    <% if (isExpired) { %>disabled<% } %>>
                                                 <%= coupon.isListed ? 'Deactivate' : 'Activate' %>
                                             </button>
                                             <button class="btn btn-sm btn-danger delete-coupon" 
@@ -95,6 +102,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Set min date for expiry date input
+    document.addEventListener('DOMContentLoaded', function() {
+        const expireInput = document.querySelector('input[name="expireOn"]');
+        if (expireInput) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const minDate = `${yyyy}-${mm}-${dd}`;
+            expireInput.setAttribute('min', minDate);
+        }
+    });
+
     // Create Coupon
     document.getElementById('createCouponForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -112,9 +132,105 @@
 
             const result = await response.json();
             if (result.status) {
-                Swal.fire('Success', result.message, 'success').then(() => {
-                    location.reload();
+                // Add new coupon to the table
+                const tbody = document.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${result.coupon.name}</td>
+                    <td>₹${result.coupon.offerPrice}</td>
+                    <td>₹${result.coupon.minimumPrice}</td>
+                    <td>${new Date(result.coupon.createdOn).toLocaleDateString()}</td>
+                    <td>${new Date(result.coupon.expireOn).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-success">Active</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning toggle-status" 
+                                data-coupon-id="${result.coupon._id}"
+                                data-status="true">
+                            Deactivate
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-coupon" 
+                                data-coupon-id="${result.coupon._id}">
+                            Delete
+                        </button>
+                    </td>
+                `;
+                
+                // Insert at the beginning of the table
+                tbody.insertBefore(newRow, tbody.firstChild);
+                
+                // Add event listeners to the new buttons
+                const newToggleBtn = newRow.querySelector('.toggle-status');
+                const newDeleteBtn = newRow.querySelector('.delete-coupon');
+                
+                // Add toggle event listener
+                newToggleBtn.addEventListener('click', async () => {
+                    const couponId = newToggleBtn.dataset.couponId;
+                    const statusBadge = newRow.querySelector('.badge');
+                    
+                    try {
+                        const response = await fetch(`/admin/coupon/${couponId}/toggle`, {
+                            method: 'POST'
+                        });
+                        const result = await response.json();
+                        if (result.status) {
+                            if (result.isListed) {
+                                statusBadge.className = 'badge bg-success';
+                                statusBadge.textContent = 'Active';
+                                newToggleBtn.textContent = 'Deactivate';
+                                newToggleBtn.dataset.status = 'true';
+                            } else {
+                                statusBadge.className = 'badge bg-danger';
+                                statusBadge.textContent = 'Inactive';
+                                newToggleBtn.textContent = 'Activate';
+                                newToggleBtn.dataset.status = 'false';
+                            }
+                            Swal.fire('Success', result.message, 'success');
+                        } else {
+                            Swal.fire('Error', result.message, 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', 'Something went wrong', 'error');
+                    }
                 });
+                
+                // Add delete event listener
+                newDeleteBtn.addEventListener('click', async () => {
+                    const couponId = newDeleteBtn.dataset.couponId;
+                    
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!'
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`/admin/coupon/${couponId}/delete`, {
+                                method: 'DELETE'
+                            });
+                            const data = await response.json();
+                            if (data.status) {
+                                newRow.remove();
+                                Swal.fire('Deleted!', data.message, 'success');
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
+                        } catch (error) {
+                            Swal.fire('Error', 'Something went wrong', 'error');
+                        }
+                    }
+                });
+                
+                // Clear the form
+                e.target.reset();
+                
+                Swal.fire('Success', result.message, 'success');
             } else {
                 Swal.fire('Error', result.message, 'error');
             }
@@ -127,15 +243,29 @@
     document.querySelectorAll('.toggle-status').forEach(button => {
         button.addEventListener('click', async () => {
             const couponId = button.dataset.couponId;
+            const row = button.closest('tr');
+            const statusBadge = row.querySelector('.badge');
+            
             try {
                 const response = await fetch(`/admin/coupon/${couponId}/toggle`, {
                     method: 'POST'
                 });
                 const result = await response.json();
                 if (result.status) {
-                    Swal.fire('Success', result.message, 'success').then(() => {
-                        location.reload();
-                    });
+                    // Update the status badge
+                    if (result.isListed) {
+                        statusBadge.className = 'badge bg-success';
+                        statusBadge.textContent = 'Active';
+                        button.textContent = 'Deactivate';
+                        button.dataset.status = 'true';
+                    } else {
+                        statusBadge.className = 'badge bg-danger';
+                        statusBadge.textContent = 'Inactive';
+                        button.textContent = 'Activate';
+                        button.dataset.status = 'false';
+                    }
+                    
+                    Swal.fire('Success', result.message, 'success');
                 } else {
                     Swal.fire('Error', result.message, 'error');
                 }
@@ -149,6 +279,8 @@
     document.querySelectorAll('.delete-coupon').forEach(button => {
         button.addEventListener('click', async () => {
             const couponId = button.dataset.couponId;
+            const row = button.closest('tr');
+            
             const result = await Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this!",
@@ -166,9 +298,9 @@
                     });
                     const data = await response.json();
                     if (data.status) {
-                        Swal.fire('Deleted!', data.message, 'success').then(() => {
-                            location.reload();
-                        });
+                        // Remove the row from the table
+                        row.remove();
+                        Swal.fire('Deleted!', data.message, 'success');
                     } else {
                         Swal.fire('Error', data.message, 'error');
                     }

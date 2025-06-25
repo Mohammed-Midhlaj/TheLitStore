@@ -633,13 +633,17 @@
                                     <select id="couponSelect" class="form-control">
                                         <option value="">Select a coupon</option>
                                         <% if (validCoupons && validCoupons.length > 0) { %>
-                                            <% validCoupons.forEach(coupon => { %>
-                                                <option value="<%= coupon.name %>" 
-                                                        data-offer="<%= coupon.offerPrice %>"
-                                                        data-min="<%= coupon.minimumPrice %>">
-                                                    <%= coupon.name %> - Get ₹<%= coupon.offerPrice %> off
-                                                    (Min. ₹<%= coupon.minimumPrice %>)
-                                                </option>
+                                            <% validCoupons.forEach(coupon => { 
+                                                const isExpired = new Date(coupon.expireOn) < new Date();
+                                            %>
+                                                <% if (!isExpired) { %>
+                                                    <option value="<%= coupon.name %>" 
+                                                            data-offer="<%= coupon.offerPrice %>"
+                                                            data-min="<%= coupon.minimumPrice %>">
+                                                        <%= coupon.name %> - Get ₹<%= coupon.offerPrice %> off
+                                                        (Min. ₹<%= coupon.minimumPrice %>)
+                                                    </option>
+                                                <% } %>
                                             <% }); %>
                                         <% } else { %>
                                             <option value="" disabled>No coupons available</option>
