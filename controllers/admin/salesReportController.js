@@ -7,7 +7,11 @@ const fs = require('fs');
 // Get sales report data (filtered)
 const getSalesReport = async (req, res) => {
     try {
-        const { filterType, startDate, endDate } = req.query;
+        const { filterType, startDate, endDate, page = 1, limit = 10 } = req.query;
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+        
         // Fetch all orders
         const orders = await Order.find({});
         // Helper to get the order date
@@ -41,10 +45,14 @@ const getSalesReport = async (req, res) => {
                 return d && d.isBetween(moment(startDate).startOf('day'), moment(endDate).endOf('day'), null, '[]');
             });
         }
+        
         const overallSalesCount = filteredOrders.length;
         const overallOrderAmount = filteredOrders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
         const overallDiscount = filteredOrders.reduce((sum, o) => sum + (o.discount || 0) + (o.couponDiscount || 0), 0);
-        const orderList = filteredOrders.map(o => ({
+        
+        // Apply pagination
+        const paginatedOrders = filteredOrders.slice(skip, skip + limitNum);
+        const orderList = paginatedOrders.map(o => ({
             id: o._id,
             date: o.createdOn ? moment(o.createdOn).format('YYYY-MM-DD') : (o.invoiceDate ? moment(o.invoiceDate).format('YYYY-MM-DD') : 'N/A'),
             amount: o.finalAmount,
@@ -52,11 +60,25 @@ const getSalesReport = async (req, res) => {
             couponDiscount: typeof o.couponDiscount === 'number' ? o.couponDiscount : 0,
             totalDiscount: (o.discount || 0) + (typeof o.couponDiscount === 'number' ? o.couponDiscount : 0)
         }));
+        
+        // Pagination metadata
+        const totalPages = Math.ceil(overallSalesCount / limitNum);
+        const hasNextPage = pageNum < totalPages;
+        const hasPrevPage = pageNum > 1;
+        
         res.json({
             overallSalesCount,
             overallOrderAmount,
             overallDiscount,
-            orderList
+            orderList,
+            pagination: {
+                currentPage: pageNum,
+                totalPages,
+                totalItems: overallSalesCount,
+                itemsPerPage: limitNum,
+                hasNextPage,
+                hasPrevPage
+            }
         });
     } catch (err) {
         console.error('Sales report error:', err);
