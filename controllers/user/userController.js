@@ -492,7 +492,12 @@ const searchProducts = async (req, res) => {
 
 const pageNotFound = async (req, res) => {
     try {
-        res.render('page-404')
+        const userId = req.session.user;
+        let user = null;
+        if (userId) {
+            user = await User.findById(userId);
+        }
+        res.render('page-404', { user });
     } catch (error) {
         console.log("Page-404 Loading Error", error)
         res.status(500).redirect("/pageNotFound")
