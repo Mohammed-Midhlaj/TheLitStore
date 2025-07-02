@@ -125,7 +125,8 @@ router.post('/order/item/request-refund', userAuth, orderController.requestRefun
 // --Wallet Management--
 
 router.get('/wallet', userAuth, walletController.loadWallet);
-router.post('/addMoneyToWallet', userAuth, walletController.addMoneyToWallet);
+router.post('/wallet/create-order', userAuth, walletController.createWalletOrder);
+router.post('/wallet/verify-payment', userAuth, walletController.verifyWalletPayment);
 
 // --payment Management--
 

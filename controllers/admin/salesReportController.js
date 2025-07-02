@@ -17,7 +17,6 @@ const getSalesReport = async (req, res) => {
         
         // Fetch all orders
         const orders = await Order.find({});
-        // Helper to get the order date
         function getOrderDate(o) {
             return o.createdOn ? moment(o.createdOn) : (o.invoiceDate ? moment(o.invoiceDate) : null);
         }

@@ -15,10 +15,6 @@
                 <h3>Total Sales</h3>
                 <div class="summary-value">₹<span id="totalSales">0</span></div>
             </div>
-            <div class="summary-card">
-                <h3>Total Discount</h3>
-                <div class="summary-value">₹<span id="totalDiscount">0</span></div>
-            </div>
         </div>
         <div class="sales-report-section">
             <h2>Sales Report</h2>
@@ -53,9 +49,6 @@
                             <th>Date</th>
                             <th>Order ID</th>
                             <th>Amount</th>
-                            <th>Discount</th>
-                            <th>Coupon Discount</th>
-                            <th>Total Discount</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -146,7 +139,6 @@
             .then(data => {
                 document.getElementById('totalOrders').textContent = data.overallSalesCount;
                 document.getElementById('totalSales').textContent = data.overallOrderAmount;
-                document.getElementById('totalDiscount').textContent = data.overallDiscount;
                 
                 const tbody = document.querySelector('#salesTable tbody');
                 tbody.innerHTML = '';
@@ -156,9 +148,6 @@
                         <td>${new Date(order.date).toLocaleDateString()}</td>
                         <td>${order.id}</td>
                         <td>₹${order.amount}</td>
-                        <td>₹${order.discount}</td>
-                        <td>₹${order.couponDiscount}</td>
-                        <td>₹${order.totalDiscount}</td>
                     `;
                     tbody.appendChild(tr);
                 });

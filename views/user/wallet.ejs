@@ -333,7 +333,7 @@
             <div class="menu-arrow">></div>
           </div>
 
-          <div class="menu-item active" data-route="/account/points">
+          <div class="menu-item active" data-route="/wallet">
             <div class="menu-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -342,20 +342,6 @@
               </svg>
             </div>
             <div class="menu-text">Wallet</div>
-            <div class="menu-arrow">></div>
-          </div>
-
-
-          <div class="menu-item" data-route="/feedback">
-            <div class="menu-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-            </div>
-            <div class="menu-text">Wallet History</div>
             <div class="menu-arrow">></div>
           </div>
 
@@ -421,7 +407,7 @@
           <div class="wallet-content">
             <div class="wallet-balance-section">
               <div class="wallet-balance-label">Wallet Balance:</div>
-              <div class="wallet-balance-amount">₹1000</div>
+              <div class="wallet-balance-amount">₹<%= user.walletBalance || 0 %></div>
             </div>
             
             <div class="wallet-actions">
@@ -432,6 +418,35 @@
                 </div>
                 <button class="wallet-button" id="add-money-btn">ADD MONEY</button>
               </div>
+              <div id="wallet-message" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="wallet-section-title" style="margin-top:40px;">Wallet History</div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (transactions && transactions.length > 0) { %>
+                    <% transactions.forEach(function(tx) { %>
+                      <tr>
+                        <td><%= tx.date ? new Date(tx.date).toLocaleString() : '-' %></td>
+                        <td><%= tx.type %></td>
+                        <td><%= tx.type === 'credit' ? '+' : '-' %>₹<%= tx.amount %></td>
+                        <td><%= tx.description || '-' %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr><td colspan="4" class="text-center">No wallet transactions yet.</td></tr>
+                  <% } %>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -440,6 +455,7 @@
     </div>
   </div>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.menu-item[data-route]').forEach(item => {
@@ -462,6 +478,76 @@
       }
       
       loadUserData();
+
+      const addMoneyBtn = document.getElementById('add-money-btn');
+      const amountInput = document.getElementById('amount');
+      const walletMessage = document.getElementById('wallet-message');
+      const walletBalance = document.querySelector('.wallet-balance-amount');
+
+      addMoneyBtn.addEventListener('click', async function () {
+        const amount = Number(amountInput.value);
+        if (!amount || amount <= 0) {
+          walletMessage.textContent = 'Please enter a valid amount.';
+          walletMessage.style.color = 'red';
+          return;
+        }
+        addMoneyBtn.disabled = true;
+        walletMessage.textContent = 'Processing...';
+        walletMessage.style.color = '#333';
+        try {
+          // Create Razorpay order
+          const orderRes = await fetch('/wallet/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount })
+          });
+          const orderData = await orderRes.json();
+          if (!orderData.status) {
+            walletMessage.textContent = orderData.message || 'Failed to create order.';
+            walletMessage.style.color = 'red';
+            addMoneyBtn.disabled = false;
+            return;
+          }
+          const { order } = orderData;
+          // Open Razorpay
+          const rzp = new Razorpay({
+            key: '<%= process.env.RAZORPAY_KEY_ID %>',
+            amount: order.amount,
+            currency: order.currency,
+            order_id: order.id,
+            handler: async function (response) {
+              // Verify payment
+              const verifyRes = await fetch('/wallet/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  amount: amount
+                })
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.status) {
+                walletMessage.textContent = 'Money added successfully!';
+                walletMessage.style.color = 'green';
+                walletBalance.textContent = '₹' + verifyData.newBalance;
+                setTimeout(() => window.location.reload(), 1200);
+              } else {
+                walletMessage.textContent = verifyData.message || 'Payment verification failed.';
+                walletMessage.style.color = 'red';
+              }
+              addMoneyBtn.disabled = false;
+            },
+            theme: { color: '#ff9800' }
+          });
+          rzp.open();
+        } catch (err) {
+          walletMessage.textContent = 'Error processing payment.';
+          walletMessage.style.color = 'red';
+          addMoneyBtn.disabled = false;
+        }
+      });
     });
 
   </script>

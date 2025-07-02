@@ -116,6 +116,29 @@ const cancelOrder = async (req, res) => {
                     message: "Error processing refund. Please contact support." 
                 });
             }
+        } else if (order.paymentMethod === 'wallet' && order.paymentStatus === 'Completed') {
+            // Refund to wallet
+            const user = await User.findById(order.user);
+            if (user) {
+                user.walletBalance += order.finalAmount;
+                user.walletHistory.push({
+                    amount: order.finalAmount,
+                    type: 'credit',
+                    description: `Refund for cancelled order #${order._id}`,
+                    date: new Date()
+                });
+                await user.save();
+            }
+            order.status = "Cancelled";
+            order.paymentStatus = "Refunded";
+            order.refundStatus = "Processed";
+            order.refundProcessedAt = new Date();
+            await order.save();
+            // Restore product quantities
+            await Promise.all(order.orderedItem.map(async (item) => {
+                await Product.findByIdAndUpdate(item.product, { $inc: { quantity: item.quantity } });
+            }));
+            return res.status(200).json({ status: true, message: "Order cancelled and amount refunded to wallet." });
         } else {
             // For COD orders or other payment methods
             order.status = "Cancelled";
@@ -160,6 +183,24 @@ const returnOrder = async (req, res) => {
             order.refundRequested = true;
             order.refundStatus = "Requested";
             order.refundRequestedAt = new Date();
+            await order.save();
+        }
+        // If payment was made through Wallet, process refund immediately
+        if (order.paymentMethod === 'wallet' && order.paymentStatus === 'Completed') {
+            const user = await User.findById(order.user);
+            if (user) {
+                user.walletBalance += order.finalAmount;
+                user.walletHistory.push({
+                    amount: order.finalAmount,
+                    type: 'credit',
+                    description: `Refund for returned order #${order._id}`,
+                    date: new Date()
+                });
+                await user.save();
+            }
+            order.refundStatus = "Processed";
+            order.refundProcessedAt = new Date();
+            order.paymentStatus = "Refunded";
             await order.save();
         }
 

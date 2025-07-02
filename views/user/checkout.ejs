@@ -612,7 +612,18 @@
                                         <span style="color:#d73333; font-size:13px; margin-left:10px;">COD not available for orders above ₹1000</span>
                                     <% } %>
                                 </div>
+                                <!-- Wallet Payment Option -->
+                                <div class="payment-option">
+                                    <input type="radio" id="wallet" name="payment" value="wallet" <%= user.walletBalance >= finalAmount ? '' : 'disabled' %>>
+                                    <label for="wallet">
+                                        Wallet (Balance: ₹<%= user.walletBalance.toFixed(2) %>)
+                                    </label>
+                                    <% if (user.walletBalance < finalAmount) { %>
+                                        <span style="color:#d73333; font-size:13px; margin-left:10px;">Insufficient wallet balance</span>
+                                    <% } %>
+                                </div>
                                 <p class="payment-note">You pay only cash at time of receiving the order</p>
+                                <p class="payment-note">Wallet payments are instant and secure.</p>
                             </div>
                         </div>
                     </div>

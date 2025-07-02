@@ -186,6 +186,33 @@ const placeOrder = async (req, res) => {
             return res.redirect(`/order-success/${order._id}`);
         }
 
+        // For Wallet payment
+        if (paymentMethod === 'wallet') {
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ status: false, message: 'User not found' });
+            }
+            if (user.walletBalance < finalAmount) {
+                return res.status(400).json({ status: false, message: 'Insufficient wallet balance' });
+            }
+            // Deduct from wallet and add to history
+            user.walletBalance -= finalAmount;
+            user.walletHistory.push({
+                amount: finalAmount,
+                type: 'debit',
+                description: 'Order payment',
+                date: new Date()
+            });
+            await user.save();
+            // Mark order as paid
+            orderDetails.paymentStatus = 'Completed';
+            const order = new Order(orderDetails);
+            await order.save();
+            // Clear cart
+            await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
+            return res.redirect(`/order-success/${order._id}`);
+        }
+
         // For Razorpay, do not save the order yet
         if (paymentMethod === 'razorpay') {
             if (!razorpay) {
@@ -322,3 +349,4 @@ module.exports = {
     orderSuccessPage,
     orderFailedPage
 }
+

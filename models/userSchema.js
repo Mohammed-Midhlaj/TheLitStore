@@ -45,8 +45,15 @@ const userSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "Cart",
     }],
-    wallet: [{
-        type: Schema.Types.ObjectId,
+    walletBalance: {
+        type: Number,
+        default: 0
+    },
+    walletHistory: [{
+        amount: Number,
+        type: { type: String, enum: ['credit', 'debit'] },
+        date: { type: Date, default: Date.now },
+        description: String
     }],
     wishlist: [{
         type: Schema.Types.ObjectId,
