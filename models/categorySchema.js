@@ -19,11 +19,6 @@ const categorySchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    parentCategory: {
-        type: String,
-        enum: ["Fiction", "Non-Fiction", "Children's Books", "Academic", "Biography", "Poetry", "Other"],
-        required: true
-    },
     createdAt: {
         type: Date,
         default: Date.now

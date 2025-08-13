@@ -10,7 +10,7 @@ const loadLogin = (req, res) => {
     if (!req.session.admin) {
         return res.render('admin-login', { message: null })
     }
-    return res.render('/admin');
+    return res.redirect('/admin');
 }
 
 // ---Admin login---
@@ -54,16 +54,29 @@ const loadDashboard = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
+        // Clear admin session
+        req.session.admin = null;
+        
+        // Destroy the entire session
         req.session.destroy(err => { 
             if (err) {
                 console.log("Error destroying session", err);
-                return res.redirect("/errorPage");
+                return res.redirect("/admin/errorpage");
             }
+            
+            // Clear any cookies and set cache control headers
+            res.clearCookie('connect.sid');
+            res.set({
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            });
+            
             return res.redirect("/admin/adminlogin");
-        })
+        });
     } catch (error) {
-        console.log("unexpected error during logout", error);
-        res.redirect("/errorpage")
+        console.log("Unexpected error during logout", error);
+        res.redirect("/admin/errorpage");
     }
 }
 

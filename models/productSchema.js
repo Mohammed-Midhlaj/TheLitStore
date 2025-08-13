@@ -16,10 +16,6 @@ const productSchema = new mongoose.Schema({
     publisher: {
         type: String,
     },
-    isbn: {
-        type: String,
-        unique: true
-    },
     category: {
         type: Schema.Types.ObjectId,
         ref: "Category",

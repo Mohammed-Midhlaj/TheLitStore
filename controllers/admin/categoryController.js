@@ -48,19 +48,29 @@ const categoryInfo = async (req, res) => {
 const addCategory = async (req, res) => {
     const { name, description } = req.body;
     try {
+        console.log('Adding category with data:', { name, description });
+
+        // Validate required fields
+        if (!name || !description) {
+            return res.status(400).json({ error: "Name and description are required" });
+        }
 
         const existingCategory = await Category.findOne({ name });
         if (existingCategory) {
             return res.status(400).json({ error: "Category already exists" })
         }
+        
         const newCategory = new Category({
             name,
-            description,
+            description
         })
+        
         await newCategory.save()
+        console.log('Category saved successfully:', newCategory._id);
         return res.json({ message: "Category added successfully" });
 
     } catch (error) {
+        console.error('Error adding category:', error);
         return res.status(500).json({ error: "Internal server error" })
     }
 }

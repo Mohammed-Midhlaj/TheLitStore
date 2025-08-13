@@ -31,18 +31,23 @@ const userAuth = (req, res, next) => {
 
 
 const adminAuth = (req, res, next) => {
-    User.find({ isAdmin: true })
-        .then(data => {
-            if (data) {
-                next()
-            } else {
-                res.redirect("/admin/adminlogin")
+    // Check if admin session exists
+    if (!req.session.admin) {
+        return res.redirect("/admin/adminlogin");
+    }
+    
+    // Verify admin session is valid
+    if (req.session.admin === true) {
+        next();
+    } else {
+        // Clear invalid session and redirect to login
+        req.session.destroy((err) => {
+            if (err) {
+                console.log("Error destroying invalid admin session:", err);
             }
-        })
-        .catch(error => {
-            console.log('Error in admin auth middleware', error);
-            res.status(500).send("Internal Server Error");
-        })
+            res.redirect("/admin/adminlogin");
+        });
+    }
 }
 
 
