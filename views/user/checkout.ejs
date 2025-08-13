@@ -7,331 +7,500 @@
     <title>TheLitStore - Checkout</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Base styles */
+        /* Modern CSS Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
         }
 
         body {
-            background-color: #f8f8f8;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Back link */
+        /* Header Section */
         .back-link {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .back-link a {
-            color: #333;
+            color: #4a5568;
             text-decoration: none;
             font-size: 14px;
-            display: flex;
+            font-weight: 500;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        /* Logo */
+        .back-link a:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         .logo {
             text-align: center;
+            margin-bottom: 30px;
         }
 
         .logo img {
-            max-width: 100px;
-            height: 100%;
+            max-width: 120px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
         }
 
-        /* Checkout title */
         .checkout-title {
             text-align: center;
             margin-bottom: 40px;
-            font-weight: normal;
-            font-size: 24px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a202c;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Main checkout container */
+        /* Main Layout */
         .checkout-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            align-items: start;
         }
 
         .checkout-details {
-            flex: 1 1 60%;
-            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .order-summary {
-            flex: 1 1 30%;
-            min-width: 300px;
+            position: sticky;
+            top: 20px;
         }
 
-        /* Info sections */
+        /* Card Components */
         .info-section {
-            background-color: #fff;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .info-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
         }
 
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            position: relative;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
         .section-header h2 {
-            font-size: 18px;
-            font-weight: 500;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a202c;
         }
 
         .edit-btn {
-            background: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            color: #666;
+            color: white;
             cursor: pointer;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .section-content {
-            font-size: 14px;
+            font-size: 15px;
+            color: #4a5568;
         }
 
-
-        /* Shipped by */
-        .shipped-by {
-            font-size: 12px;
-            color: #666;
-            position: absolute;
-            right: 0;
-            top: 0;
+        /* Address Selection */
+        .address-label {
+            display: block;
+            margin-bottom: 16px;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .shipper {
-            font-weight: bold;
+        .address-label:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
-        /* Delivery type */
-        .delivery-type {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+        .address-label input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
         }
 
-        /* Order details */
-        .order-details-section .section-header {
-            margin-bottom: 20px;
+        .address-label input[type="radio"]:checked + .address-details {
+            color: #667eea;
         }
 
-        .item-count {
-            font-size: 14px;
-            color: #666;
+        .address-details p {
+            margin-bottom: 4px;
         }
 
+        .address-details p:first-child {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        /* Order Items */
         .order-item {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .item-image img {
-            width: 100px;
-            height: 120px;
+            width: 80px;
+            height: 100px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .item-details {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            flex: 1;
         }
 
         .item-name {
-            font-weight: bold;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
         }
 
+        .checkout-item-price {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        /* Delivery Option */
         .delivery-option {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
 
-        .delivery-option-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
+        .delivery-option-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 16px;
         }
 
-        /* Payment section */
+        .delivery-address p {
+            margin-bottom: 4px;
+            color: #4a5568;
+        }
+
+        .delivery-address p:last-child {
+            font-weight: 600;
+            color: #667eea;
+            margin-top: 12px;
+        }
+
+        /* Payment Section */
         .payment-question {
-            margin-bottom: 15px;
-            font-weight: bold;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #1a202c;
         }
 
         .payment-options {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 16px;
         }
 
         .payment-option {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            gap: 12px;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .payment-option:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
         .payment-option.selected {
-            background-color: #f9f9f9;
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
-        .card-icons {
-            margin-left: auto;
-            display: flex;
-            gap: 5px;
+        .payment-option input[type="radio"] {
+            transform: scale(1.2);
         }
 
-        .payment-icon {
-            height: 20px;
-            margin-left: auto;
+        .payment-option label {
+            flex: 1;
+            font-weight: 500;
+            cursor: pointer;
         }
 
         .payment-note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            font-size: 13px;
+            color: #718096;
+            margin-top: 8px;
+            font-style: italic;
         }
 
-        /* Data security */
-        .data-security {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: 20px;
-        }
-
-        /* Order summary */
+        /* Order Summary */
         .summary-section {
-            background-color: #fff;
-            border-radius: 4px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .discount-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .discount-section h3 {
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 16px;
+        }
+
+        .coupon-select {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .coupon-select select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-select select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .apply-discount-btn {
-            background: none;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            color: #ff0000;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
+        .apply-discount-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .apply-discount-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #couponMessage {
+            font-size: 14px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        #couponMessage.success {
+            color: #22543d;
+            background: #c6f6d5;
+            border: 1px solid #9ae6b4;
+        }
+
+        #couponMessage.error {
+            color: #742a2a;
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+        }
+
+        /* Price Breakdown */
         .price-breakdown {
-            margin-bottom: 20px;
+            margin: 24px 0;
         }
 
         .price-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #4a5568;
         }
 
         .price-row.total {
-            font-weight: bold;
-            font-size: 16px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-            margin-top: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a202c;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 16px;
+            margin-top: 16px;
         }
 
+        /* Buttons */
         .complete-purchase-btn {
             width: 100%;
-            padding: 15px;
-            background-color: #333;
-            color: #fff;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 12px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        .payment-info {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
+        .complete-purchase-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .payment-method {
-            margin-bottom: 10px;
+        .complete-purchase-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .delivery-policy {
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-            margin-bottom: 20px;
+        /* Data Security */
+        .data-security {
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
+            margin-top: 24px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
         }
 
-        .policy-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cancel-order-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: #f1f1f1;
-            color: #333;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        /* Responsive styles */
-        @media (max-width: 768px) {
+        /* Responsive Design */
+        @media (max-width: 1024px) {
             .checkout-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 24px;
             }
 
             .order-summary {
+                position: static;
                 order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .checkout-title {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+
+            .info-section {
+                padding: 20px;
+            }
+
+            .section-header h2 {
+                font-size: 18px;
+            }
+
+            .order-item {
+                padding: 16px;
+            }
+
+            .item-image img {
+                width: 60px;
+                height: 80px;
+            }
+
+            .complete-purchase-btn {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
+
+            .back-link {
+                margin-bottom: 20px;
             }
 
             .logo img {
-                max-width: 80px;
+                max-width: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 12px;
             }
 
             .checkout-title {
@@ -340,106 +509,70 @@
             }
 
             .info-section {
-                padding: 15px;
-            }
-
-            .section-header h2 {
-                font-size: 16px;
-            }
-
-            .item-image img {
-                width: 80px;
-                height: 100px;
-            }
-
-            .complete-purchase-btn,
-            .cancel-order-btn {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            .back-link {
-                margin-bottom: 10px;
-            }
-        }
-
-        /* Mobile specific styles */
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-
-            .checkout-title {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-
-            .section-header {
-                margin-bottom: 10px;
+                padding: 16px;
             }
 
             .section-content {
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .payment-option {
-                padding: 8px;
+                padding: 12px 16px;
             }
 
             .price-row {
-                font-size: 13px;
+                font-size: 14px;
             }
 
             .price-row.total {
-                font-size: 15px;
+                font-size: 16px;
+            }
+
+            .coupon-select {
+                flex-direction: column;
+            }
+
+            .apply-discount-btn {
+                width: 100%;
             }
         }
 
-        /* Add these styles to your existing CSS */
-        .coupon-select {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
+        /* Focus States for Accessibility */
+        .payment-option:focus-within {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
         }
 
-        .coupon-select select {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
+        .address-label:focus-within {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
         }
 
-        .apply-discount-btn {
-            padding: 8px 15px;
-            background-color: #d73333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .complete-purchase-btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
         }
 
-        .apply-discount-btn:hover:not(:disabled) {
-            background-color: #b32929;
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
         }
 
-        .apply-discount-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+        /* Animation for success/error messages */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         #couponMessage {
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        #couponMessage.success {
-            color: #28a745;
-        }
-
-        #couponMessage.error {
-            color: #dc3545;
+            animation: slideIn 0.3s ease;
         }
     </style>
 </head>
@@ -631,60 +764,60 @@
                     <div class="data-security">
                         <p>All Data are encrypted</p>
                     </div>
+                </div>
 
-                    <!-- Right column - Order summary -->
-                    <div class="order-summary">
-                        <div class="summary-section">
-                            <div class="discount-section">
-                                <h3>Available Coupons</h3>
-                                <div class="coupon-select">
-                                    <select id="couponSelect" class="form-control">
-                                        <option value="">Select a coupon</option>
-                                        <% if (validCoupons && validCoupons.length > 0) { %>
-                                            <% validCoupons.forEach(coupon => { 
-                                                const isExpired = new Date(coupon.expireOn) < new Date();
-                                            %>
-                                                <% if (!isExpired) { %>
-                                                    <option value="<%= coupon.name %>" 
-                                                            data-offer="<%= coupon.offerPrice %>"
-                                                            data-min="<%= coupon.minimumPrice %>">
-                                                        <%= coupon.name %> - Get ₹<%= coupon.offerPrice %> off
-                                                        (Min. ₹<%= coupon.minimumPrice %>)
-                                                    </option>
-                                                <% } %>
-                                            <% }); %>
-                                        <% } else { %>
-                                            <option value="" disabled>No coupons available</option>
-                                        <% } %>
-                                    </select>
-                                    <button type="button" id="applyCouponBtn" class="apply-discount-btn" disabled>
-                                        Apply
-                                    </button>
-                                </div>
-                                <div id="couponMessage" class="mt-2"></div>
+                <!-- Right column - Order summary -->
+                <div class="order-summary">
+                    <div class="summary-section">
+                        <div class="discount-section">
+                            <h3>Available Coupons</h3>
+                            <div class="coupon-select">
+                                <select id="couponSelect" class="form-control">
+                                    <option value="">Select a coupon</option>
+                                    <% if (validCoupons && validCoupons.length > 0) { %>
+                                        <% validCoupons.forEach(coupon => { 
+                                            const isExpired = new Date(coupon.expireOn) < new Date();
+                                        %>
+                                            <% if (!isExpired) { %>
+                                                <option value="<%= coupon.name %>" 
+                                                        data-offer="<%= coupon.offerPrice %>"
+                                                        data-min="<%= coupon.minimumPrice %>">
+                                                    <%= coupon.name %> - Get ₹<%= coupon.offerPrice %> off
+                                                    (Min. ₹<%= coupon.minimumPrice %>)
+                                                </option>
+                                            <% } %>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <option value="" disabled>No coupons available</option>
+                                    <% } %>
+                                </select>
+                                <button type="button" id="applyCouponBtn" class="apply-discount-btn" disabled>
+                                    Apply
+                                </button>
                             </div>
-                            <div class="price-breakdown">
-                                <div class="price-row">
-                                    <span>Subtotal</span>
-                                    <span>₹<span id="subtotal"><%= totalPrice %></span></span>
-                                </div>
-                                <div class="price-row" id="couponDiscountRow" style="display: none;">
-                                    <span>Coupon Discount</span>
-                                    <span>-₹<span id="couponDiscount">0</span></span>
-                                </div>
-                                <div class="price-row">
-                                    <span>Shipping</span>
-                                    <span>₹<span id="shipping"><%= deliveryCharge %></span></span>
-                                </div>
-                                <div class="price-row total">
-                                    <span>Total</span>
-                                    <span>₹<span id="totalAmount"><%= finalAmount %></span></span>
-                                </div>
-                            </div>
-
-                            <!-- Complete Purchase Button inside the form -->
-                            <button type="submit" class="complete-purchase-btn">Complete Purchase</button>
+                            <div id="couponMessage" class="mt-2"></div>
                         </div>
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span>Subtotal</span>
+                                <span>₹<span id="subtotal"><%= totalPrice %></span></span>
+                            </div>
+                            <div class="price-row" id="couponDiscountRow" style="display: none;">
+                                <span>Coupon Discount</span>
+                                <span>-₹<span id="couponDiscount">0</span></span>
+                            </div>
+                            <div class="price-row">
+                                <span>Shipping</span>
+                                <span>₹<span id="shipping"><%= deliveryCharge %></span></span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total</span>
+                                <span>₹<span id="totalAmount"><%= finalAmount %></span></span>
+                            </div>
+                        </div>
+
+                        <!-- Complete Purchase Button inside the form -->
+                        <button type="submit" class="complete-purchase-btn">Complete Purchase</button>
                     </div>
                 </div>
             </div>
@@ -760,6 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to verify payment and store order with updated payment status
     async function verifyPayment(paymentResponse) {
         try {
+            console.log('Sending payment verification request:', paymentResponse);
             // Verify payment on the backend
             const response = await fetch('/verifyPayment', {
                 method: 'POST',
@@ -824,6 +958,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         description: "Order Payment",
                         order_id: placeOrderResult.razorpayOrderId,
                         handler: function (response) {
+                            console.log('Razorpay payment response:', response);
+                            console.log('Order details from placeOrder:', placeOrderResult.orderDetails);
                             verifyPayment({
                                 ...response,
                                 orderDetails: placeOrderResult.orderDetails

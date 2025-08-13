@@ -182,7 +182,13 @@ const placeOrder = async (req, res) => {
             const order = new Order(orderDetails);
             await order.save();
             // For COD, clear cart and redirect to success page
-            await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
+            console.log('Clearing cart for COD order, user ID:', userId);
+            const cartUpdateResult = await Cart.findOneAndUpdate(
+                { userId: userId },
+                { $set: { items: [] } },
+                { new: true }
+            );
+            console.log('Cart cleared for COD:', cartUpdateResult ? 'Yes' : 'No');
             return res.redirect(`/order-success/${order._id}`);
         }
 
@@ -209,7 +215,13 @@ const placeOrder = async (req, res) => {
             const order = new Order(orderDetails);
             await order.save();
             // Clear cart
-            await Cart.findByIdAndUpdate(cart._id, { $set: { items: [] } });
+            console.log('Clearing cart for wallet payment, user ID:', userId);
+            const cartUpdateResult = await Cart.findOneAndUpdate(
+                { userId: userId },
+                { $set: { items: [] } },
+                { new: true }
+            );
+            console.log('Cart cleared for wallet:', cartUpdateResult ? 'Yes' : 'No');
             return res.redirect(`/order-success/${order._id}`);
         }
 

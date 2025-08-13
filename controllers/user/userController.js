@@ -533,4 +533,5 @@ module.exports = {
     loadShoppingPage,
     searchProducts,
     userProfile
-} 
+}
+
