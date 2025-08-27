@@ -132,25 +132,24 @@ const downloadSalesReport = async (req, res) => {
             const worksheet = workbook.addWorksheet('Sales Report');
             
             // Add title
-            worksheet.mergeCells('A1:F1');
+            worksheet.mergeCells('A1:C1');
             const titleCell = worksheet.getCell('A1');
             titleCell.value = 'Sales Report';
             titleCell.font = { size: 16, bold: true };
             titleCell.alignment = { horizontal: 'center' };
             
             // Add filter info
-            worksheet.mergeCells('A2:F2');
+            worksheet.mergeCells('A2:C2');
             const filterCell = worksheet.getCell('A2');
             filterCell.value = `Filter: ${filterType.charAt(0).toUpperCase() + filterType.slice(1)}`;
             filterCell.font = { size: 12 };
             filterCell.alignment = { horizontal: 'center' };
             
             // Add summary
-            worksheet.mergeCells('A3:F3');
+            worksheet.mergeCells('A3:C3');
             const summaryCell = worksheet.getCell('A3');
             const totalAmount = filteredOrders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
-            const totalDiscount = filteredOrders.reduce((sum, o) => sum + (o.discount || 0) + (o.couponDiscount || 0), 0);
-            summaryCell.value = `Total Orders: ${filteredOrders.length} | Total Amount: ₹${totalAmount} | Total Discount: ₹${totalDiscount}`;
+            summaryCell.value = `Total Orders: ${filteredOrders.length} | Total Amount: ₹${totalAmount}`;
             summaryCell.font = { size: 12, bold: true };
             summaryCell.alignment = { horizontal: 'center' };
             
@@ -159,10 +158,7 @@ const downloadSalesReport = async (req, res) => {
             worksheet.columns = [
                 { header: 'Date', key: 'date', width: 15 },
                 { header: 'Order ID', key: 'id', width: 30 },
-                { header: 'Amount (₹)', key: 'amount', width: 15 },
-                { header: 'Discount (₹)', key: 'discount', width: 15 },
-                { header: 'Coupon Discount (₹)', key: 'couponDiscount', width: 18 },
-                { header: 'Total Discount (₹)', key: 'totalDiscount', width: 18 }
+                { header: 'Amount (₹)', key: 'amount', width: 15 }
             ];
             
             // Style headers
@@ -175,18 +171,12 @@ const downloadSalesReport = async (req, res) => {
                 worksheet.addRow({
                     date: orderDate ? orderDate.format('YYYY-MM-DD') : 'N/A',
                     id: o._id.toString(),
-                    amount: o.finalAmount || 0,
-                    discount: o.discount || 0,
-                    couponDiscount: o.couponDiscount || 0,
-                    totalDiscount: (o.discount || 0) + (o.couponDiscount || 0)
+                    amount: o.finalAmount || 0
                 });
             });
             
             // Style amounts
             worksheet.getColumn('amount').numFmt = '₹#,##0.00';
-            worksheet.getColumn('discount').numFmt = '₹#,##0.00';
-            worksheet.getColumn('couponDiscount').numFmt = '₹#,##0.00';
-            worksheet.getColumn('totalDiscount').numFmt = '₹#,##0.00';
             
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
@@ -208,15 +198,14 @@ const downloadSalesReport = async (req, res) => {
             
             // Summary
             const totalAmount = filteredOrders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
-            const totalDiscount = filteredOrders.reduce((sum, o) => sum + (o.discount || 0) + (o.couponDiscount || 0), 0);
-            doc.fontSize(12).text(`Total Orders: ${filteredOrders.length} | Total Amount: ₹${totalAmount} | Total Discount: ₹${totalDiscount}`, { align: 'center' });
+            doc.fontSize(12).text(`Total Orders: ${filteredOrders.length} | Total Amount: ₹${totalAmount}` , { align: 'center' });
             doc.moveDown(2);
             
             // Table layout settings
             const startX = 40;
             const startY = doc.y;
-            const colWidths = [70, 220, 70, 70, 70, 70]; // Increased Order ID width from 180 to 220
-            const headers = ['Date', 'Order ID', 'Amount', 'Discount', 'Coupon', 'Total'];
+            const colWidths = [100, 300, 100];
+            const headers = ['Date', 'Order ID', 'Amount'];
             const colXs = [startX];
             for (let i = 0; i < colWidths.length - 1; i++) {
                 colXs.push(colXs[i] + colWidths[i]);
@@ -235,10 +224,7 @@ const downloadSalesReport = async (req, res) => {
                 const row = [
                     orderDate ? orderDate.format('YYYY-MM-DD') : 'N/A',
                     o._id.toString(),
-                    `₹${(o.finalAmount || 0).toFixed(2)}`,
-                    `₹${(o.discount || 0).toFixed(2)}`,
-                    `₹${(o.couponDiscount || 0).toFixed(2)}`,
-                    `₹${((o.discount || 0) + (o.couponDiscount || 0)).toFixed(2)}`
+                    `₹${(o.finalAmount || 0).toFixed(2)}`
                 ];
                 for (let i = 0; i < row.length; i++) {
                     doc.text(row[i], colXs[i], y, { width: colWidths[i], align: 'left' });

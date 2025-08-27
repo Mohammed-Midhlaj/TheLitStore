@@ -1,419 +1,485 @@
 <%- include("../../views/partials/admin/header") %>
-    <section class="content-main">
-        <div class="content-header">
-            <div>
-                <h2 class="content-title card-title">Dashboard </h2>
-            </div>
 
+<section class="content-main">
+    <div class="content-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="content-title card-title mb-1">Dashboard Overview</h2>
+                <p class="text-muted">Monitor your store's performance and sales analytics</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                    <i class="material-icons md-refresh"></i> Refresh
+                </button>
+            </div>
         </div>
-        <div class="dashboard-summary">
-            <div class="summary-card">
-                <h3>Total Orders</h3>
-                <div class="summary-value" id="totalOrders">0</div>
-            </div>
-            <div class="summary-card">
-                <h3>Total Sales</h3>
-                <div class="summary-value">₹<span id="totalSales">0</span></div>
-            </div>
-        </div>
-        <div class="sales-report-section">
-            <h2>Sales Report</h2>
-            <div class="sales-filters">
-                <select id="filterType">
-                    <option value="all" selected>Show All</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <input type="date" id="startDate" style="display:none;">
-                <input type="date" id="endDate" style="display:none;">
-                <select id="itemsPerPage">
-                    <option value="10">10 per page</option>
-                    <option value="25">25 per page</option>
-                    <option value="50">50 per page</option>
-                    <option value="100">100 per page</option>
-                </select>
-                <button id="filterBtn" onclick="fetchSalesReport()">Filter</button>
-                <button onclick="downloadReport('pdf')">Download PDF</button>
-                <button onclick="downloadReport('excel')">Download Excel</button>
-            </div>
-            <div id="dateError" class="date-error" style="display:none; color: #d73333; font-size: 14px; margin-top: 10px;">
-                End date cannot be before start date
-            </div>
-            <div class="sales-table-container">
-                <table id="salesTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Order ID</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <div class="pagination-container">
-                    <div class="pagination-info">
-                        <span id="paginationInfo">Showing 0 of 0 results</span>
-                    </div>
-                    <div class="pagination-controls">
-                        <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
-                        <span id="pageNumbers"></span>
-                        <button id="nextPage" onclick="changePage(1)" disabled>Next</button>
+    </div>
+
+    <!-- Stats Cards Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="material-icons md-shopping_cart text-primary fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="card-subtitle mb-1 text-muted">Total Orders</h6>
+                            <h3 class="card-title mb-0 fw-bold text-primary" id="totalOrders">0</h3>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-    <script>
-    let currentPage = 1;
-    let currentPagination = null;
-    
-    function validateDates() {
-        const filterType = document.getElementById('filterType').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const filterBtn = document.getElementById('filterBtn');
-        const dateError = document.getElementById('dateError');
         
-        if (filterType === 'custom') {
-            if (startDate && endDate) {
-                if (new Date(endDate) < new Date(startDate)) {
-                    dateError.style.display = 'block';
-                    filterBtn.disabled = true;
-                    filterBtn.style.opacity = '0.5';
-                    filterBtn.style.cursor = 'not-allowed';
-                    return false;
-                } else {
-                    dateError.style.display = 'none';
-                    filterBtn.disabled = false;
-                    filterBtn.style.opacity = '1';
-                    filterBtn.style.cursor = 'pointer';
-                    return true;
-                }
-            } else if (startDate || endDate) {
-                // If only one date is selected, allow filtering
-                dateError.style.display = 'none';
-                filterBtn.disabled = false;
-                filterBtn.style.opacity = '1';
-                filterBtn.style.cursor = 'pointer';
-                return true;
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="material-icons md-attach_money text-success fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="card-subtitle mb-1 text-muted">Total Sales</h6>
+                            <h3 class="card-title mb-0 fw-bold text-success">₹<span id="totalSales">0</span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="col-xl-3 col-lg-6 col-md-6">
+            <div class="card stat-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="material-icons md-inventory text-info fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="card-subtitle mb-1 text-muted">Products</h6>
+                            <h3 class="card-title mb-0 fw-bold text-info" id="totalProducts">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Report Section -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-1">Sales Report</h5>
+                    <p class="text-muted mb-0">Detailed sales analytics and reporting</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm" onclick="downloadReport('excel')">
+                        <i class="material-icons md-download"></i> Excel
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="downloadReport('pdf')">
+                        <i class="material-icons md-picture_as_pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Filters Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Filter Type</label>
+                    <select id="filterType" class="form-select">
+                        <option value="all" selected>Show All</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Start Date</label>
+                    <input type="date" id="startDate" class="form-control" style="display:none;">
+                    <div id="startDatePlaceholder" class="form-control bg-light text-muted">Select custom filter</div>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">End Date</label>
+                    <input type="date" id="endDate" class="form-control" style="display:none;">
+                    <div id="endDatePlaceholder" class="form-control bg-light text-muted">Select custom filter</div>
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">Items per page</label>
+                    <select id="itemsPerPage" class="form-select">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-3 d-flex align-items-end">
+                    <button id="filterBtn" class="btn btn-primary w-100" onclick="fetchSalesReport()">
+                        <i class="material-icons md-filter_list"></i> Apply Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="dateError" class="alert alert-danger" style="display:none;">
+                <i class="material-icons md-error"></i>
+                End date cannot be before start date
+            </div>
+
+            <!-- Sales Table -->
+            <div class="table-responsive">
+                <table id="salesTable" class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fw-semibold">Date</th>
+                            <th class="fw-semibold">Order ID</th>
+                            <th class="fw-semibold text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted">
+                    <span id="paginationInfo">Showing 0 of 0 results</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="prevPage" class="btn btn-outline-secondary btn-sm" onclick="changePage(-1)" disabled>
+                        <i class="material-icons md-chevron_left"></i> Previous
+                    </button>
+                    <div id="pageNumbers" class="d-flex gap-1"></div>
+                    <button id="nextPage" class="btn btn-outline-secondary btn-sm" onclick="changePage(1)" disabled>
+                        Next <i class="material-icons md-chevron_right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Custom Dashboard Styles */
+.stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    transform: translateY(-1px);
+}
+
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.page-btn {
+    border-radius: 6px;
+    min-width: 40px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border-color: #0d6efd;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-card .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stat-icon {
+        margin: 0 auto 1rem auto;
+    }
+    
+    .card-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+</style>
+
+<script>
+let currentPage = 1;
+let currentPagination = null;
+
+function refreshDashboard() {
+    fetchSalesReport(1);
+    // Add loading animation
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="material-icons md-refresh rotating"></i> Refreshing...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 1000);
+}
+
+function validateDates() {
+    const filterType = document.getElementById('filterType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const filterBtn = document.getElementById('filterBtn');
+    const dateError = document.getElementById('dateError');
+    
+    if (filterType === 'custom') {
+        if (startDate && endDate) {
+            if (new Date(endDate) < new Date(startDate)) {
+                dateError.style.display = 'block';
+                filterBtn.disabled = true;
+                filterBtn.style.opacity = '0.5';
+                return false;
             } else {
-                // No dates selected
                 dateError.style.display = 'none';
                 filterBtn.disabled = false;
                 filterBtn.style.opacity = '1';
-                filterBtn.style.cursor = 'pointer';
                 return true;
             }
-        } else {
-            // Not custom filter type
+        } else if (startDate || endDate) {
             dateError.style.display = 'none';
             filterBtn.disabled = false;
             filterBtn.style.opacity = '1';
-            filterBtn.style.cursor = 'pointer';
+            return true;
+        } else {
+            dateError.style.display = 'none';
+            filterBtn.disabled = false;
+            filterBtn.style.opacity = '1';
             return true;
         }
+    } else {
+        dateError.style.display = 'none';
+        filterBtn.disabled = false;
+        filterBtn.style.opacity = '1';
+        return true;
+    }
+}
+
+function fetchSalesReport(page = 1) {
+    if (!validateDates()) {
+        return;
     }
     
-    function fetchSalesReport(page = 1) {
-        // Validate dates before proceeding
-        if (!validateDates()) {
-            return;
-        }
-        
-        currentPage = page;
-        const filterType = document.getElementById('filterType').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const limit = document.getElementById('itemsPerPage').value;
-        
-        let url = `/admin/sales-report?filterType=${filterType}&page=${page}&limit=${limit}`;
-        if (filterType === 'custom') {
-            url += `&startDate=${startDate}&endDate=${endDate}`;
-        }
-        
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('totalOrders').textContent = data.overallSalesCount;
-                document.getElementById('totalSales').textContent = data.overallOrderAmount;
-                
-                const tbody = document.querySelector('#salesTable tbody');
-                tbody.innerHTML = '';
+    currentPage = page;
+    const filterType = document.getElementById('filterType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const limit = document.getElementById('itemsPerPage').value;
+    
+    // Show loading state
+    const tbody = document.querySelector('#salesTable tbody');
+    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Loading...</div></td></tr>';
+    
+    let url = `/admin/sales-report?filterType=${filterType}&page=${page}&limit=${limit}`;
+    if (filterType === 'custom') {
+        url += `&startDate=${startDate}&endDate=${endDate}`;
+    }
+    
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('totalOrders').textContent = data.overallSalesCount;
+            document.getElementById('totalSales').textContent = data.overallOrderAmount;
+            
+            tbody.innerHTML = '';
+            if (data.orderList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No orders found for the selected criteria</td></tr>';
+            } else {
                 data.orderList.forEach(order => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${new Date(order.date).toLocaleDateString()}</td>
-                        <td>${order.id}</td>
-                        <td>₹${order.amount}</td>
+                        <td><i class="material-icons md-calendar_today text-muted me-2"></i>${new Date(order.date).toLocaleDateString()}</td>
+                        <td><span class="badge bg-light text-dark">#${order.id}</span></td>
+                        <td class="text-end fw-bold text-success">₹${order.amount}</td>
                     `;
                     tbody.appendChild(tr);
                 });
-                
-                // Update pagination
-                currentPagination = data.pagination;
-                updatePaginationControls();
-            });
-    }
-    
-    function updatePaginationControls() {
-        if (!currentPagination) return;
-        
-        const { currentPage, totalPages, totalItems, itemsPerPage, hasNextPage, hasPrevPage } = currentPagination;
-        
-        // Update pagination info
-        const startItem = (currentPage - 1) * itemsPerPage + 1;
-        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-        document.getElementById('paginationInfo').textContent = `Showing ${startItem} to ${endItem} of ${totalItems} results`;
-        
-        // Update navigation buttons
-        document.getElementById('prevPage').disabled = !hasPrevPage;
-        document.getElementById('nextPage').disabled = !hasNextPage;
-        
-        // Update page numbers
-        const pageNumbersContainer = document.getElementById('pageNumbers');
-        pageNumbersContainer.innerHTML = '';
-        
-        const maxVisiblePages = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-        
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            pageButton.className = i === currentPage ? 'page-btn active' : 'page-btn';
-            pageButton.onclick = () => fetchSalesReport(i);
-            pageNumbersContainer.appendChild(pageButton);
-        }
-    }
-    
-    function changePage(direction) {
-        if (!currentPagination) return;
-        
-        const newPage = currentPage + direction;
-        if (newPage >= 1 && newPage <= currentPagination.totalPages) {
-            fetchSalesReport(newPage);
-        }
-    }
-    
-    document.getElementById('filterType').addEventListener('change', function() {
-        const show = this.value === 'custom';
-        document.getElementById('startDate').style.display = show ? '' : 'none';
-        document.getElementById('endDate').style.display = show ? '' : 'none';
-        validateDates();
-    });
-    
-    document.getElementById('startDate').addEventListener('change', validateDates);
-    document.getElementById('endDate').addEventListener('change', validateDates);
-    
-    document.getElementById('itemsPerPage').addEventListener('change', function() {
-        fetchSalesReport(1); // Reset to first page when changing items per page
-    });
-    
-    fetchSalesReport();
+            }
+            
+            currentPagination = data.pagination;
+            updatePaginationControls();
+        })
+        .catch(error => {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-danger">Error loading data. Please try again.</td></tr>';
+            console.error('Error:', error);
+        });
+}
 
-    function downloadReport(type) {
-        const filterType = document.getElementById('filterType').value;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        let url = `/admin/sales-report/download?type=${type}&filterType=${filterType}`;
-        if (filterType === 'custom') {
-            url += `&startDate=${startDate}&endDate=${endDate}`;
-        }
-        window.open(url, '_blank');
-    }
-    </script>
-</style>
-    .dashboard-summary {
-        display: flex;
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-    .summary-card {
-        flex: 1;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        padding: 24px 20px;
-        text-align: center;
-        transition: box-shadow 0.2s;
-    }
-    .summary-card h3 {
-        font-size: 18px;
-        color: #888;
-        margin-bottom: 10px;
-        font-weight: 500;
-    }
-    .summary-card .summary-value {
-        font-size: 32px;
-        font-weight: bold;
-        color: #d73333;
-    }
-    .sales-report-section {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        padding: 30px 24px;
-        margin-bottom: 40px;
-    }
-    .sales-report-section h2 {
-        font-size: 22px;
-        margin-bottom: 18px;
-        color: #222;
-    }
-    .sales-filters {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-    .sales-filters select, .sales-filters input[type="date"] {
-        padding: 7px 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 15px;
-    }
-    .sales-filters button {
-        background: #d73333;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 8px 18px;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .sales-filters button:hover {
-        background: #b32929;
-    }
-    .sales-filters button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        opacity: 0.5;
-    }
-    .sales-filters button:disabled:hover {
-        background: #ccc;
-    }
-    .sales-summary {
-        display: none;
-    }
-    .sales-table-container {
-        overflow-x: auto;
-        margin-top: 18px;
-    }
-    #salesTable {
-        width: 100%;
-        border-collapse: collapse;
-        background: #fafbfc;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    #salesTable th, #salesTable td {
-        padding: 12px 10px;
-        border-bottom: 1px solid #eee;
-        text-align: center;
-    }
-    #salesTable th {
-        background: #f5f5f5;
-        color: #d73333;
-        font-weight: 600;
-    }
-    #salesTable tr:last-child td {
-        border-bottom: none;
-    }
-    @media (max-width: 900px) {
-        .dashboard-summary { flex-direction: column; gap: 16px; }
-        .sales-report-section { padding: 16px 6px; }
+function updatePaginationControls() {
+    if (!currentPagination) return;
+    
+    const { currentPage, totalPages, totalItems, itemsPerPage, hasNextPage, hasPrevPage } = currentPagination;
+    
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+    document.getElementById('paginationInfo').textContent = `Showing ${startItem} to ${endItem} of ${totalItems} results`;
+    
+    document.getElementById('prevPage').disabled = !hasPrevPage;
+    document.getElementById('nextPage').disabled = !hasNextPage;
+    
+    const pageNumbersContainer = document.getElementById('pageNumbers');
+    pageNumbersContainer.innerHTML = '';
+    
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
     
-    /* Pagination Styles */
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-        padding: 15px 0;
-        border-top: 1px solid #eee;
+    for (let i = startPage; i <= endPage; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.className = i === currentPage ? 'btn btn-primary btn-sm page-btn' : 'btn btn-outline-secondary btn-sm page-btn';
+        pageButton.onclick = () => fetchSalesReport(i);
+        pageNumbersContainer.appendChild(pageButton);
     }
+}
+
+function changePage(direction) {
+    if (!currentPagination) return;
     
-    .pagination-info {
-        color: #666;
-        font-size: 14px;
+    const newPage = currentPage + direction;
+    if (newPage >= 1 && newPage <= currentPagination.totalPages) {
+        fetchSalesReport(newPage);
     }
-    
-    .pagination-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+}
+
+function downloadReport(type) {
+    const filterType = document.getElementById('filterType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    let url = `/admin/sales-report/download?type=${type}&filterType=${filterType}`;
+    if (filterType === 'custom') {
+        url += `&startDate=${startDate}&endDate=${endDate}`;
     }
-    
-    .pagination-controls button {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 8px 16px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
+    window.open(url, '_blank');
+}
+
+// Event Listeners
+document.getElementById('filterType').addEventListener('change', function() {
+    const show = this.value === 'custom';
+    document.getElementById('startDate').style.display = show ? 'block' : 'none';
+    document.getElementById('endDate').style.display = show ? 'block' : 'none';
+    document.getElementById('startDatePlaceholder').style.display = show ? 'none' : 'block';
+    document.getElementById('endDatePlaceholder').style.display = show ? 'none' : 'block';
+    validateDates();
+});
+
+document.getElementById('startDate').addEventListener('change', validateDates);
+document.getElementById('endDate').addEventListener('change', validateDates);
+
+document.getElementById('itemsPerPage').addEventListener('change', function() {
+    fetchSalesReport(1);
+});
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    fetchSalesReport();
+});
+
+// Add rotating animation for refresh icon
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
-    
-    .pagination-controls button:hover:not(:disabled) {
-        background: #f5f5f5;
-        border-color: #d73333;
+    .rotating {
+        animation: rotate 1s linear infinite;
     }
-    
-    .pagination-controls button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    .page-btn {
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 8px 12px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-        min-width: 40px;
-    }
-    
-    .page-btn:hover {
-        background: #f5f5f5;
-        border-color: #d73333;
-    }
-    
-    .page-btn.active {
-        background: #d73333;
-        color: #fff;
-        border-color: #d73333;
-    }
-    
-    @media (max-width: 768px) {
-        .pagination-container {
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .pagination-controls {
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-    }
-    
-    .date-error {
-        background: #fff5f5;
-        border: 1px solid #fed7d7;
-        border-radius: 5px;
-        padding: 8px 12px;
-        margin-top: 10px;
-    }
-</style>
+`;
+document.head.appendChild(style);
+</script>
 
 <%- include("../../views/partials/admin/footer") %>
