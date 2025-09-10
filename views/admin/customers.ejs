@@ -11,9 +11,10 @@
         <form action="/admin/users/" method="get" class="d-inline">
             <div class="input-group input-group-sm border border-1 border-grey rounded-pill"
                 style="width: 500px; margin-left: 230px;">
-                <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..."
+                <input type="text" class="form-control border-0 rounded-pill" id="searchInput" placeholder="Search customers..."
                     name="search">
                 <button class="btn  border-0" type="submit">Search</button>
+                <button class="btn  border-0" type="button" onclick="clearSearch('/admin/users')">Clear</button>
             </div>
         </form>
     </header>
@@ -74,6 +75,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function clearSearch(basePath) {
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('search');
+            url.searchParams.delete('page');
+            window.location.href = basePath;
+        }
         function confirmBlock(userId, userName) {
             Swal.fire({
                 title: "Are you sure?",

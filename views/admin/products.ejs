@@ -17,9 +17,10 @@
         <form action="" method="get" class="d-inline">
             <div class="input-group input-group-sm border border-1 border-grey rounded-pill"
                 style="width: 500px; margin-left: 230px;">
-                <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands"
+                <input type="text" class="form-control border-0 rounded-pill" id="searchInput" placeholder="Search products or brands"
                     name="search">
                 <button class="btn  border-0" type="submit">Search</button>
+                <button class="btn  border-0" type="button" onclick="clearSearch('/admin/products')">Clear</button>
             </div>
         </form>
     </header>
@@ -111,6 +112,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
+        function clearSearch(basePath) {
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('search');
+            url.searchParams.delete('page');
+            window.location.href = basePath;
+        }
         function confirmBlock(productId, productName) {
             Swal.fire({
                 title: 'Are you sure?',
