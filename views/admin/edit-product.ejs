@@ -51,7 +51,7 @@
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Product Name</label>
                                 <input type="text" name="productName" value="<%=product.productName%>"
-                                    class="form-control border" id="product_name">
+                                    class="form-control border" id="product_name" maxlength="25">
                                 <div id="productName-error" class="error-message"></div>
                             </div>
                             <div class="col-lg-4 mb-4">
@@ -361,6 +361,9 @@
                 isValid = false;
             } else if (!/^[a-zA-Z0-9\s\-\/]+$/.test(name.trim())) {
                 displayErrorMessage('productName-error', 'Product name should contain only alphanumeric characters.');
+                isValid = false;
+            } else if (name.trim().length > 25) {
+                displayErrorMessage('productName-error', 'Product name must be at most 25 characters.');
                 isValid = false;
             }
 

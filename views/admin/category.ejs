@@ -98,7 +98,7 @@
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
                                     <input type="text" name="name" placeholder="Type here" class="form-control"
-                                        id="product_name" required />
+                                        id="product_name" required maxlength="20" />
                                     <div id="name-error" class="error-message"></div>
                                 </div>
                                 <div class="mb-4">
@@ -287,6 +287,9 @@
                     isValid = false
                 } else if (!/^[a-zA-Z\s-]+$/.test(name)) {
                     displayErrorMessage("name-error", "Category name should contain only alphabetic characters");
+                    isValid = false
+                } else if (name.length > 20) {
+                    displayErrorMessage("name-error", "Name must be at most 20 characters");
                     isValid = false
                 }
 

@@ -55,6 +55,11 @@ const addCategory = async (req, res) => {
             return res.status(400).json({ error: "Name and description are required" });
         }
 
+        // Enforce name length limit
+        if (name.trim().length > 20) {
+            return res.status(400).json({ error: "Name must be at most 20 characters" });
+        }
+
         const existingCategory = await Category.findOne({ name });
         if (existingCategory) {
             return res.status(400).json({ error: "Category already exists" })
@@ -187,6 +192,11 @@ const editCategory = async (req, res) => {
         const offerValue = categoryOffer === '' || categoryOffer === undefined ? 0 : parseInt(categoryOffer);
         if (offerValue < 0 || offerValue > 100) {
             return res.status(400).json({ error: "Offer must be between 0 and 100%" });
+        }
+
+        // Enforce name length limit
+        if (categoryName && categoryName.trim().length > 20) {
+            return res.status(400).json({ error: "Name must be at most 20 characters" });
         }
         const existingCategory = await Category.findOne({ name: categoryName, _id: { $ne: id } });
         if (existingCategory) {

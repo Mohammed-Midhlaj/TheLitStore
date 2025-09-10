@@ -29,6 +29,10 @@ const addProducts = async (req, res) => {
     try {
 
         const products = req.body;
+        // Enforce product name length limit
+        if (!products.productName || products.productName.trim().length > 25) {
+            return res.status(400).json("Product name must be at most 25 characters");
+        }
         const productExists = await Product.findOne({
             productName: products.productName,
         });
@@ -185,6 +189,10 @@ const editProduct = async (req, res) => {
         const id = req.params.id;
         const product = await Product.findOne({ _id: id });
         const data = req.body;
+        // Enforce product name length limit
+        if (data.productName && data.productName.trim().length > 25) {
+            return res.status(400).json({ error: "Product name must be at most 25 characters" });
+        }
         const existingProduct = await Product.findOne({
             productName: data.productName,
             _id: { $ne: id }
