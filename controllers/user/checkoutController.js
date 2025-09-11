@@ -225,7 +225,7 @@ const placeOrder = async (req, res) => {
             return res.redirect(`/order-success/${order._id}`);
         }
 
-        // For Razorpay, do not save the order yet
+        // For Razorpay, atomically reserve stock first, then create Razorpay order (do not save our Order yet)
         if (paymentMethod === 'razorpay') {
             if (!razorpay) {
                 return res.status(400).json({
@@ -233,6 +233,37 @@ const placeOrder = async (req, res) => {
                     message: 'Razorpay payment is not configured'
                 });
             }
+            // Atomically decrement stock for each cart item to prevent race conditions
+            const reserved = [];
+            try {
+                for (const item of cart.items) {
+                    const prodId = item.productId._id;
+                    const qtyNeeded = Number(item.quantity);
+                    const updated = await Product.findOneAndUpdate(
+                        { _id: prodId, isBlocked: false, quantity: { $gte: qtyNeeded } },
+                        { $inc: { quantity: -qtyNeeded } },
+                        { new: true }
+                    );
+                    if (!updated) {
+                        throw new Error('Out of stock');
+                    }
+                    reserved.push({ productId: String(prodId), quantity: qtyNeeded });
+                }
+            } catch (reserveErr) {
+                // Rollback any partial reservations
+                for (const r of reserved) {
+                    await Product.findByIdAndUpdate(r.productId, { $inc: { quantity: r.quantity } });
+                }
+                return res.status(400).json({ status: false, message: reserveErr.message || 'Out of stock' });
+            }
+
+            // Persist reservation in session to allow rollback on payment failure
+            req.session.stockReservation = {
+                items: reserved,
+                createdAt: Date.now(),
+                amount: finalAmount
+            };
+
             // Create Razorpay order
             const shortUserId = String(userId).slice(-6);
             const receiptStr = `temp_${Date.now()}_${shortUserId}`;

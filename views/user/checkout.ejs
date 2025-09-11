@@ -869,14 +869,13 @@ document.addEventListener('DOMContentLoaded', function() {
             var rzp1 = new Razorpay(options);
 
             // Payment failure listener using SweetAlert2
-            rzp1.on('payment.failed', function (response) {
+            rzp1.on('payment.failed', async function (response) {
+                try { await fetch('/restore-reservation', { method: 'POST', credentials: 'include' }); } catch (e) {}
                 Swal.fire({
                     icon: 'error',
                     title: 'Payment Failed!',
                     text: 'Oops, something went wrong. Please try again.'
-                }).then(() => {
-                    window.location.href = '/order-failed';
-                });
+                }).then(() => { window.location.href = '/order-failed'; });
             });
 
             rzp1.open();
@@ -973,14 +972,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         theme: { color: "#d73333" }
                     };
                     var rzp1 = new Razorpay(options);
-                    rzp1.on('payment.failed', function (response) {
+                    rzp1.on('payment.failed', async function (response) {
+                        try { await fetch('/restore-reservation', { method: 'POST', credentials: 'include' }); } catch (e) {}
                         Swal.fire({
                             icon: 'error',
                             title: 'Payment Failed!',
                             text: 'Oops, something went wrong. Please try again.'
-                        }).then(() => {
-                            window.location.href = '/order-failed';
-                        });
+                        }).then(() => { window.location.href = '/order-failed'; });
                     });
                     rzp1.open();
                 } else {

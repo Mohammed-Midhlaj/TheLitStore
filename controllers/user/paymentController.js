@@ -86,40 +86,7 @@ const verifyPayment = async (req, res) => {
                     });
                 }
                 
-                // Validate stock availability for all products
-                for (const item of orderDetails.orderedItem) {
-                    const product = await Product.findById(item.product);
-                    if (!product) {
-                        throw new Error(`Product not found: ${item.product}`);
-                    }
-                    if (product.quantity < item.quantity) {
-                        throw new Error(`Insufficient stock for product: ${product.name || product.productName}. Available: ${product.quantity}, Requested: ${item.quantity}`);
-                    }
-                }
-                
-                // Decrement stock for all products with optimistic locking
-                for (const item of orderDetails.orderedItem) {
-                    const updateResult = await Product.findByIdAndUpdate(
-                        item.product,
-                        { 
-                            $inc: { quantity: -item.quantity },
-                            $set: { updatedAt: new Date() }
-                        },
-                        { 
-                            new: true,
-                            runValidators: true
-                        }
-                    );
-                    
-                    if (!updateResult) {
-                        throw new Error(`Failed to update stock for product: ${item.product}`);
-                    }
-                    
-                    // Double-check stock didn't go negative
-                    if (updateResult.quantity < 0) {
-                        throw new Error(`Stock would go negative for product: ${updateResult.name || updateResult.productName}`);
-                    }
-                }
+                // At this point, stock should already be reserved (decremented) in checkoutController for Razorpay flow
                 
                 // Add payment details to orderDetails and remove fields not in schema
                 const { shipping, couponDiscount, couponCode, ...cleanOrderDetails } = orderDetails;
@@ -145,6 +112,9 @@ const verifyPayment = async (req, res) => {
                     await clearUserCart(order.user);
                 }
                 
+                // Clear any reservation from session after success
+                req.session.stockReservation = null;
+                
                 res.json({
                     success: true,
                     message: "Payment verified successfully!",
@@ -154,6 +124,19 @@ const verifyPayment = async (req, res) => {
                 
             } catch (operationError) {
                 console.error('Operation error:', operationError);
+                // On any failure after reservation, restore stock if reserved in session
+                try {
+                    const Product = require('../../models/productSchema');
+                    const reservation = req.session.stockReservation;
+                    if (reservation && Array.isArray(reservation.items)) {
+                        for (const r of reservation.items) {
+                            await Product.findByIdAndUpdate(r.productId, { $inc: { quantity: r.quantity } });
+                        }
+                        req.session.stockReservation = null;
+                    }
+                } catch (restoreErr) {
+                    console.error('Error restoring stock after failure:', restoreErr);
+                }
                 res.status(400).json({
                     success: false,
                     message: operationError.message || "Operation failed. Please try again."
@@ -167,6 +150,19 @@ const verifyPayment = async (req, res) => {
         }
     } catch (error) {
         console.error('Payment verification error:', error);
+        // On signature/verification error, restore reserved stock as well
+        try {
+            const Product = require('../../models/productSchema');
+            const reservation = req.session.stockReservation;
+            if (reservation && Array.isArray(reservation.items)) {
+                for (const r of reservation.items) {
+                    await Product.findByIdAndUpdate(r.productId, { $inc: { quantity: r.quantity } });
+                }
+                req.session.stockReservation = null;
+            }
+        } catch (restoreErr) {
+            console.error('Error restoring stock after verification error:', restoreErr);
+        }
         res.status(500).json({ 
             success: false, 
             message: "Payment verification failed. Please try again." 
@@ -178,4 +174,21 @@ const verifyPayment = async (req, res) => {
 module.exports = {
     createOrder,
     verifyPayment,
+    restoreReservation: async (req, res) => {
+        try {
+            const reservation = req.session.stockReservation;
+            if (!reservation || !Array.isArray(reservation.items) || reservation.items.length === 0) {
+                return res.json({ success: true, message: 'No reservation to restore' });
+            }
+            const Product = require('../../models/productSchema');
+            for (const r of reservation.items) {
+                await Product.findByIdAndUpdate(r.productId, { $inc: { quantity: r.quantity } });
+            }
+            req.session.stockReservation = null;
+            return res.json({ success: true, message: 'Stock restored' });
+        } catch (error) {
+            console.error('Error restoring reservation:', error);
+            return res.status(500).json({ success: false, message: 'Failed to restore stock' });
+        }
+    }
 }

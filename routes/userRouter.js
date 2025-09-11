@@ -132,6 +132,7 @@ router.post('/wallet/verify-payment', userAuth, walletController.verifyWalletPay
 
 router.post('/createOrder',  paymentController.createOrder);
 router.post('/verifyPayment',  paymentController.verifyPayment);
+router.post('/restore-reservation', paymentController.restoreReservation);
 
 
 
