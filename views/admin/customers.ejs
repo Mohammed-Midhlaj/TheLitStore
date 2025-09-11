@@ -43,13 +43,11 @@
                         </td>
                         <td>
                             <% if(data[i].isBlocked === false){ %>
-                                <button class="btn btn-danger" style="width: 80px;"
-                                    onclick="confirmBlock('<%= data[i]._id %>', '<%= data[i].name %>')">
+                                <button class="btn btn-danger block-user" data-id="<%= data[i]._id %>" style="width: 80px;">
                                     Block
                                 </button>
                             <% } else { %>
-                                <button class="btn btn-success" style="width: 80px;"
-                                    onclick="confirmUnblock('<%= data[i]._id %>', '<%= data[i].name %>')">
+                                <button class="btn btn-success unblock-user" data-id="<%= data[i]._id %>" style="width: 80px;">
                                     Unblock
                                 </button>
                             <% } %>
@@ -83,62 +81,69 @@
             url.searchParams.delete('page');
             window.location.href = basePath;
         }
-        function confirmBlock(userId, userName) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: `Do you want to block ${userName}?`,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, Block!",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: "success",
-                        toast: true,
-                        position: "top-end",
-                        title: "Blocked successfully",
-                        showConfirmButton: false,
-                        timer: 2000,
-                        customClass: {
-                            popup: "custom-toast"
-                        }
-                    }).then(() => {
-                        window.location.href = `/admin/blockCustomer?id=${userId}`;
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.block-user').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const userId = btn.dataset.id;
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Do you want to block this user?',
+                        icon: 'warning',
+                        showCancelButton: true
                     });
-                }
+                    if (!result.isConfirmed) return;
+                    try {
+                        const res = await fetch('/admin/blockCustomer?id=' + encodeURIComponent(userId), { method: 'POST' });
+                        const data = await res.json();
+                        if (data.status) {
+                            btn.classList.remove('btn-danger', 'block-user');
+                            btn.classList.add('btn-success', 'unblock-user');
+                            btn.textContent = 'Unblock';
+                            attachHandlers(btn.closest('tr'));
+                            Swal.fire('Success', 'Blocked successfully', 'success');
+                        } else {
+                            Swal.fire('Error', data.message || 'Failed to block', 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'Something went wrong', 'error');
+                    }
+                });
             });
-        }
 
-        function confirmUnblock(userId, userName) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: `Do you want to unblock ${userName}?`,
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#28a745",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, Unblock!",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: "success",
-                        toast: true,
-                        position: "top-end",
-                        title: "Unblocked successfully",
-                        showConfirmButton: false,
-                        timer: 2000,
-                        customClass: {
-                            popup: "custom-toast"
-                        }
-                    }).then(() => {
-                        window.location.href = `/admin/unblockCustomer?id=${userId}`;
+            document.querySelectorAll('.unblock-user').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const userId = btn.dataset.id;
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Do you want to unblock this user?',
+                        icon: 'warning',
+                        showCancelButton: true
                     });
-                }
+                    if (!result.isConfirmed) return;
+                    try {
+                        const res = await fetch('/admin/unblockCustomer?id=' + encodeURIComponent(userId), { method: 'POST' });
+                        const data = await res.json();
+                        if (data.status) {
+                            btn.classList.remove('btn-success', 'unblock-user');
+                            btn.classList.add('btn-danger', 'block-user');
+                            btn.textContent = 'Block';
+                            attachHandlers(btn.closest('tr'));
+                            Swal.fire('Success', 'Unblocked successfully', 'success');
+                        } else {
+                            Swal.fire('Error', data.message || 'Failed to unblock', 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'Something went wrong', 'error');
+                    }
+                });
             });
-        }
+
+            function attachHandlers(scope) {
+                const block = scope.querySelector('.block-user');
+                const unblock = scope.querySelector('.unblock-user');
+                if (block && !block._bound) { block._bound = true; block.click(); block._bound = false; }
+                if (unblock && !unblock._bound) { unblock._bound = true; unblock.click(); unblock._bound = false; }
+            }
+        });
     </script>
     <%- include("../../views/partials/admin/footer") %>

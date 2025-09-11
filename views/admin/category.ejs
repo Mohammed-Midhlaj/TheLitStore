@@ -171,13 +171,11 @@
                                                 </td>
                                                 <td class="text-start">
                                                     <%if(category.isListed){%>
-                                                        <button class="btn btn-danger" style="width: 70px"
-                                                            onclick="unlistCategory('<%=category._id%>')">
+                                                        <button class="btn btn-danger unlist-category" data-id="<%=category._id%>" style="width: 70px">
                                                             Unlist
                                                         </button>
                                                         <%}else{%>
-                                                            <button class="btn btn-success" style="width: 70px"
-                                                                onclick="listCategory('<%=category._id%>')">
+                                                            <button class="btn btn-success list-category" data-id="<%=category._id%>" style="width: 70px">
                                                                 List
                                                             </button>
                                                             <%}%>
@@ -263,7 +261,23 @@
                             showConfirmButton: false,
                             timer: 2000
                         }).then(() => {
-                            location.reload();
+                            // Insert new row without reload
+                            const tbody = document.querySelector('tbody');
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td></td>
+                                <td class="text-start">${name}</td>
+                                <td class="text-start">${description}</td>
+                                <td>0%</td>
+                                <td class="text-start">
+                                    <button class="btn btn-info" style="width: 100px"><a href="#" class="text-white">Add Offer</a></button>
+                                </td>
+                                <td class="text-start"><span class="badge rounded-pill alert-success" style="width: 60px">Listed</span></td>
+                                <td class="text-start">
+                                    <button class="btn btn-danger unlist-category" style="width: 70px">Unlist</button>
+                                </td>
+                                <td class="text-start"><button class="btn btn-info"><a href="#" class="text-white">Edit</a></button></td>`;
+                            tbody.prepend(tr);
                         });
                     })
                     .catch(error => {
@@ -353,7 +367,15 @@
                                 "The Offer has been added",
                                 "success",
                             ).then(() => {
-                                location.reload();
+                                // Update offer cell inline
+                                const row = document.querySelector(`[data-category-id="${categoryId}"]`) || document.querySelector(`button[onclick*="addoffer('${categoryId}')"]`).closest('tr');
+                                if (row) {
+                                    const offerCell = row.children[3];
+                                    offerCell.textContent = amount + '%';
+                                    const container = row.children[4];
+                                    const btn = container.querySelector('button');
+                                    if (btn) { btn.querySelector('a').textContent = 'Remove'; btn.onclick = function(){ removeoffer(categoryId); } }
+                                }
                             })
                         } else {
                             Swal.fire("Failed", data.message || "Adding Offer failed", "error")
@@ -390,7 +412,14 @@
                             "The offer has been removed",
                             "success",
                         ).then(() => {
-                            location.reload();
+                            const row = document.querySelector(`[data-category-id="${categoryId}"]`) || document.querySelector(`button[onclick*=\"removeoffer('${categoryId}')\"]`).closest('tr');
+                            if (row) {
+                                const offerCell = row.children[3];
+                                offerCell.textContent = '0%';
+                                const container = row.children[4];
+                                const btn = container.querySelector('button');
+                                if (btn) { btn.querySelector('a').textContent = 'Add Offer'; btn.onclick = function(){ addoffer(categoryId); } }
+                            }
                         })
                     } else {
                         Swal.fire("Failed", data.message || "Removing Offer failed", "error");
@@ -406,37 +435,48 @@
             }
 
 
-            function unlistCategory(categoryId) {
-                Swal.fire({
-                    icon: 'success',
-                    toast: true,
-                    position: "top-end",
-                    title: 'Category Unlisted Successfully',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    customClass: {
-                        popup: "custom-toast"
+            document.addEventListener('DOMContentLoaded', () => {
+                function bindRowHandlers(scope) {
+                    const unlistBtn = scope.querySelector('.unlist-category');
+                    const listBtn = scope.querySelector('.list-category');
+                    const badge = scope.querySelector('.badge');
+                    if (unlistBtn) {
+                        unlistBtn.addEventListener('click', async () => {
+                            const id = unlistBtn.dataset.id;
+                            try {
+                                const res = await fetch('/admin/listCategory?id=' + encodeURIComponent(id), { method: 'POST' });
+                                const data = await res.json();
+                                if (data.status) {
+                                    if (badge) { badge.className = 'badge rounded-pill alert-danger'; badge.textContent = 'Unlisted'; }
+                                    unlistBtn.outerHTML = `<button class="btn btn-success list-category" data-id="${id}" style="width: 70px">List</button>`;
+                                    bindRowHandlers(scope);
+                                    Swal.fire('Success', 'Category Unlisted Successfully', 'success');
+                                } else {
+                                    Swal.fire('Error', data.message || 'Failed', 'error');
+                                }
+                            } catch (e) { Swal.fire('Error', 'Something went wrong', 'error'); }
+                        });
                     }
-                }).then(() => {
-                    window.location.href = `/admin/listCategory?id=${categoryId}`;
-                });
-            }
-
-            function listCategory(categoryId) {
-                Swal.fire({
-                    icon: 'success',
-                    toast: true,
-                    position: "top-end",
-                    title: 'Category Listed Successfully',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    customClass: {
-                        popup: "custom-toast"
+                    if (listBtn) {
+                        listBtn.addEventListener('click', async () => {
+                            const id = listBtn.dataset.id;
+                            try {
+                                const res = await fetch('/admin/unlistCategory?id=' + encodeURIComponent(id), { method: 'POST' });
+                                const data = await res.json();
+                                if (data.status) {
+                                    if (badge) { badge.className = 'badge rounded-pill alert-success'; badge.textContent = 'Listed'; }
+                                    listBtn.outerHTML = `<button class="btn btn-danger unlist-category" data-id="${id}" style="width: 70px">Unlist</button>`;
+                                    bindRowHandlers(scope);
+                                    Swal.fire('Success', 'Category Listed Successfully', 'success');
+                                } else {
+                                    Swal.fire('Error', data.message || 'Failed', 'error');
+                                }
+                            } catch (e) { Swal.fire('Error', 'Something went wrong', 'error'); }
+                        });
                     }
-                }).then(() => {
-                    window.location.href = `/admin/unlistCategory?id=${categoryId}`;
-                });
-            }
+                }
+                document.querySelectorAll('tbody tr').forEach(tr => bindRowHandlers(tr));
+            });
 
         </script>
         <%- include("../../views/partials/admin/footer") %>

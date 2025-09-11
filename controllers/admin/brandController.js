@@ -32,24 +32,29 @@ const addBrand = async (req, res) => {
         const brand = (req.body.name || '').trim();
         // Length validation
         if (!brand) {
-            return res.status(400).redirect('/admin/brands');
+            return res.status(400).json({ status: false, message: 'Brand name is required' });
         }
         if (brand.length > 30) {
-            return res.status(400).redirect('/admin/brands');
+            return res.status(400).json({ status: false, message: 'Brand name must be 30 characters or fewer' });
         }
         const findBrand = await Brand.findOne({ brandName: brand });
-        if (!findBrand) {
-            const image = req.file.filename;
-            const newBrand = new Brand({
-                brandName: brand,
-                brandImage: image,
-            })
-            await newBrand.save();
-            res.redirect("/admin/brands")
+        if (findBrand) {
+            return res.status(400).json({ status: false, message: 'Brand already exists' });
         }
+        if (!req.file || !req.file.filename) {
+            return res.status(400).json({ status: false, message: 'Brand image is required' });
+        }
+        const image = req.file.filename;
+        const newBrand = new Brand({
+            brandName: brand,
+            brandImage: image,
+        })
+        await newBrand.save();
+        return res.json({ status: true, message: 'Brand added successfully', brand: newBrand });
 
     } catch (error) {
-        res.redirect("errorpage");
+        console.log('Error adding brand:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 
@@ -59,11 +64,15 @@ const blockBrand = async (req, res) => {
     try {
 
         const id = req.query.id;
-        await Brand.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect("/admin/brands");
+        const updated = await Brand.findByIdAndUpdate(id, { $set: { isBlocked: true } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Brand not found' });
+        }
+        return res.json({ status: true, message: 'Blocked successfully', isBlocked: true, brandId: id });
 
     } catch (error) {
-        res.redirect('/errorpage')
+        console.log('Error blocking brand:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' })
     }
 }
 
@@ -73,11 +82,15 @@ const unblockBrand = async (req, res) => {
     try {
 
         const id = req.query.id;
-        await Brand.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect("/admin/brands");
+        const updated = await Brand.findByIdAndUpdate(id, { $set: { isBlocked: false } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Brand not found' });
+        }
+        return res.json({ status: true, message: 'Unblocked successfully', isBlocked: false, brandId: id });
 
     } catch (error) {
-        res.redirect("/errorpage")
+        console.log('Error unblocking brand:', error);
+        res.status(500).json({ status: false, message: 'Internal server error' })
     }
 }
 
@@ -88,14 +101,17 @@ const deleteBrand = async (req, res) => {
 
         const {id} = req.query;
         if(!id){
-            return res.status(400).redirect("errorpage");
+            return res.status(400).json({ status: false, message: 'Brand id is required' });
         }
-        await Brand.deleteOne({_id:id});
-        res.redirect("/admin/brands");
+        const result = await Brand.deleteOne({_id:id});
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ status: false, message: 'Brand not found' });
+        }
+        return res.json({ status: true, message: 'Brand deleted successfully', brandId: id });
 
     } catch (error) {
         console.log("Error During Deleting: ",error);
-        res.status(500).redirect("/errorpage");
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 

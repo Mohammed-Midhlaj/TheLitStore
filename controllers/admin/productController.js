@@ -137,11 +137,14 @@ const blockProduct = async (req, res) => {
     try {
 
         let id = req.query.id;
-        await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.redirect("/admin/products");
+        const updated = await Product.findByIdAndUpdate(id, { $set: { isBlocked: true } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Product not found' });
+        }
+        res.json({ status: true, message: 'Blocked successfully', isBlocked: true, productId: id });
 
     } catch (error) {
-        res.redirect("/errorpage");
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 
@@ -150,11 +153,14 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
     try {
         let id = req.query.id;
-        await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.redirect("/admin/products");
+        const updated = await Product.findByIdAndUpdate(id, { $set: { isBlocked: false } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Product not found' });
+        }
+        res.json({ status: true, message: 'Unblocked successfully', isBlocked: false, productId: id });
 
     } catch (error) {
-        res.redirect("/errorpage");
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 
@@ -300,7 +306,7 @@ const removeProductOffer = async (req, res) => {
             { productOffer: 0, salePrice: product.regularPrice },
             { new: true }
         );
-        res.json({ status: true, message: 'Offer removed successfully' });
+        res.json({ status: true, message: 'Offer removed successfully', salePrice: updated.salePrice });
     } catch (error) {
         console.error('Error in removeProductOffer:', error);
         res.status(500).json({ status: false, message: 'Internal server error' });

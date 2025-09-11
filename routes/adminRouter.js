@@ -39,8 +39,8 @@ router.get('/test', (req, res) => {
 // --Customer Management--
 
 router.get("/users", noCache, adminAuth, customerController.customerInfo)
-router.get("/blockCustomer", noCache, adminAuth, customerController.customerBlocked);
-router.get("/unblockCustomer", noCache, adminAuth, customerController.customerUnblocked)
+router.post("/blockCustomer", adminAuth, customerController.customerBlocked);
+router.post("/unblockCustomer", adminAuth, customerController.customerUnblocked)
 
 // --Category Management--
 
@@ -48,8 +48,8 @@ router.get("/category", noCache, adminAuth, categoryController.categoryInfo);
 router.post("/addCategory", adminAuth, categoryController.addCategory);
 router.post("/addCategoryOffer", adminAuth, categoryController.addCategoryOffer);
 router.post("/removeCategoryOffer", adminAuth, categoryController.removeCategoryOffer);
-router.get("/listCategory", noCache, adminAuth, categoryController.getlistCategory);
-router.get("/unlistCategory", noCache, adminAuth, categoryController.getUnlistCategory);
+router.post("/listCategory", adminAuth, categoryController.getlistCategory);
+router.post("/unlistCategory", adminAuth, categoryController.getUnlistCategory);
 router.get("/editCategory", noCache, adminAuth, categoryController.getEditCategory);
 router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
 
@@ -57,17 +57,17 @@ router.post("/editCategory/:id", adminAuth, categoryController.editCategory);
 
 router.get("/brands", noCache, adminAuth, brandController.getBrandPage);
 router.post("/addBrand", adminAuth, uploads.single("image"), brandController.addBrand);
-router.get("/blockBrand", noCache, adminAuth, brandController.blockBrand);
-router.get("/unblockBrand", noCache, adminAuth, brandController.unblockBrand);
-router.get("/deleteBrand", noCache, adminAuth, brandController.deleteBrand);
+router.post("/blockBrand", adminAuth, brandController.blockBrand);
+router.post("/unblockBrand", adminAuth, brandController.unblockBrand);
+router.delete("/deleteBrand", adminAuth, brandController.deleteBrand);
 
 // --Product Management--
 
 router.get("/addProducts", noCache, adminAuth, productController.getProductAddPage);
 router.post("/addProducts", adminAuth, uploads.array("images", 4), productController.addProducts);
 router.get('/products', noCache, adminAuth, productController.getAllProducts);
-router.get('/blockProduct', noCache, adminAuth, productController.blockProduct);
-router.get('/unblockProduct', noCache, adminAuth, productController.unblockProduct);
+router.post('/blockProduct', adminAuth, productController.blockProduct);
+router.post('/unblockProduct', adminAuth, productController.unblockProduct);
 router.get('/editProduct/:id', noCache, adminAuth, productController.getEditProduct);
 router.post('/editProduct/:id', adminAuth, uploads.array("images", 4), productController.editProduct);
 router.post('/deleteImage', adminAuth, productController.deleteSingleImage);

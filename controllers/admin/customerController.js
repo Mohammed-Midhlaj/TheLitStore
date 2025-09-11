@@ -52,10 +52,13 @@ const customerInfo = async (req, res) => {
 const customerBlocked = async (req, res) => {
     try {
         let id = req.query.id;
-        await User.updateOne({ _id: id }, { $set: { isBlocked: true } })
-        res.redirect('/admin/users')
+        const updated = await User.findByIdAndUpdate(id, { $set: { isBlocked: true } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'User not found' });
+        }
+        return res.json({ status: true, message: 'Blocked successfully', isBlocked: true, userId: id });
     } catch (error) {
-        res.render("/errorpage")
+        res.status(500).json({ status: false, message: 'Internal server error' })
     }
 }
 
@@ -64,10 +67,13 @@ const customerBlocked = async (req, res) => {
 const customerUnblocked = async (req, res) => {
     try {
         let id = req.query.id;
-        await User.updateOne({ _id: id }, { $set: { isBlocked: false } })
-        res.redirect('/admin/users')
+        const updated = await User.findByIdAndUpdate(id, { $set: { isBlocked: false } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'User not found' });
+        }
+        return res.json({ status: true, message: 'Unblocked successfully', isBlocked: false, userId: id });
     } catch (error) {
-        res.render("/errorpage");
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 

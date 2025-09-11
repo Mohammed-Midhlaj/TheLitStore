@@ -151,11 +151,14 @@ const getlistCategory = async (req, res) => {
     try {
 
         let id = req.query.id;
-        await Category.updateOne({ _id: id }, { $set: { isListed: false } })
-        res.redirect("/admin/category")
+        const updated = await Category.findByIdAndUpdate(id, { $set: { isListed: false } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Category not found' });
+        }
+        res.json({ status: true, message: 'Unlisted successfully', isListed: false, categoryId: id });
 
     } catch (error) {
-        res.redirect('/errorpage');
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 
@@ -165,11 +168,14 @@ const getUnlistCategory = async (req, res) => {
     try {
 
         let id = req.query.id;
-        await Category.updateOne({ _id: id }, { $set: { isListed: true } })
-        res.redirect("/admin/category")
+        const updated = await Category.findByIdAndUpdate(id, { $set: { isListed: true } }, { new: true });
+        if (!updated) {
+            return res.status(404).json({ status: false, message: 'Category not found' });
+        }
+        res.json({ status: true, message: 'Listed successfully', isListed: true, categoryId: id });
 
     } catch (error) {
-        res.redirect("/errorpage");
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 
