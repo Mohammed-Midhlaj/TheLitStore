@@ -444,9 +444,27 @@ const searchProducts = async (req, res) => {
         const user = await User.findById(userId);
         let search = req.body.query;
 
-        const categories = await Category.find({ isListed: true }).lean();
+        // Fetch listed categories and brands
+        const categories = await Category.find({ isListed: true }).sort({ name: 1 }).lean();
         const brands = await Brand.find({ isBlocked: false });
-        const categoryIds = categories.map(category => category._id.toString());
+
+        // Prepare categories with productCount similar to loadShoppingPage
+        const categoriesWithInfo = categories.map(category => ({
+            _id: category._id,
+            name: category.name,
+            productCount: 0
+        }));
+
+        // Compute product count for each category
+        for (let category of categoriesWithInfo) {
+            category.productCount = await Product.countDocuments({
+                category: category._id,
+                isBlocked: false,
+                quantity: { $gt: 0 }
+            });
+        }
+
+        const categoryIds = categoriesWithInfo.map(category => category._id);
         let searchResult = [];
         
         if (req.session.filteredProduct && req.session.filteredProduct.length > 0) {
@@ -474,12 +492,13 @@ const searchProducts = async (req, res) => {
         res.render("shop", {
             user,
             products: currentProduct,
-            category: categories,
+            category: categoriesWithInfo,
             brand: brands,
             totalPages,
             currentPage,
             count: searchResult.length,
-            isAuthenticated: !!userId
+            isAuthenticated: !!userId,
+            query: req.query
         });
 
     } catch (error) {

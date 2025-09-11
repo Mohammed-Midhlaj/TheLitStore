@@ -335,12 +335,17 @@ const applyCoupon = async (req, res) => {
 const orderSuccessPage = async (req, res) => {
     try {
         const orderId = req.params.orderId;
+        const sessionUserId = req.session.user;
         const order = await Order.findById(orderId).populate({
             path: 'orderedItem.product',
             model: 'Product'
         });
         if (!order) {
             return res.status(404).send('Order not found');
+        }
+        // Ensure the order belongs to the logged-in user
+        if (!sessionUserId || String(order.user) !== String(sessionUserId)) {
+            return res.status(403).redirect('/login');
         }
         const user = await User.findById(order.user);
         res.render('user/order', { order, user });
@@ -351,6 +356,7 @@ const orderSuccessPage = async (req, res) => {
 };
 
 const orderFailedPage = (req, res) => {
+    // Only accessible when authenticated due to route-level guard
     res.render('user/orderFailed');
 };
 

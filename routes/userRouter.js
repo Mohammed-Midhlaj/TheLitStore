@@ -100,8 +100,8 @@ router.post('/deleteCartProduct', userAuth, cartController.deleteProductFromCart
 router.get('/checkout', userAuth, checkoutController.loadCheckoutPage);
 router.post('/placeOrder', userAuth, checkoutController.placeOrder);
 router.post('/checkout/apply-coupon', userAuth, checkoutController.applyCoupon);
-router.get('/order-success/:orderId', checkoutController.orderSuccessPage);
-router.get('/order-failed', checkoutController.orderFailedPage);
+router.get('/order-success/:orderId', userAuth, checkoutController.orderSuccessPage);
+router.get('/order-failed', userAuth, checkoutController.orderFailedPage);
 
 // --Order Management--
 
