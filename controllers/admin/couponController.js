@@ -24,8 +24,16 @@ const createCoupon = async (req, res) => {
             });
         }
 
+        // Enforce max length for coupon name
+        if (name.trim().length > 25) {
+            return res.status(400).json({
+                status: false,
+                message: 'Coupon name must be 25 characters or fewer'
+            });
+        }
+
         // Check if coupon name already exists
-        const existingCoupon = await Coupon.findOne({ name });
+        const existingCoupon = await Coupon.findOne({ name: name.trim() });
         if (existingCoupon) {
             return res.status(400).json({ 
                 status: false, 
@@ -35,7 +43,7 @@ const createCoupon = async (req, res) => {
 
         // Create new coupon
         const newCoupon = new Coupon({
-            name,
+            name: name.trim(),
             offerPrice,
             minimumPrice,
             expireOn: new Date(expireOn)

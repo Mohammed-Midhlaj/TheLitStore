@@ -4,7 +4,9 @@ const { Schema } = mongoose;
 const brandSchema = new mongoose.Schema({
     brandName: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        maxlength: 30
     },
     brandImage: {
         type: String,

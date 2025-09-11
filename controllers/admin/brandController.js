@@ -29,8 +29,15 @@ const getBrandPage = async (req, res) => {
 const addBrand = async (req, res) => {
     try {
 
-        const brand = req.body.name;
-        const findBrand = await Brand.findOne({ brand });
+        const brand = (req.body.name || '').trim();
+        // Length validation
+        if (!brand) {
+            return res.status(400).redirect('/admin/brands');
+        }
+        if (brand.length > 30) {
+            return res.status(400).redirect('/admin/brands');
+        }
+        const findBrand = await Brand.findOne({ brandName: brand });
         if (!findBrand) {
             const image = req.file.filename;
             const newBrand = new Brand({
